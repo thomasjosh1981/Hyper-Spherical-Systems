@@ -1,0 +1,13 @@
+{
+  "model_filename": "stats.gguf",
+  "profiles": [
+    {
+      "token_name": "",
+      "profile_name": "main",
+      "file_megabytes": 1.50,
+      "context_hours": 100,
+      "created_at": 0,
+      "last_touched": 0
+    }
+  ]
+}

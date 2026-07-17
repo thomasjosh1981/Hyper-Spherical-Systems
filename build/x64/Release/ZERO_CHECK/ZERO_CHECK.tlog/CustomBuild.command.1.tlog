@@ -1,0 +1,10 @@
+^C:\USERS\TWIST\WORKSPACE\HYPER_SPHERICAL_SYSTEMS\BUILD\CMAKEFILES\C2A1B001F2578BADD2ABE50FDFE7EC2B\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/twist/workspace/hyper_spherical_systems -BC:/Users/twist/workspace/hyper_spherical_systems/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/twist/workspace/hyper_spherical_systems/build/Project_Tesseract_Core.slnx
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
