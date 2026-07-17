@@ -1,0 +1,11 @@
+C:/Users/twist/workspace/hyper_spherical_systems/build/CMakeFiles/tesseract_core.dir
+C:/Users/twist/workspace/hyper_spherical_systems/build/CMakeFiles/tesseract_tests.dir
+C:/Users/twist/workspace/hyper_spherical_systems/build/CMakeFiles/tesseract_security_tests.dir
+C:/Users/twist/workspace/hyper_spherical_systems/build/CMakeFiles/nvme_benchmark.dir
+C:/Users/twist/workspace/hyper_spherical_systems/build/CMakeFiles/tesseract_bridge.dir
+C:/Users/twist/workspace/hyper_spherical_systems/build/CMakeFiles/golden_candy_spinner.dir
+C:/Users/twist/workspace/hyper_spherical_systems/build/CMakeFiles/python_bridge.dir
+C:/Users/twist/workspace/hyper_spherical_systems/build/CMakeFiles/pirate_llama.dir
+C:/Users/twist/workspace/hyper_spherical_systems/build/CMakeFiles/RUN_TESTS.dir
+C:/Users/twist/workspace/hyper_spherical_systems/build/CMakeFiles/ALL_BUILD.dir
+C:/Users/twist/workspace/hyper_spherical_systems/build/CMakeFiles/ZERO_CHECK.dir

@@ -1,0 +1,85 @@
+{
+  "bundleChecksum": "56119fbe6ad251012c84e02717781e1c17bacca8121d15dec1dbd04347f016c0",
+  "skills": {
+    "accidental-data-loss-prevention": {
+      "status": "installed",
+      "checksum": "b8f858f8143114ed9189b29ea8af1672378d66db3b8c92c5ec1b23712141ef1b"
+    },
+    "bigquery-data-transfer-service": {
+      "status": "installed",
+      "checksum": "a560c16c715c2d240eeb2abafc1bcea079062ccd7ff99b80b84cdf29eb43d69d"
+    },
+    "building-data-apps": {
+      "status": "installed",
+      "checksum": "7017fc6bbcad594b1a572cc7a0ea5ce15ce460dbd0cdbf978697edad1768ee26"
+    },
+    "data-autocleaning": {
+      "status": "installed",
+      "checksum": "4ff7ce836870f6775477f79ece9f1b0390e31c6d7921ee94c148cd2a357a4ecc"
+    },
+    "dataform-bigquery": {
+      "status": "installed",
+      "checksum": "3a4043aa3ee360a53984f4116a93cb53819c1143147503fca09d3993664ac13a"
+    },
+    "dbt-bigquery": {
+      "status": "installed",
+      "checksum": "510a275253e8704551fbdceaea4632af6053f5cf7ad07e7f058c667a369076d2"
+    },
+    "developing-with-bigquery": {
+      "status": "installed",
+      "checksum": "178c7f426375114fd0153a70ed49c4d307792fefefd23b780482bb5b83045a2e"
+    },
+    "discovering-gcp-data-assets": {
+      "status": "installed",
+      "checksum": "553a6cd984882b1a63782885c54c0120f40de214c11fdbf46ec05e6acbf88840"
+    },
+    "federate-lakehouse-catalog": {
+      "status": "installed",
+      "checksum": "c1e071ca3d8c9eaa42ae814f2d4ae2e5e12f3e0f289367c74ced4d87ccf157d3"
+    },
+    "gcloud-auth-verification": {
+      "status": "installed",
+      "checksum": "b4a6f58394290ad1c22de6e14e211b08b21ec015053929101e725dbccc0b6b09"
+    },
+    "gcp-composer-troubleshooting": {
+      "status": "installed",
+      "checksum": "9128f016ece2b9dbde8a62af809685b152048694be672c93152ffc34e81dbe49"
+    },
+    "gcp-data-pipelines": {
+      "status": "installed",
+      "checksum": "8cd8124624e803a22cff67911a3542f1e5ec29bae6024ce33b9a76aceacb5ce5"
+    },
+    "gcp-dataflow": {
+      "status": "installed",
+      "checksum": "ff2362809250302d2cbca19835af3f7114480e4e4a6cdea794979a97dd6ca6d4"
+    },
+    "gcp-pipeline-orchestration": {
+      "status": "installed",
+      "checksum": "66973c7b348db05b2593db9fb00a9c126c36b70d4ccd045fed5a166e58a444d4"
+    },
+    "gcp-pipeline-resource-provisioning": {
+      "status": "installed",
+      "checksum": "d9f68d99f5d7e291868a2968ba9483b73f520c61108fcdbdfc7e65f21c0c232c"
+    },
+    "gcp-spark": {
+      "status": "installed",
+      "checksum": "ff78313ac52d2c99292e513f307e63c45377bc3cfb989ac191e56bfaf70337a7"
+    },
+    "managing-python-dependencies": {
+      "status": "installed",
+      "checksum": "04a1ab128e1167a02a605d6b1459d9512c4a58cfeb81a8f5303e814eafe089ef"
+    },
+    "ml-best-practices": {
+      "status": "installed",
+      "checksum": "d3f2134aed8ce5865776363a5e0d704de0166970bca121ace8bdfaa28c8cf213"
+    },
+    "notebook-guidance": {
+      "status": "installed",
+      "checksum": "b7ef387087342eaa4a6db2bec83b7ade8fd9fdf096951266737709a3199debe3"
+    },
+    "skill-repair": {
+      "status": "installed",
+      "checksum": "276efcab0cdeb25cb412644bcf0fd5fb827f4873b44a6ba24f4e49e035d25c3e"
+    }
+  }
+}

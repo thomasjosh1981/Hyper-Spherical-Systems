@@ -1,0 +1,9 @@
+{
+    "google.datacloud.agent.skills.installLocation": "workspace",
+    "google.datacloud.executeCellToolForNotebookMCP": true,
+    "google.datacloud.expandMenus": true,
+    "google.datacloud.starredProjects": [
+        "project tesseract",
+        "gen-lang-client-0682405285"
+    ]
+}
