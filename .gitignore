@@ -1,0 +1,36 @@
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build outputs
+build/
+bin/
+obj/
+out/
+*.exe
+*.dll
+*.so
+*.dylib
+*.class
+
+# Archives (unless explicitly needed)
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+
+# OS generated files
+.DS_Store
+Thumbs.db
