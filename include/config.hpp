@@ -4,7 +4,7 @@
 #include <filesystem>
 #include <string_view>
 
-namespace tesseract {
+namespace hypersp {
 
 struct Config {
     // Storage mounts — your actual drives
@@ -34,4 +34,4 @@ struct Config {
     uint32_t max_active_tokens         = 260000;     // hard floor — never compress below this threshold
 };
 
-} // namespace tesseract
+} // namespace hypersp

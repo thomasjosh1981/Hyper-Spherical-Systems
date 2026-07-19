@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-namespace tesseract {
+namespace hypersp {
 
 class RecoveryCheckpoint {
 public:
@@ -29,4 +29,4 @@ private:
     std::vector<LayerShard> loaded_shards;
 };
 
-} // namespace tesseract
+} // namespace hypersp

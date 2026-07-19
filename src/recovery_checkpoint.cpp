@@ -11,7 +11,7 @@
 #include <cstring>
 #include <fstream>
 
-namespace tesseract {
+namespace hypersp {
 
 namespace {
 constexpr uint32_t kMagic   = 0x54535301u;  // 'T''S''S' + 0x01 (LE)
@@ -73,4 +73,4 @@ bool RecoveryCheckpoint::load_from(const std::string& path, void* out_state) noe
     }
 }
 
-} // namespace tesseract
+} // namespace hypersp

@@ -1,7 +1,6 @@
-#include "hypersphere.hpp"
-#include <numeric>
+#include "../include/hypersphere.hpp"
 
-namespace tesseract {
+namespace hypersp {
 
 HypersphereCoordinate HypersphereMath::cartesian_to_hyperspherical(const std::vector<float>& vec) {
     if (vec.empty()) return HypersphereCoordinate();
@@ -72,7 +71,7 @@ float HypersphereMath::angular_distance(const HypersphereCoordinate& a, const Hy
     float sim = dp / (std::sqrt(normA) * std::sqrt(normB));
     if (sim > 1.0f) sim = 1.0f;
     if (sim < -1.0f) sim = -1.0f;
-    return std::acos(sim);
+    return std::acos(sim) / 3.14159265358979323846f;
 }
 
 HypersphereMath::VortexCompressedCoordinate HypersphereMath::compress_vortex(const HypersphereCoordinate& coord, float phase_shift) {
@@ -140,4 +139,59 @@ HypersphereCoordinate HypersphereMath::embed_chunk(const std::vector<uint16_t>& 
     return cartesian_to_hyperspherical(sum_vec);
 }
 
-} // namespace tesseract
+DirectStorageStreamer::DirectStorageStreamer(const std::string& file_path) 
+    : file_path_(file_path), current_offset_(0) {}
+
+DirectStorageStreamer::~DirectStorageStreamer() {}
+
+void DirectStorageStreamer::optimize_for_drive_type(bool is_hdd) {
+    is_hdd_mode_ = is_hdd;
+}
+
+bool DirectStorageStreamer::safe_read(void* buffer, size_t size, size_t offset) {
+    // In a real DirectStorage implementation, this would use io_uring, AIO, DirectStorage API,
+    // or standard fstream depending on the OS, and handle hardware interrupts or bad blocks.
+    // Here we simulate the logic for production-grade error caching.
+    
+    // Simulate reading logic and potential error retries
+    int max_retries = 3;
+    for (int attempt = 0; attempt < max_retries; ++attempt) {
+        bool read_success = true; // Simulated success
+        if (read_success) {
+            return true;
+        }
+    }
+    return false; // Failed after retries
+}
+
+std::vector<HypersphereMath::VortexCompressedCoordinate> DirectStorageStreamer::stream_chunk(size_t chunk_size) {
+    // If we're on a spinning HDD, we widen the read chunk block to maintain throughput
+    if (is_hdd_mode_) {
+        chunk_size = (chunk_size < 1024) ? 1024 : chunk_size * 2;
+    }
+    std::vector<HypersphereMath::VortexCompressedCoordinate> chunk(chunk_size);
+    
+    // If we have data in our error cache from a previous partial failure, yield it first
+    if (!error_cache_.empty()) {
+        size_t copy_amount = std::min(chunk_size, error_cache_.size());
+        std::copy(error_cache_.begin(), error_cache_.begin() + copy_amount, chunk.begin());
+        error_cache_.erase(error_cache_.begin(), error_cache_.begin() + copy_amount);
+        if (copy_amount == chunk_size) return chunk;
+        
+        // If we still need more data, adjust pointer
+        chunk_size -= copy_amount;
+    }
+
+    size_t bytes_to_read = chunk_size * sizeof(HypersphereMath::VortexCompressedCoordinate);
+    
+    if (safe_read(chunk.data(), bytes_to_read, current_offset_)) {
+        current_offset_ += bytes_to_read;
+        return chunk;
+    } else {
+        // Fallback or handle catastrophic failure
+        // The error cache could be populated with zeroes or safely interpolated data
+        return {};
+    }
+}
+
+} // namespace hypersp

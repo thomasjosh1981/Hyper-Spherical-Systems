@@ -1,5 +1,5 @@
 @echo off
-REM Tesseract Control Center — launcher
+REM Pirate Llama Control Center — launcher
 REM Double-click this file to start the GUI.
 REM First run will walk you through the setup wizard.
 
@@ -23,5 +23,5 @@ if errorlevel 1 (
 )
 
 cd /d "%GUI%"
-"%PYTHON%" -m tesseract_gui %*
+"%PYTHON%" -m pirate_gui %*
 endlocal

@@ -2,7 +2,7 @@
 //
 // Spec V3.1 §2 / §3:
 //
-//   Registry file:  <model_filename>.tesseract_profiles.json
+//   Registry file:  <model_filename>.hypersphere_profiles.json
 //   Profile file:   <model_filename>_<profile_name>.trf   (compact binary)
 //
 //   On every kFlushCycleTokens (500) observed tokens, the learner may
@@ -27,11 +27,11 @@
 #include <iomanip>
 #include <sstream>
 
-namespace Tesseract::TRF {
+namespace Hyperspherical::TRF {
 
 // ── Path helpers ──────────────────────────────────────────────────
 std::string derive_registry_path(const std::string& model_filename) {
-    return model_filename + ".tesseract_profiles.json";
+    return model_filename + ".hypersphere_profiles.json";
 }
 std::string derive_profile_path(const std::string& model_filename,
                                  const std::string& profile_name) {
@@ -225,4 +225,4 @@ TRFLearner::Stats TRFLearner::stats() const {
     return s;
 }
 
-}  // namespace Tesseract::TRF
+}  // namespace Hyperspherical::TRF

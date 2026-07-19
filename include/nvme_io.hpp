@@ -4,7 +4,7 @@
 #include <string_view>
 #include <string>
 
-namespace tesseract {
+namespace hypersp {
 
 class NVMeIO {
 public:
@@ -24,4 +24,4 @@ private:
     std::string mount_;
 };
 
-} // namespace tesseract
+} // namespace hypersp

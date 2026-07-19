@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <span>
 
-namespace tesseract {
+namespace hypersp {
 
 /* PatternPredictor: zero-overhead Markov-chain weight layer predictor */
 class PatternPredictor {
@@ -86,4 +86,4 @@ private:
     size_t      vram_current_ = 0ul;  
 };
 
-} // namespace tesseract
+} // namespace hypersp

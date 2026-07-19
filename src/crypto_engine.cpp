@@ -2,7 +2,7 @@
 #include "crypto_engine.hpp"
 #include <cstring>
 
-namespace tesseract {
+namespace hypersp {
 
 ErrorCode CryptoEngine::encrypt(const uint8_t* input, size_t len, uint8_t* output) noexcept {
     if (!input || !output || len == 0) return ErrorCode::BAD_CONFIG;
@@ -16,4 +16,4 @@ ErrorCode CryptoEngine::decrypt(const uint8_t* input, size_t len, uint8_t* outpu
     return ErrorCode::OK;
 }
 
-} // namespace tesseract
+} // namespace hypersp

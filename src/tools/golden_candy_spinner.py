@@ -91,7 +91,7 @@ def process_model(input_path, output_dir, chunk_size_mb=10, mock_mode=False):
         }
     }
     
-    manifest_path = os.path.join(output_dir, f"{base_name}.gguf.tesseract_profiles.json")
+    manifest_path = os.path.join(output_dir, f"{base_name}.gguf.hypersphere_profiles.json")
     with open(manifest_path, "w") as f:
         json.dump(manifest, f, indent=4)
         

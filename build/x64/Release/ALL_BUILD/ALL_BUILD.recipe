@@ -2,31 +2,31 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>C:\Users\twist\workspace\hyper_spherical_systems\build\x64\Release\ZERO_CHECK</FullPath>
+      <FullPath>I:\workspace\hyper_spherical\build\x64\Release\ZERO_CHECK</FullPath>
     </ProjectOutput>
     <ProjectOutput>
-      <FullPath>C:\Users\twist\workspace\hyper_spherical_systems\build\Release\nvme_benchmark.exe</FullPath>
+      <FullPath>I:\workspace\hyper_spherical\build\Release\golden_candy_spinner.exe</FullPath>
     </ProjectOutput>
     <ProjectOutput>
-      <FullPath>C:\Users\twist\workspace\hyper_spherical_systems\build\Release\pirate_llama.exe</FullPath>
+      <FullPath>I:\workspace\hyper_spherical\build\Release\nvme_benchmark.exe</FullPath>
     </ProjectOutput>
     <ProjectOutput>
-      <FullPath>C:\Users\twist\workspace\hyper_spherical_systems\build\Release\python_bridge.dll</FullPath>
+      <FullPath>I:\workspace\hyper_spherical\build\Release\pirate_bridge.exe</FullPath>
     </ProjectOutput>
     <ProjectOutput>
-      <FullPath>C:\Users\twist\workspace\hyper_spherical_systems\build\Release\tesseract_bridge.exe</FullPath>
+      <FullPath>I:\workspace\hyper_spherical\build\Release\pirate_core.exe</FullPath>
     </ProjectOutput>
     <ProjectOutput>
-      <FullPath>C:\Users\twist\workspace\hyper_spherical_systems\build\Release\tesseract_core.exe</FullPath>
+      <FullPath>I:\workspace\hyper_spherical\build\Release\pirate_llama.exe</FullPath>
     </ProjectOutput>
     <ProjectOutput>
-      <FullPath>C:\Users\twist\workspace\hyper_spherical_systems\build\Release\tesseract_security_tests.exe</FullPath>
+      <FullPath>I:\workspace\hyper_spherical\build\Release\python_bridge.dll</FullPath>
     </ProjectOutput>
     <ProjectOutput>
-      <FullPath>C:\Users\twist\workspace\hyper_spherical_systems\build\Release\tesseract_tests.exe</FullPath>
+      <FullPath>I:\workspace\hyper_spherical\build\Release\pirate_tests.exe</FullPath>
     </ProjectOutput>
     <ProjectOutput>
-      <FullPath>C:\Users\twist\workspace\hyper_spherical_systems\build\x64\Release\ALL_BUILD</FullPath>
+      <FullPath>I:\workspace\hyper_spherical\build\x64\Release\ALL_BUILD</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles />

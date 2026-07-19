@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <string>
 
-namespace tesseract {
+namespace hypersp {
 
 class IndexRegistry {
 public:
@@ -20,4 +20,4 @@ private:
     std::vector<LayerShard> shards_;
 };
 
-} // namespace tesseract
+} // namespace hypersp

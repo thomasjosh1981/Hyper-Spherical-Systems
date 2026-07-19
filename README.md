@@ -1,4 +1,4 @@
-# 🏴‍☠️ Project Tesseract — Pirate Llama
+# 🏴‍☠️ Project Pirate Llama — Pirate Llama
 
 > **Disrupt local LLM inference. Run bigger models, faster, on less VRAM.**
 
@@ -96,7 +96,7 @@ We are training a custom embedding model whose entire vocabulary is the 256-code
 | Component | License |
 |---|---|
 | Pirate Llama Proxy (`pirate_proxy.cpp`, `pirate_main.cpp`, `pirate_gui.cpp`) | MIT |
-| Python Bridge & C ABI (`python_bridge.cpp`, `tesseract_bridge.cpp`) | MIT |
+| Python Bridge & C ABI (`python_bridge.cpp`, `pirate_bridge.cpp`) | MIT |
 | SISSI Compression Core (`context_compressor.cpp`, `static_dictionary.cpp`) | MIT |
 | NeuronGraph & HyperSphere (`neuron_graph.cpp`, `hypersphere.cpp`) | MIT |
 | Security layer — LeetCipher, PQC, RAID-5 ShardMatrix | **Freeware — No Decompile** |
@@ -142,8 +142,8 @@ cmake .. -G "Visual Studio 17 2022" -A x64
 cmake --build . --config Release
 
 # Run tests
-.\Release\tesseract_tests.exe          # 170 core tests
-.\Release\tesseract_security_tests.exe # 78 security tests
+.\Release\pirate_tests.exe          # 170 core tests
+.\Release\pirate_security_tests.exe # 78 security tests
 ```
 
 Requires: **CMake 3.20+**, **Visual Studio 2022** (Windows) or **GCC 12+** (Linux)
@@ -172,7 +172,7 @@ Requires: **CMake 3.20+**, **Visual Studio 2022** (Windows) or **GCC 12+** (Linu
 
 Pull requests are welcome for all MIT-licensed components. See `CONTRIBUTING.md`.
 
-**Do not submit PRs that modify the security layer** (`leet_cipher.cpp`, `shard_matrix.cpp`, `tesseract_pqc.cpp`) — these are proprietary freeware.
+**Do not submit PRs that modify the security layer** (`leet_cipher.cpp`, `shard_matrix.cpp`, `hypersphere_pqc.cpp`) — these are proprietary freeware.
 
 ---
 

@@ -54,6 +54,7 @@ struct ProxyConfig {
     std::string backend_host        = "127.0.0.1";
     uint16_t    backend_port        = 11434;         // Ollama default
     std::string custom_backend_url  = "";
+    std::string model_path          = "";            // For embedded NATIVE backend
 
     // SISSI Compression
     bool        sissi_enabled               = true;
@@ -71,6 +72,7 @@ struct ProxyConfig {
     int         dynamic_profiling_threshold = 15000;
     bool        auto_tune_spin_enabled      = true;
     int         spin_sample_bytes           = 50000;
+    int         context_tier                = 1; // 0=Minimal, 1=Optimal, 2=Exhaustive
 
     // Memory management
     float       vram_target_pct     = 0.50f;
@@ -93,11 +95,14 @@ struct ProxyConfig {
 
     // Telemetry
     bool        telemetry_enabled     = true;
+    bool        advanced_telemetry_opt_in = false;
     bool        log_to_file           = false;
     std::string log_path              = "pirate_llama.log";
     
-    // DRM state
+    // DRM state & Versioning
     bool        is_pro_tier           = false;
+    std::string current_version       = "1.0.0";
+    std::string security_update_msg   = "";
 };
 
 // ── Live telemetry snapshot ────────────────────────────────────────────────
@@ -153,6 +158,14 @@ public:
     // Force-switch backend at runtime
     void set_backend(Backend b, const std::string& host = "", uint16_t port = 0);
 
+    // Callbacks for UI
+    void set_consent_callback(std::function<bool(const std::string&, const std::string&)> cb) {
+        consent_cb_ = std::move(cb);
+    }
+    void set_rewrite_consent_callback(std::function<bool(float)> cb) {
+        rewrite_consent_cb_ = std::move(cb);
+    }
+
 private:
     void accept_loop();
     void handle_connection(int client_fd);
@@ -169,7 +182,7 @@ private:
     // --- Cloud Context Adapter ---
     struct CloudContextChunk {
         std::string raw_text;
-        tesseract::HypersphereCoordinate embedding;
+        hypersp::HypersphereCoordinate embedding;
     };
     std::vector<CloudContextChunk> local_context_history_;
     std::mutex context_mtx_;
@@ -197,6 +210,8 @@ private:
     // Per-connection thread pool (simple)
     std::vector<std::thread> workers_;
     std::atomic<int>         active_conns_{0};
+    std::function<bool(const std::string&, const std::string&)> consent_cb_;
+    std::function<bool(float)> rewrite_consent_cb_;
 };
 
 } // namespace pirate

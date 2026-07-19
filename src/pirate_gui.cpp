@@ -9,9 +9,11 @@
 #include <algorithm>
 
 #if defined(_WIN32)
+#  include <commdlg.h>
 #  pragma comment(lib, "comctl32.lib")
 #  pragma comment(lib, "user32.lib")
 #  pragma comment(lib, "gdi32.lib")
+#  pragma comment(lib, "Comdlg32.lib")
 #endif
 
 namespace pirate {
@@ -31,6 +33,7 @@ static constexpr int ID_CHK_PREPOSITIONS    = 304;
 static constexpr int ID_CHK_AUTOTUNE        = 305;
 static constexpr int ID_CHK_NVME            = 306;
 static constexpr int ID_CHK_BACKUP_ENC      = 307;
+static constexpr int ID_CHK_TELEMETRY       = 308;
 static constexpr int ID_SLD_VRAM            = 400;
 static constexpr int ID_SLD_WORD_LEN        = 401;
 static constexpr int ID_SLD_MAX_TOKENS      = 402;
@@ -104,8 +107,8 @@ void PirateGui::gui_thread_func() {
     // Community license splash — shown once per session, inside the app only.
     // The patcher tool itself shows nothing about this; it looks like a clean crack.
     {
-        tesseract::LicenseState ls = tesseract::LicenseManager::get_state();
-        if (ls.community_splash_needed) {
+        hypersp::LicenseState ls = hypersp::LicenseManager::get_state();
+        if (ls.community_splash_needed && !hypersp::LicenseManager::is_free_version_expired()) {
             MessageBoxW(hwnd_,
                 L"This software is running on a community license.\n\n"
                 L"It was built by an independent developer who also couldn't\n"
@@ -115,6 +118,30 @@ void PirateGui::gui_thread_func() {
                 L"No pressure. Enjoy the software.",
                 L"Community License",
                 MB_OK | MB_ICONINFORMATION);
+        }
+
+        // License Check
+        if (hypersp::LicenseManager::is_free_version_expired()) {
+            MessageBoxW(hwnd_,
+                L"The Free tier of this software has expired as of Nov 1, 2026.\n\n"
+                L"Please visit the download page to obtain the latest version or upgrade to the Paid tier.",
+                L"License Expired",
+                MB_OK | MB_ICONERROR);
+            PostQuitMessage(0);
+        } else if (hypersp::LicenseManager::requires_mandatory_update(state_.cfg.current_version)) {
+            MessageBoxW(hwnd_,
+                L"A major update is available and mandatory for the Free tier.\n\n"
+                L"Please download the new version.",
+                L"Update Required",
+                MB_OK | MB_ICONERROR);
+            PostQuitMessage(0);
+        } else if (hypersp::LicenseManager::requires_security_tos_acceptance(!state_.cfg.security_update_msg.empty())) {
+            MessageBoxW(hwnd_,
+                L"Security Update Installed.\n\n"
+                L"By continuing to use this software, you agree to the modified Terms of Service which completely indemnifies the creators from any liability.\n\n"
+                L"Click OK to accept and continue.",
+                L"TOS Update (Paid Tier)",
+                MB_OK | MB_ICONWARNING);
         }
     }
 
@@ -253,6 +280,7 @@ void PirateGui::create_controls() {
     add_label(L"--- NVMe / Backup ---", 16);
     add_check(L"NVMe Predictive Prefetch",        ID_CHK_NVME,       cfg.nvme_prefetch_enabled);
     add_check(L"Encrypt Backups (SISSI + 7zip)",  ID_CHK_BACKUP_ENC, cfg.backup_encrypt);
+    add_check(L"Enable Telemetry and Debug (Opt-in)", ID_CHK_TELEMETRY, cfg.advanced_telemetry_opt_in);
     add_slider(L"Backup Interval (minutes)",      ID_SLD_BACKUP_INTERVAL, 1, 30, cfg.backup_interval_min);
     add_slider(L"Backup Compression Level (1-9)", ID_SLD_BACKUP_LEVEL,    1,  9, cfg.backup_compress_level);
 }
@@ -285,9 +313,25 @@ LRESULT CALLBACK PirateGui::wnd_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) 
                 self->proxy_.set_backend(Backend::OLLAMA,    "127.0.0.1", 11434);
             else if (id == ID_BTN_BACKEND_LMS)
                 self->proxy_.set_backend(Backend::LM_STUDIO, "127.0.0.1", 1234);
-            else if (id == ID_BTN_BACKEND_NATIVE)
-                self->proxy_.set_backend(Backend::NATIVE);
-            else if (id == ID_BTN_DETECT)
+            else if (id == ID_BTN_BACKEND_NATIVE) {
+                OPENFILENAMEW ofn = { sizeof(ofn) };
+                wchar_t szFile[260] = { 0 };
+                ofn.hwndOwner = hwnd;
+                ofn.lpstrFile = szFile;
+                ofn.nMaxFile = sizeof(szFile) / sizeof(wchar_t);
+                ofn.lpstrFilter = L"GGUF Models\0*.gguf\0All Files\0*.*\0";
+                ofn.nFilterIndex = 1;
+                ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+                if (GetOpenFileNameW(&ofn)) {
+                    // Convert wchar_t to std::string
+                    char mbs[512] = { 0 };
+                    WideCharToMultiByte(CP_UTF8, 0, szFile, -1, mbs, sizeof(mbs), nullptr, nullptr);
+                    ProxyConfig c = self->proxy_.get_config();
+                    c.model_path = mbs;
+                    self->proxy_.update_config(c);
+                    self->proxy_.set_backend(Backend::NATIVE);
+                }
+            } else if (id == ID_BTN_DETECT)
                 self->proxy_.detect_backend();
             else
                 self->apply_config_change();
@@ -333,6 +377,7 @@ void PirateGui::apply_config_change() {
     cfg.auto_tune_spin_enabled     = get_chk(ID_CHK_AUTOTUNE);
     cfg.nvme_prefetch_enabled      = get_chk(ID_CHK_NVME);
     cfg.backup_encrypt             = get_chk(ID_CHK_BACKUP_ENC);
+    cfg.advanced_telemetry_opt_in  = get_chk(ID_CHK_TELEMETRY);
 
     cfg.large_word_len_threshold   = get_sld(ID_SLD_WORD_LEN);
     cfg.vram_target_pct            = static_cast<float>(get_sld(ID_SLD_VRAM)) / 100.0f;
@@ -349,5 +394,80 @@ void PirateGui::apply_config_change() {
 void PirateGui::gui_thread_func() {}
 void PirateGui::apply_config_change() {}
 #endif
+
+bool PirateGui::prompt_manual_consent(const std::string& source, const std::string& target) {
+#if defined(_WIN32)
+    std::string msg1 = "Would you like me to extract the data from " + source + "?";
+    if (MessageBoxA(hwnd_, msg1.c_str(), "Manual Consent Required", MB_OKCANCEL | MB_ICONQUESTION) != IDOK) {
+        return false;
+    }
+    
+    std::string msg2 = "Would you like me to paste that info to " + target + "?";
+    if (MessageBoxA(hwnd_, msg2.c_str(), "Manual Consent Required", MB_OKCANCEL | MB_ICONQUESTION) != IDOK) {
+        return false;
+    }
+    return true;
+#else
+    return true;
+#endif
+}
+
+bool PirateGui::prompt_rewrite_consent(float savings_pct) {
+#if defined(_WIN32)
+    char buf[256];
+    snprintf(buf, sizeof(buf), "We can condense this prompt and save %.1f%% of your tokens. Do you approve this strategic rewrite?", savings_pct * 100.0f);
+    if (MessageBoxA(hwnd_, buf, "Consent Required: Prompt Rewrite", MB_YESNO | MB_ICONQUESTION) == IDYES) {
+        return true;
+    }
+    return false;
+#else
+    return true;
+#endif
+}
+
+void PirateGui::show_onboarding_wizard() {
+#if defined(_WIN32)
+    // 1. Welcome Screen
+    MessageBoxW(hwnd_, 
+        L"Welcome to Pirate Llama! \u2620\uFE0F\n\n"
+        L"This control panel allows you to seamlessly route your AI traffic to local LLMs (Ollama, LM Studio) or use native GGUF models directly, all while heavily compressing context tokens via SISSI to save memory.\n\n"
+        L"Let's get you set up.", 
+        L"Welcome", MB_OK | MB_ICONINFORMATION);
+
+    // 2. Data Policy & Telemetry Opt-In
+    int telemetry_choice = MessageBoxW(hwnd_,
+        L"Data Policy & Telemetry:\n\n"
+        L"By default, we collect NO data. Everything stays on your machine unless you actively send it to a cloud model.\n\n"
+        L"However, you can opt-in to advanced telemetry and debug logging to help us improve the software. Would you like to enable telemetry? (You can change this later in the Advanced section).",
+        L"Data Policy & Telemetry Opt-in", MB_YESNO | MB_ICONQUESTION);
+    
+    bool opt_in = (telemetry_choice == IDYES);
+    
+    // Apply telemetry choice
+    ProxyConfig cfg = proxy_.get_config();
+    cfg.advanced_telemetry_opt_in = opt_in;
+    proxy_.update_config(cfg);
+    if (config_cb_) config_cb_(cfg);
+
+    // Update the UI checkbox to match
+    HWND hCheck = GetDlgItem(hwnd_, ID_CHK_TELEMETRY);
+    if (hCheck) {
+        SendMessage(hCheck, BM_SETCHECK, opt_in ? BST_CHECKED : BST_UNCHECKED, 0);
+    }
+
+    // 3. Macro TOS Warning
+    MessageBoxW(hwnd_, 
+        L"WARNING regarding Automation:\n\n"
+        L"Using a macro tool to automate UI clicks or bypass interactions would almost certainly violate the Terms of Service of multiple AI providers. Please think carefully before risking your account.", 
+        L"TOS Warning", MB_OK | MB_ICONWARNING);
+
+    // 4. Backend Setup Guide
+    MessageBoxW(hwnd_,
+        L"Setup Complete!\n\n"
+        L"To start processing requests, please select your active backend from the main panel (Ollama, LM Studio, or Native), or just click 'Auto-Detect Backend'.\n\n"
+        L"Point your client apps to http://127.0.0.1:11435 and enjoy!",
+        L"Ready to Go", MB_OK | MB_ICONINFORMATION);
+#endif
+}
 
 } // namespace pirate

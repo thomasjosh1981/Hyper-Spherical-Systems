@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <cstddef>
 
-namespace tesseract {
+namespace hypersp {
 
 class CryptoEngine {
 public:
@@ -17,4 +17,4 @@ public:
     ErrorCode decrypt(const uint8_t* input, size_t len, uint8_t* output) noexcept;
 };
 
-} // namespace tesseract
+} // namespace hypersp

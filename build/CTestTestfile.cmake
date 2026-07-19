@@ -1,36 +1,21 @@
 # CMake generated Testfile for 
-# Source directory: C:/Users/twist/workspace/hyper_spherical_systems
-# Build directory: C:/Users/twist/workspace/hyper_spherical_systems/build
+# Source directory: I:/workspace/hyper_spherical
+# Build directory: I:/workspace/hyper_spherical/build
 # 
 # This file includes the relevant testing commands required for 
 # testing this directory and lists subdirectories to be tested as well.
 if(CTEST_CONFIGURATION_TYPE MATCHES "^([Dd][Ee][Bb][Uu][Gg])$")
-  add_test([=[tesseract_core_tests]=] "C:/Users/twist/workspace/hyper_spherical_systems/build/Debug/tesseract_tests.exe")
-  set_tests_properties([=[tesseract_core_tests]=] PROPERTIES  _BACKTRACE_TRIPLES "C:/Users/twist/workspace/hyper_spherical_systems/CMakeLists.txt;145;add_test;C:/Users/twist/workspace/hyper_spherical_systems/CMakeLists.txt;0;")
+  add_test([=[tesseract_core_tests]=] "I:/workspace/hyper_spherical/build/Debug/pirate_tests.exe")
+  set_tests_properties([=[tesseract_core_tests]=] PROPERTIES  _BACKTRACE_TRIPLES "I:/workspace/hyper_spherical/CMakeLists.txt;196;add_test;I:/workspace/hyper_spherical/CMakeLists.txt;0;")
 elseif(CTEST_CONFIGURATION_TYPE MATCHES "^([Rr][Ee][Ll][Ee][Aa][Ss][Ee])$")
-  add_test([=[tesseract_core_tests]=] "C:/Users/twist/workspace/hyper_spherical_systems/build/Release/tesseract_tests.exe")
-  set_tests_properties([=[tesseract_core_tests]=] PROPERTIES  _BACKTRACE_TRIPLES "C:/Users/twist/workspace/hyper_spherical_systems/CMakeLists.txt;145;add_test;C:/Users/twist/workspace/hyper_spherical_systems/CMakeLists.txt;0;")
+  add_test([=[tesseract_core_tests]=] "I:/workspace/hyper_spherical/build/Release/pirate_tests.exe")
+  set_tests_properties([=[tesseract_core_tests]=] PROPERTIES  _BACKTRACE_TRIPLES "I:/workspace/hyper_spherical/CMakeLists.txt;196;add_test;I:/workspace/hyper_spherical/CMakeLists.txt;0;")
 elseif(CTEST_CONFIGURATION_TYPE MATCHES "^([Mm][Ii][Nn][Ss][Ii][Zz][Ee][Rr][Ee][Ll])$")
-  add_test([=[tesseract_core_tests]=] "C:/Users/twist/workspace/hyper_spherical_systems/build/MinSizeRel/tesseract_tests.exe")
-  set_tests_properties([=[tesseract_core_tests]=] PROPERTIES  _BACKTRACE_TRIPLES "C:/Users/twist/workspace/hyper_spherical_systems/CMakeLists.txt;145;add_test;C:/Users/twist/workspace/hyper_spherical_systems/CMakeLists.txt;0;")
+  add_test([=[tesseract_core_tests]=] "I:/workspace/hyper_spherical/build/MinSizeRel/pirate_tests.exe")
+  set_tests_properties([=[tesseract_core_tests]=] PROPERTIES  _BACKTRACE_TRIPLES "I:/workspace/hyper_spherical/CMakeLists.txt;196;add_test;I:/workspace/hyper_spherical/CMakeLists.txt;0;")
 elseif(CTEST_CONFIGURATION_TYPE MATCHES "^([Rr][Ee][Ll][Ww][Ii][Tt][Hh][Dd][Ee][Bb][Ii][Nn][Ff][Oo])$")
-  add_test([=[tesseract_core_tests]=] "C:/Users/twist/workspace/hyper_spherical_systems/build/RelWithDebInfo/tesseract_tests.exe")
-  set_tests_properties([=[tesseract_core_tests]=] PROPERTIES  _BACKTRACE_TRIPLES "C:/Users/twist/workspace/hyper_spherical_systems/CMakeLists.txt;145;add_test;C:/Users/twist/workspace/hyper_spherical_systems/CMakeLists.txt;0;")
+  add_test([=[tesseract_core_tests]=] "I:/workspace/hyper_spherical/build/RelWithDebInfo/pirate_tests.exe")
+  set_tests_properties([=[tesseract_core_tests]=] PROPERTIES  _BACKTRACE_TRIPLES "I:/workspace/hyper_spherical/CMakeLists.txt;196;add_test;I:/workspace/hyper_spherical/CMakeLists.txt;0;")
 else()
   add_test([=[tesseract_core_tests]=] NOT_AVAILABLE)
-endif()
-if(CTEST_CONFIGURATION_TYPE MATCHES "^([Dd][Ee][Bb][Uu][Gg])$")
-  add_test([=[tesseract_security_tests]=] "C:/Users/twist/workspace/hyper_spherical_systems/build/Debug/tesseract_security_tests.exe")
-  set_tests_properties([=[tesseract_security_tests]=] PROPERTIES  _BACKTRACE_TRIPLES "C:/Users/twist/workspace/hyper_spherical_systems/CMakeLists.txt;157;add_test;C:/Users/twist/workspace/hyper_spherical_systems/CMakeLists.txt;0;")
-elseif(CTEST_CONFIGURATION_TYPE MATCHES "^([Rr][Ee][Ll][Ee][Aa][Ss][Ee])$")
-  add_test([=[tesseract_security_tests]=] "C:/Users/twist/workspace/hyper_spherical_systems/build/Release/tesseract_security_tests.exe")
-  set_tests_properties([=[tesseract_security_tests]=] PROPERTIES  _BACKTRACE_TRIPLES "C:/Users/twist/workspace/hyper_spherical_systems/CMakeLists.txt;157;add_test;C:/Users/twist/workspace/hyper_spherical_systems/CMakeLists.txt;0;")
-elseif(CTEST_CONFIGURATION_TYPE MATCHES "^([Mm][Ii][Nn][Ss][Ii][Zz][Ee][Rr][Ee][Ll])$")
-  add_test([=[tesseract_security_tests]=] "C:/Users/twist/workspace/hyper_spherical_systems/build/MinSizeRel/tesseract_security_tests.exe")
-  set_tests_properties([=[tesseract_security_tests]=] PROPERTIES  _BACKTRACE_TRIPLES "C:/Users/twist/workspace/hyper_spherical_systems/CMakeLists.txt;157;add_test;C:/Users/twist/workspace/hyper_spherical_systems/CMakeLists.txt;0;")
-elseif(CTEST_CONFIGURATION_TYPE MATCHES "^([Rr][Ee][Ll][Ww][Ii][Tt][Hh][Dd][Ee][Bb][Ii][Nn][Ff][Oo])$")
-  add_test([=[tesseract_security_tests]=] "C:/Users/twist/workspace/hyper_spherical_systems/build/RelWithDebInfo/tesseract_security_tests.exe")
-  set_tests_properties([=[tesseract_security_tests]=] PROPERTIES  _BACKTRACE_TRIPLES "C:/Users/twist/workspace/hyper_spherical_systems/CMakeLists.txt;157;add_test;C:/Users/twist/workspace/hyper_spherical_systems/CMakeLists.txt;0;")
-else()
-  add_test([=[tesseract_security_tests]=] NOT_AVAILABLE)
 endif()

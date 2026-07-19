@@ -5,7 +5,7 @@
 #include <memory>
 #include "hypersphere.hpp"
 
-namespace tesseract {
+namespace hypersp {
 
 struct VirtualNeuron {
     uint32_t id;
@@ -69,4 +69,4 @@ private:
     uint32_t next_cluster_id_ = 1;
 };
 
-} // namespace tesseract
+} // namespace hypersp

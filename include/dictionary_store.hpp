@@ -25,7 +25,7 @@
 #include <vector>
 #include <cstdint>
 
-namespace tesseract {
+namespace hypersp {
 
 class DictionaryStore {
 public:
@@ -50,4 +50,4 @@ public:
                      std::vector<LoadedEntry>& out) noexcept;
 };
 
-} // namespace tesseract
+} // namespace hypersp

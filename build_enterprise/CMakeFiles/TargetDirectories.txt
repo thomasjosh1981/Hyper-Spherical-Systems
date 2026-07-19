@@ -1,0 +1,11 @@
+I:/workspace/hyper_spherical/build_enterprise/CMakeFiles/pirate_core.dir
+I:/workspace/hyper_spherical/build_enterprise/CMakeFiles/pirate_tests.dir
+I:/workspace/hyper_spherical/build_enterprise/CMakeFiles/pirate_security_tests.dir
+I:/workspace/hyper_spherical/build_enterprise/CMakeFiles/nvme_benchmark.dir
+I:/workspace/hyper_spherical/build_enterprise/CMakeFiles/pirate_bridge.dir
+I:/workspace/hyper_spherical/build_enterprise/CMakeFiles/golden_candy_spinner.dir
+I:/workspace/hyper_spherical/build_enterprise/CMakeFiles/python_bridge.dir
+I:/workspace/hyper_spherical/build_enterprise/CMakeFiles/pirate_llama.dir
+I:/workspace/hyper_spherical/build_enterprise/CMakeFiles/RUN_TESTS.dir
+I:/workspace/hyper_spherical/build_enterprise/CMakeFiles/ALL_BUILD.dir
+I:/workspace/hyper_spherical/build_enterprise/CMakeFiles/ZERO_CHECK.dir

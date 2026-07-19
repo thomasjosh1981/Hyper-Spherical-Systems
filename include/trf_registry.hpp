@@ -2,7 +2,7 @@
 //
 // Per Spec V3.1 §2 / §3:
 //
-//   - Per-model file-bound registry: [model_filename].tesseract_profiles.json
+//   - Per-model file-bound registry: [model_filename].hypersphere_profiles.json
 //   - Profile data files: [model_filename]_[profile_name].trf
 //   - Max 5 active profile slots per model
 //   - TRFEntry tracks: layer_index, recency_score, access_count, last_token_id
@@ -20,7 +20,7 @@
 #include <atomic>
 #include <chrono>
 
-namespace Tesseract::TRF {
+namespace Hyperspherical::TRF {
 
 constexpr size_t kMaxProfilesPerModel = 5;
 constexpr size_t kMaxFootprintBytes   = 5 * 1024 * 1024;   // 5 MB cap
@@ -114,4 +114,4 @@ std::string derive_registry_path(const std::string& model_filename);
 std::string derive_profile_path(const std::string& model_filename,
                                   const std::string& profile_name);
 
-}  // namespace Tesseract::TRF
+}  // namespace Hyperspherical::TRF

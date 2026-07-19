@@ -4,7 +4,7 @@
 #include <vector>
 #include <mutex>
 
-namespace tesseract {
+namespace hypersp {
 
 static std::vector<uint32_t> g_pre_history;
 static std::vector<uint32_t> g_post_history;
@@ -35,4 +35,4 @@ extern "C" void harness_clear_history(void) {
     g_pre_history.clear();
     g_post_history.clear();
 }
-} // namespace tesseract
+} // namespace hypersp

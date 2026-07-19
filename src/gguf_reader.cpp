@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cstring>
 
-namespace tesseract {
+namespace hypersp {
 
 GGUFReader::GGUFReader(const std::string& filename) : filename_(filename) {
     file_handle_ = CreateFileA(filename_.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -163,4 +163,4 @@ std::vector<float> GGUFReader::read_tensor_f32(const GGUFTensorInfo& tensor) {
     return data;
 }
 
-} // namespace tesseract
+} // namespace hypersp

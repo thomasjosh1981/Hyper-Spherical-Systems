@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Solution>
+	<Configurations>
+		<BuildType Name="Debug"/>
+		<BuildType Name="Release"/>
+		<BuildType Name="MinSizeRel"/>
+		<BuildType Name="RelWithDebInfo"/>
+		<Platform Name="x64"/>
+	</Configurations>
+	<Project Path="ALL_BUILD.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="ab831a2d-3dca-3e43-995e-ac741a18435e" DefaultStartup="true">
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+		<BuildDependency Project="golden_candy_spinner.vcxproj"/>
+		<BuildDependency Project="nvme_benchmark.vcxproj"/>
+		<BuildDependency Project="pirate_bridge.vcxproj"/>
+		<BuildDependency Project="pirate_core.vcxproj"/>
+		<BuildDependency Project="pirate_llama.vcxproj"/>
+		<BuildDependency Project="pirate_security_tests.vcxproj"/>
+		<BuildDependency Project="pirate_tests.vcxproj"/>
+		<BuildDependency Project="python_bridge.vcxproj"/>
+		<Build Solution="Debug|*" Project="false"/>
+		<Build Solution="Release|*" Project="false"/>
+		<Build Solution="MinSizeRel|*" Project="false"/>
+		<Build Solution="RelWithDebInfo|*" Project="false"/>
+	</Project>
+	<Project Path="RUN_TESTS.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="73f2d689-7f21-39e9-9f87-21426dd1c22d">
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+		<Build Solution="Debug|*" Project="false"/>
+		<Build Solution="Release|*" Project="false"/>
+		<Build Solution="MinSizeRel|*" Project="false"/>
+		<Build Solution="RelWithDebInfo|*" Project="false"/>
+	</Project>
+	<Project Path="ZERO_CHECK.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="af35669e-39e3-3f1e-921d-b8b8450a0754"/>
+	<Project Path="golden_candy_spinner.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="cfde2017-11ea-3598-ab39-d9a868b7936d">
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+	</Project>
+	<Project Path="nvme_benchmark.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="63ea449d-5e2e-36ce-a8fa-2233b1e77ac7">
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+	</Project>
+	<Project Path="pirate_bridge.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="d42d7b81-9af3-30de-9168-13924336a8fa">
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+	</Project>
+	<Project Path="pirate_core.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="724859b3-225e-3907-83e7-e4714ed129a9">
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+	</Project>
+	<Project Path="pirate_llama.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="332d9361-fd62-3d39-81fd-bad0426c1d81">
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+	</Project>
+	<Project Path="pirate_security_tests.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="74518ab0-deaa-321f-8ea3-2fbd82d056be">
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+	</Project>
+	<Project Path="pirate_tests.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="d8e81bd0-c3f1-3dba-a9dc-b8a94351975a">
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+		<BuildDependency Project="python_bridge.vcxproj"/>
+	</Project>
+	<Project Path="python_bridge.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="8d497ea0-1970-37f4-8a15-02fea917184b">
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+	</Project>
+</Solution>

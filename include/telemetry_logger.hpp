@@ -2,7 +2,7 @@
 #include "types.hpp"
 #include <cstdint>
 
-namespace tesseract {
+namespace hypersp {
 
 struct TelemetryData {
     float    vram_usage_pct      = 0.0f;
@@ -27,8 +27,13 @@ public:
     void set_active_kv_tokens(size_t n) noexcept  { snap_.active_kv_tokens = n; }
     void set_prefetch_pending(uint32_t n) noexcept{ snap_.prefetch_pending = n; }
 
+    // Opt-in enforcement
+    void set_opt_in(bool opt_in) noexcept;
+    void transmit() noexcept;
+
 private:
     TelemetryData snap_{};
+    bool opt_in_{false};
 };
 
-} // namespace tesseract
+} // namespace hypersp

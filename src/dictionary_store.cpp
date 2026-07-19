@@ -7,7 +7,7 @@
 #include <fstream>
 #include <cstring>
 
-namespace tesseract {
+namespace hypersp {
 
 namespace {
     constexpr uint32_t kDictMagic   = 0x53495353u;  // 'SISS'
@@ -124,4 +124,4 @@ bool DictionaryStore::load(const std::string& path,
     }
 }
 
-} // namespace tesseract
+} // namespace hypersp

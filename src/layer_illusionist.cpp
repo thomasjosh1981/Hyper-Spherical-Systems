@@ -8,9 +8,9 @@
 // Unqualified Config/MemoryManager/PatternPredictor need to resolve to the
 // tesseract (lowercase) namespace versions — see header.
 namespace Tesseract {
-    using tesseract::Config;
-    using tesseract::MemoryManager;
-    using tesseract::PatternPredictor;
+    using hypersp::Config;
+    using hypersp::MemoryManager;
+    using hypersp::PatternPredictor;
 }
 
 namespace Tesseract {

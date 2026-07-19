@@ -1,73 +1,103 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="18.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="C:\Users\twist\workspace\hyper_spherical_systems\src\pirate_main.cpp">
+    <ClCompile Include="I:\workspace\hyper_spherical\src\pirate_main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\twist\workspace\hyper_spherical_systems\src\pirate_proxy.cpp">
+    <ClCompile Include="I:\workspace\hyper_spherical\src\pirate_proxy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\twist\workspace\hyper_spherical_systems\src\pirate_gui.cpp">
+    <ClCompile Include="I:\workspace\hyper_spherical\src\pirate_gui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\twist\workspace\hyper_spherical_systems\src\context_compressor.cpp">
+    <ClCompile Include="I:\workspace\hyper_spherical\src\model_router.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\twist\workspace\hyper_spherical_systems\src\static_dictionary.cpp">
+    <ClCompile Include="I:\workspace\hyper_spherical\src\gateway_scanner.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\twist\workspace\hyper_spherical_systems\src\dictionary_store.cpp">
+    <ClCompile Include="I:\workspace\hyper_spherical\src\macro_recorder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\twist\workspace\hyper_spherical_systems\src\memory_manager.cpp">
+    <ClCompile Include="I:\workspace\hyper_spherical\src\prompt_condenser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\twist\workspace\hyper_spherical_systems\src\predictive_prefetcher.cpp">
+    <ClCompile Include="I:\workspace\hyper_spherical\src\mobile_bridge.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\twist\workspace\hyper_spherical_systems\src\nvme_io.cpp">
+    <ClCompile Include="I:\workspace\hyper_spherical\src\dom_parser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\twist\workspace\hyper_spherical_systems\src\recovery_checkpoint.cpp">
+    <ClCompile Include="I:\workspace\hyper_spherical\src\human_telemetry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\twist\workspace\hyper_spherical_systems\src\telemetry_logger.cpp">
+    <ClCompile Include="I:\workspace\hyper_spherical\src\virtual_moe.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\twist\workspace\hyper_spherical_systems\src\shard_matrix.cpp">
+    <ClCompile Include="I:\workspace\hyper_spherical\src\feature_router.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\twist\workspace\hyper_spherical_systems\src\tesseract_pqc.cpp">
+    <ClCompile Include="I:\workspace\hyper_spherical\src\arterial_bridge.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\twist\workspace\hyper_spherical_systems\src\stripe_io.cpp">
+    <ClCompile Include="I:\workspace\hyper_spherical\src\synthetic_neuron.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\twist\workspace\hyper_spherical_systems\src\leet_cipher.cpp">
+    <ClCompile Include="I:\workspace\hyper_spherical\src\zero_prompt_attention.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\twist\workspace\hyper_spherical_systems\src\neuron_graph.cpp">
+    <ClCompile Include="I:\workspace\hyper_spherical\src\matrix_slicer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\twist\workspace\hyper_spherical_systems\src\hypersphere.cpp">
+    <ClCompile Include="I:\workspace\hyper_spherical\src\standard_cipher.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\twist\workspace\hyper_spherical_systems\src\index_registry.cpp">
+    <ClCompile Include="I:\workspace\hyper_spherical\src\context_compressor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\twist\workspace\hyper_spherical_systems\src\runtime_directives.cpp">
+    <ClCompile Include="I:\workspace\hyper_spherical\src\static_dictionary.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\twist\workspace\hyper_spherical_systems\src\license_manager.cpp">
+    <ClCompile Include="I:\workspace\hyper_spherical\src\dictionary_store.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="I:\workspace\hyper_spherical\src\memory_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="I:\workspace\hyper_spherical\src\predictive_prefetcher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="I:\workspace\hyper_spherical\src\nvme_io.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="I:\workspace\hyper_spherical\src\recovery_checkpoint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="I:\workspace\hyper_spherical\src\telemetry_logger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="I:\workspace\hyper_spherical\src\neuron_graph.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="I:\workspace\hyper_spherical\src\hypersphere.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="I:\workspace\hyper_spherical\src\index_registry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="I:\workspace\hyper_spherical\src\license_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="I:\workspace\hyper_spherical\src\runtime_directives.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="C:\Users\twist\workspace\hyper_spherical_systems\CMakeLists.txt" />
+    <CustomBuild Include="I:\workspace\hyper_spherical\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{431E4FD2-444F-3AA0-8430-6EC1146DA327}</UniqueIdentifier>
+      <UniqueIdentifier>{D05FB049-6DB4-3ACF-AC8C-D531D1A75676}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

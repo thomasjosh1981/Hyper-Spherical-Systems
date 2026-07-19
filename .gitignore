@@ -34,3 +34,7 @@ venv/
 # OS generated files
 .DS_Store
 Thumbs.db
+
+# Enterprise Proprietary Components
+src/enterprise/
+include/enterprise/

@@ -1,4 +1,4 @@
-// tesseract_tests — minimal assertion-based test harness for the core engine.
+// pirate_tests — minimal assertion-based test harness for the core engine.
 // No external deps. Each TEST(name) block reports pass/fail and we exit nonzero
 // if anything failed. Build with the same CMakeLists (sources list controlled by
 // a TESTS=1 define) or just add this file to the build manually.
@@ -12,9 +12,13 @@
 #include "telemetry_logger.hpp"
 #include "index_registry.hpp"
 #include "nvme_io.hpp"
+#ifdef HYPERSPHERICAL_ENTERPRISE_BUILD
 #include "stripe_io.hpp"
+#endif
 #include "python_bridge.hpp"
+#ifdef HYPERSPHERICAL_ENTERPRISE_BUILD
 #include "leet_cipher.hpp"
+#endif
 #include "neuron_graph.hpp"
 
 #include <cstdio>
@@ -27,7 +31,7 @@
 #include <vector>
 
 namespace fs = std::filesystem;
-using namespace tesseract;
+using namespace hypersp;
 
 // -----------------------------------------------------------------------
 // Minimal test framework
@@ -348,30 +352,30 @@ static void test_c_api_session_checkpoint_recovery() {
     fs::create_directories(tmpdir, ec);
     fs::path cp = tmpdir / "session_c.tess";
 
-    tess_handle_t h1 = tess_create();
+    pirate_handle_t h1 = pirate_create();
     CHECK(h1 != nullptr);
 
     std::string text = "This is a context recovery test for hyper-spherical systems.";
     char out_json[16384];
-    int comp_len = tess_compress(h1, text.data(), static_cast<int>(text.size()), out_json, sizeof(out_json));
+    int comp_len = pirate_compress(h1, text.data(), static_cast<int>(text.size()), out_json, sizeof(out_json));
     CHECK(comp_len > 0);
 
-    CHECK_EQ(tess_checkpoint_save(h1, cp.string().c_str()), 0);
+    CHECK_EQ(pirate_checkpoint_save(h1, cp.string().c_str()), 0);
     CHECK(fs::exists(cp));
     CHECK(fs::exists(cp.string() + ".tess_session.bak"));
 
-    tess_destroy(h1);
+    pirate_destroy(h1);
 
-    tess_handle_t h2 = tess_create();
+    pirate_handle_t h2 = pirate_create();
     CHECK(h2 != nullptr);
-    CHECK_EQ(tess_checkpoint_load(h2, cp.string().c_str()), 0);
+    CHECK_EQ(pirate_checkpoint_load(h2, cp.string().c_str()), 0);
 
     char restored_text[1024];
     int restored_len = tess_get_session_history(h2, restored_text, sizeof(restored_text));
     CHECK_EQ(restored_len, static_cast<int>(text.size()));
     CHECK_EQ(std::string(restored_text, restored_len), text);
 
-    tess_destroy(h2);
+    pirate_destroy(h2);
     fs::remove_all(tmpdir, ec);
 }
 
@@ -415,6 +419,8 @@ static void test_config_defaults() {
     CHECK(cfg.max_dict_entries > 0u);
 }
 
+#ifdef HYPERSPHERICAL_ENTERPRISE_BUILD
+#ifdef HYPERSPHERICAL_ENTERPRISE_BUILD
 static void test_stripe_io_roundtrip() {
     StripeConfig cfg;
     cfg.active_stripes = 4;
@@ -438,7 +444,11 @@ static void test_stripe_io_roundtrip() {
         std::remove((cfg.base_path + "." + std::to_string(i)).c_str());
     }
 }
+#endif
+#endif
 
+#ifdef HYPERSPHERICAL_ENTERPRISE_BUILD
+#ifdef HYPERSPHERICAL_ENTERPRISE_BUILD
 static void test_leet_cipher_3fa_and_crypt() {
     UserCredentials creds;
     creds.username = "twist";
@@ -463,6 +473,8 @@ static void test_leet_cipher_3fa_and_crypt() {
         CHECK_EQ(decrypted[i], data[i]);
     }
 }
+#endif
+#endif
 
 static void test_neuron_graph_relationships() {
     NeuronGraph graph;
@@ -561,8 +573,16 @@ int main() {
     RUN_TEST(test_c_api_session_checkpoint_recovery);
     RUN_TEST(test_telemetry_logger_dispatch);
     RUN_TEST(test_index_registry_skips_non_gguf);
+#ifdef HYPERSPHERICAL_ENTERPRISE_BUILD
+#ifdef HYPERSPHERICAL_ENTERPRISE_BUILD
     RUN_TEST(test_stripe_io_roundtrip);
+#endif
+#endif
+#ifdef HYPERSPHERICAL_ENTERPRISE_BUILD
+#ifdef HYPERSPHERICAL_ENTERPRISE_BUILD
     RUN_TEST(test_leet_cipher_3fa_and_crypt);
+#endif
+#endif
     RUN_TEST(test_neuron_graph_relationships);
     RUN_TEST(test_hypersphere_coordinate_mapping);
     RUN_TEST(test_synthuron_and_hypertag_linking);

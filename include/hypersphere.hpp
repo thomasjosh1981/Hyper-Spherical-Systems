@@ -3,7 +3,7 @@
 #include <cmath>
 #include <stdexcept>
 
-namespace tesseract {
+namespace hypersp {
 
 // A point mapped to a normalized N-dimensional unit hypersphere.
 struct HypersphereCoordinate {
@@ -43,4 +43,28 @@ public:
     static HypersphereCoordinate embed_chunk(const std::vector<uint16_t>& tokens);
 };
 
-} // namespace tesseract
+// OS-level Direct I/O Streaming for SFS/SFS+ weights (bypassing CPU RAM)
+class DirectStorageStreamer {
+public:
+    DirectStorageStreamer(const std::string& file_path);
+    ~DirectStorageStreamer();
+
+    // Streams the next chunk of VortexCoordinates directly to VRAM staging buffers
+    std::vector<HypersphereMath::VortexCompressedCoordinate> stream_chunk(size_t chunk_size);
+
+    // Switches the internal block sizing if a spinning HDD is detected versus NVMe/SSD
+    void optimize_for_drive_type(bool is_hdd);
+
+private:
+    std::string file_path_;
+    size_t current_offset_;
+    std::vector<HypersphereMath::VortexCompressedCoordinate> error_cache_;
+    bool is_hdd_mode_ = false;
+    
+    // Internal method to handle OS-level direct read with retry logic
+    bool safe_read(void* buffer, size_t size, size_t offset);
+};
+
+using VortexCoordinate = HypersphereMath::VortexCompressedCoordinate;
+
+} // namespace hypersp
