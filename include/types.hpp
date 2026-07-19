@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <cstddef>
-#include <string_view>
+#include <string>
 #include <vector>
 #include <filesystem>
 
@@ -13,7 +13,7 @@ enum class MemoryTier : uint8_t { VRAM = 0, RAM = 1, NVME = 2, HDD = 3 };
 // Weight layer shard from GGUF parsing
 struct LayerShard {
     uint32_t layer_id       = UINT32_MAX;
-    std::string_view tensor_name   {};
+    std::string tensor_name   {};
     size_t               byte_size  = 0;
     MemoryTier           tier       = MemoryTier::NVME;
     void*                gpu_ptr    = nullptr;
