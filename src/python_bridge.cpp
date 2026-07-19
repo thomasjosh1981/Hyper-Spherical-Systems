@@ -17,10 +17,19 @@
 #include "recovery_checkpoint.hpp"
 #include "telemetry_logger.hpp"
 #include "index_registry.hpp"
-#include "shard_matrix.hpp"
-#include "leet_cipher.hpp"
-#include "tesseract_security_tripwire.hpp"
-#include "tesseract_obfuscation.hpp"
+#ifdef HYPERSPHERICAL_ENTERPRISE_BUILD
+#include "enterprise/leet_cipher.hpp"
+#include "enterprise/hypersphere_pqc.hpp"
+#include "enterprise/shard_matrix.hpp"
+#else
+#include "standard_cipher.hpp"
+#endif
+#ifdef HYPERSPHERICAL_ENTERPRISE_BUILD
+#include "hypersphere_security_tripwire.hpp"
+#endif
+#ifdef HYPERSPHERICAL_ENTERPRISE_BUILD
+#include "hypersphere_obfuscation.hpp"
+#endif
 
 #include <cstdio>
 #include <cstring>
@@ -35,40 +44,40 @@
 // V1.7 mandatory llama.cpp gating — spec §2: build aborts if llama missing.
 #if !defined(TESSERACT_USE_LLAMA)
 #  if defined(TESSERACT_REQUIRE_LLAMA)
-#    error "Project Tesseract compilation aborted: llama.cpp backend is mandatory for full hardware acceleration (define TESSERACT_USE_LLAMA=1 and link llama)."
+#    error "Project Pirate Llama compilation aborted: llama.cpp backend is mandatory for full hardware acceleration (define TESSERACT_USE_LLAMA=1 and link llama)."
 #  endif
 #  define TESSERACT_USE_LLAMA 0
 #endif
 
 // Forward-declare llama.cpp types so the bridge can hold pointers without
 // pulling in llama headers here. The actual linkage happens in the root
-// tesseract_bridge.cpp (where the FetchContent'd llama is wired in).
+// pirate_bridge.cpp (where the FetchContent'd llama is wired in).
 struct llama_model;
 struct llama_context;
 
-// Note: the rest of this file uses `tesseract::Config`, `tesseract::MemoryManager`
-// etc. Those names are resolved by the existing top-level `namespace tesseract { ... }`
+// Note: the rest of this file uses `hypersp::Config`, `hypersp::MemoryManager`
+// etc. Those names are resolved by the existing top-level `namespace hypersp { ... }`
 // declared elsewhere in this TU (the original engine code). We don't add any
 // alias here to avoid conflicting with that declaration.
 
 namespace {
 
-// Per-instance error string for tess_last_error()
+// Per-instance error string for pirate_last_error()
 thread_local std::string g_last_error;
 
 void set_error(const std::string& msg) { g_last_error = msg; }
 
 // Cast helper for opaque handle validation.
 struct TessEngineImpl {
-    tesseract::Config                       cfg;
-    std::unique_ptr<tesseract::ContextCompressor> compressor;
-    std::unique_ptr<tesseract::MemoryManager>     memory;
-    std::unique_ptr<tesseract::PatternPredictor>  predictor;
-    std::unique_ptr<tesseract::WeightStreamer>    streamer;
-    std::unique_ptr<tesseract::NVMeIO>            nvme;
-    std::unique_ptr<tesseract::RecoveryCheckpoint> checkpoint;
-    std::unique_ptr<tesseract::TelemetryLogger>   telemetry;
-    std::unique_ptr<tesseract::IndexRegistry>     index;
+    hypersp::Config                       cfg;
+    std::unique_ptr<hypersp::ContextCompressor> compressor;
+    std::unique_ptr<hypersp::MemoryManager>     memory;
+    std::unique_ptr<hypersp::PatternPredictor>  predictor;
+    std::unique_ptr<hypersp::WeightStreamer>    streamer;
+    std::unique_ptr<hypersp::NVMeIO>            nvme;
+    std::unique_ptr<hypersp::RecoveryCheckpoint> checkpoint;
+    std::unique_ptr<hypersp::TelemetryLogger>   telemetry;
+    std::unique_ptr<hypersp::IndexRegistry>     index;
     bool                                        vram_ready = false;
     uint64_t                                    virtual_vram_bytes = 0;  // 60GB illusion by default
     std::string                                 session_text_history;
@@ -78,14 +87,14 @@ struct TessEngineImpl {
         cfg.phys_vram_bytes    = 12ULL * 1024 * 1024 * 1024;
         cfg.virtual_vram_bytes = 60ULL * 1024 * 1024 * 1024;  // V1.7.1: 60GB illusion
         virtual_vram_bytes     = cfg.virtual_vram_bytes;
-        compressor   = std::make_unique<tesseract::ContextCompressor>(cfg);
-        memory       = std::make_unique<tesseract::MemoryManager>(cfg);
-        predictor    = std::make_unique<tesseract::PatternPredictor>(cfg);
+        compressor   = std::make_unique<hypersp::ContextCompressor>(cfg);
+        memory       = std::make_unique<hypersp::MemoryManager>(cfg);
+        predictor    = std::make_unique<hypersp::PatternPredictor>(cfg);
         // WeightStreamer requires VRAM bytes at construction; initialize lazily.
-        nvme         = std::make_unique<tesseract::NVMeIO>("D:\\tesseract_bridge");
-        checkpoint   = std::make_unique<tesseract::RecoveryCheckpoint>();
-        telemetry    = std::make_unique<tesseract::TelemetryLogger>();
-        index        = std::make_unique<tesseract::IndexRegistry>();
+        nvme         = std::make_unique<hypersp::NVMeIO>("D:\\pirate_bridge");
+        checkpoint   = std::make_unique<hypersp::RecoveryCheckpoint>();
+        telemetry    = std::make_unique<hypersp::TelemetryLogger>();
+        index        = std::make_unique<hypersp::IndexRegistry>();
     }
 };
 
@@ -105,43 +114,43 @@ struct InternalEngine {
 
 extern "C" {
 
-TESS_EXPORT tess_handle_t tess_create(void) {
+PIRATE_EXPORT pirate_handle_t pirate_create(void) {
     try {
-        return reinterpret_cast<tess_handle_t>(new TessEngineImpl());
+        return reinterpret_cast<pirate_handle_t>(new TessEngineImpl());
     } catch (const std::exception& e) {
-        set_error(std::string("tess_create: ") + e.what());
+        set_error(std::string("pirate_create: ") + e.what());
         return nullptr;
     }
 }
 
-TESS_EXPORT void tess_destroy(tess_handle_t h) {
+PIRATE_EXPORT void pirate_destroy(pirate_handle_t h) {
     if (!h) return;
     delete reinterpret_cast<TessEngineImpl*>(h);
 }
 
 
 
-TESS_EXPORT int tess_init_vram(tess_handle_t h, uint64_t phys_vram_bytes,
+PIRATE_EXPORT int pirate_init_vram(pirate_handle_t h, uint64_t phys_vram_bytes,
                                   uint64_t phys_ram_bytes) {
-    if (!h) { set_error("tess_init_vram: null handle"); return TESS_BAD_HANDLE; }
+    if (!h) { set_error("pirate_init_vram: null handle"); return TESS_BAD_HANDLE; }
     auto* eng = reinterpret_cast<TessEngineImpl*>(h);
     try {
         eng->cfg.phys_vram_bytes = phys_vram_bytes;
         eng->cfg.ram_total_bytes = phys_ram_bytes;
         eng->memory->set_ram_total(phys_ram_bytes);
         eng->memory->initialize_vram(static_cast<size_t>(phys_vram_bytes));
-        eng->streamer = std::make_unique<tesseract::WeightStreamer>(eng->cfg,
+        eng->streamer = std::make_unique<hypersp::WeightStreamer>(eng->cfg,
                                                                     static_cast<size_t>(phys_vram_bytes));
         eng->vram_ready = true;
         return TESS_OK;
     } catch (const std::exception& e) {
-        set_error(std::string("tess_init_vram: ") + e.what());
+        set_error(std::string("pirate_init_vram: ") + e.what());
         return TESS_OUT_OF_MEMORY;
     }
 }
 
 // V1.7.1: extended init that also accepts the virtual VRAM illusion size.
-TESS_EXPORT int tess_init_vram_v2(tess_handle_t h,
+PIRATE_EXPORT int tess_init_vram_v2(pirate_handle_t h,
                                     uint64_t phys_vram_bytes,
                                     uint64_t phys_ram_bytes,
                                     uint64_t virtual_vram_bytes) {
@@ -150,22 +159,22 @@ TESS_EXPORT int tess_init_vram_v2(tess_handle_t h,
     eng->virtual_vram_bytes = virtual_vram_bytes ? virtual_vram_bytes
                                                   : (60ULL * 1024 * 1024 * 1024);
     eng->cfg.virtual_vram_bytes = eng->virtual_vram_bytes;
-    return tess_init_vram(h, phys_vram_bytes, phys_ram_bytes);
+    return pirate_init_vram(h, phys_vram_bytes, phys_ram_bytes);
 }
 
-TESS_EXPORT uint64_t tess_virtual_vram_bytes(tess_handle_t h) {
+PIRATE_EXPORT uint64_t tess_virtual_vram_bytes(pirate_handle_t h) {
     if (!h) return 0;
     return reinterpret_cast<TessEngineImpl*>(h)->virtual_vram_bytes;
 }
-TESS_EXPORT uint64_t tess_phys_vram_bytes(tess_handle_t h) {
+PIRATE_EXPORT uint64_t tess_phys_vram_bytes(pirate_handle_t h) {
     if (!h) return 0;
     return reinterpret_cast<TessEngineImpl*>(h)->cfg.phys_vram_bytes;
 }
-TESS_EXPORT uint64_t tess_phys_ram_bytes(tess_handle_t h) {
+PIRATE_EXPORT uint64_t tess_phys_ram_bytes(pirate_handle_t h) {
     if (!h) return 0;
     return reinterpret_cast<TessEngineImpl*>(h)->cfg.ram_total_bytes;
 }
-TESS_EXPORT float tess_vram_illusion_ratio(tess_handle_t h) {
+PIRATE_EXPORT float tess_vram_illusion_ratio(pirate_handle_t h) {
     if (!h) return 1.0f;
     auto* eng = reinterpret_cast<TessEngineImpl*>(h);
     if (eng->cfg.phys_vram_bytes == 0) return 1.0f;
@@ -173,12 +182,12 @@ TESS_EXPORT float tess_vram_illusion_ratio(tess_handle_t h) {
          / static_cast<float>(eng->cfg.phys_vram_bytes);
 }
 
-TESS_EXPORT int tess_compress(tess_handle_t h,
+PIRATE_EXPORT int pirate_compress(pirate_handle_t h,
                               const char* text, int text_len,
                               char* out_json, int out_cap) {
-    if (!h) { set_error("tess_compress: null handle"); return TESS_BAD_HANDLE; }
+    if (!h) { set_error("pirate_compress: null handle"); return TESS_BAD_HANDLE; }
     if (!text || text_len < 0 || !out_json || out_cap <= 0)
-    { set_error("tess_compress: bad arg"); return TESS_BAD_ARG; }
+    { set_error("pirate_compress: bad arg"); return TESS_BAD_ARG; }
     auto* eng = reinterpret_cast<TessEngineImpl*>(h);
     try {
         std::string_view sv(text, static_cast<size_t>(text_len));
@@ -205,58 +214,58 @@ TESS_EXPORT int tess_compress(tess_handle_t h,
         out += "]}";
 
         if (static_cast<int>(out.size()) >= out_cap) {
-            set_error("tess_compress: output buffer too small");
+            set_error("pirate_compress: output buffer too small");
             return TESS_BAD_ARG;
         }
         std::memcpy(out_json, out.data(), out.size());
         out_json[out.size()] = '\0';
         return static_cast<int>(out.size());
     } catch (const std::exception& e) {
-        set_error(std::string("tess_compress: ") + e.what());
+        set_error(std::string("pirate_compress: ") + e.what());
         return TESS_OUT_OF_MEMORY;
     }
 }
 
-TESS_EXPORT int tess_decompress(tess_handle_t h,
+PIRATE_EXPORT int pirate_decompress(pirate_handle_t h,
                                 const char* in_json, int in_len,
                                 char* out_text, int out_cap) {
-    if (!h) { set_error("tess_decompress: null handle"); return TESS_BAD_HANDLE; }
+    if (!h) { set_error("pirate_decompress: null handle"); return TESS_BAD_HANDLE; }
     if (!in_json || in_len <= 0 || !out_text || out_cap <= 0)
-    { set_error("tess_decompress: bad arg"); return TESS_BAD_ARG; }
+    { set_error("pirate_decompress: bad arg"); return TESS_BAD_ARG; }
     auto* eng = reinterpret_cast<TessEngineImpl*>(h);
     try {
         std::string_view sv(in_json, static_cast<size_t>(in_len));
         auto entries = eng->compressor->compress(sv);
         std::string back = eng->compressor->decompress(entries);
         if (static_cast<int>(back.size()) >= out_cap) {
-            set_error("tess_decompress: output buffer too small");
+            set_error("pirate_decompress: output buffer too small");
             return TESS_BAD_ARG;
         }
         std::memcpy(out_text, back.data(), back.size());
         out_text[back.size()] = '\0';
         return static_cast<int>(back.size());
     } catch (const std::exception& e) {
-        set_error(std::string("tess_decompress: ") + e.what());
+        set_error(std::string("pirate_decompress: ") + e.what());
         return TESS_OUT_OF_MEMORY;
     }
 }
 
-TESS_EXPORT int tess_push_layer(tess_handle_t h, uint32_t layer_id,
+PIRATE_EXPORT int pirate_push_layer(pirate_handle_t h, uint32_t layer_id,
                                 uint64_t byte_size) {
-    if (!h) { set_error("tess_push_layer: null handle"); return TESS_BAD_HANDLE; }
+    if (!h) { set_error("pirate_push_layer: null handle"); return TESS_BAD_HANDLE; }
     auto* eng = reinterpret_cast<TessEngineImpl*>(h);
     try {
-        tesseract::LayerShard s;
+        hypersp::LayerShard s;
         s.layer_id  = layer_id;
         s.byte_size = static_cast<size_t>(byte_size);
         return static_cast<int>(eng->memory->push_layer(s, true));
     } catch (const std::exception& e) {
-        set_error(std::string("tess_push_layer: ") + e.what());
+        set_error(std::string("pirate_push_layer: ") + e.what());
         return TESS_OUT_OF_MEMORY;
     }
 }
 
-TESS_EXPORT uint64_t tess_vram_used(tess_handle_t h) {
+PIRATE_EXPORT uint64_t pirate_vram_used(pirate_handle_t h) {
     if (!h) return 0;
     auto* eng = reinterpret_cast<TessEngineImpl*>(h);
     return eng->vram_ready
@@ -265,33 +274,33 @@ TESS_EXPORT uint64_t tess_vram_used(tess_handle_t h) {
         : 0ULL;
 }
 
-TESS_EXPORT uint64_t tess_vram_budget(tess_handle_t h) {
+PIRATE_EXPORT uint64_t pirate_vram_budget(pirate_handle_t h) {
     if (!h) return 0;
     return reinterpret_cast<TessEngineImpl*>(h)->virtual_vram_bytes;
 }
 
-TESS_EXPORT float tess_vram_usage_pct(tess_handle_t h) {
+PIRATE_EXPORT float pirate_vram_usage_pct(pirate_handle_t h) {
     if (!h) return 0.f;
     auto* eng = reinterpret_cast<TessEngineImpl*>(h);
     return eng->vram_ready ? eng->memory->vram_usage_percent() : 0.f;
 }
 
-TESS_EXPORT uint64_t tess_ram_staging_used(tess_handle_t h) {
+PIRATE_EXPORT uint64_t pirate_ram_staging_used(pirate_handle_t h) {
     if (!h) return 0;
     return reinterpret_cast<TessEngineImpl*>(h)->memory->ram_staging_bytes();
 }
 
-TESS_EXPORT uint64_t tess_ram_staging_limit(tess_handle_t h) {
+PIRATE_EXPORT uint64_t pirate_ram_staging_limit(pirate_handle_t h) {
     if (!h) return 0;
     return reinterpret_cast<TessEngineImpl*>(h)->memory->ram_staging_limit();
 }
 
-TESS_EXPORT void tess_observe_layer(tess_handle_t h, uint32_t layer_id) {
+PIRATE_EXPORT void pirate_observe_layer(pirate_handle_t h, uint32_t layer_id) {
     if (!h) return;
     reinterpret_cast<TessEngineImpl*>(h)->predictor->observe_layer(layer_id);
 }
 
-TESS_EXPORT int tess_predict_next(tess_handle_t h, uint32_t* out_ids, int cap,
+PIRATE_EXPORT int pirate_predict_next(pirate_handle_t h, uint32_t* out_ids, int cap,
                                   float* out_confidence) {
     if (!h || !out_ids || cap <= 0) return 0;
     auto* eng = reinterpret_cast<TessEngineImpl*>(h);
@@ -303,12 +312,12 @@ TESS_EXPORT int tess_predict_next(tess_handle_t h, uint32_t* out_ids, int cap,
     return n;
 }
 
-TESS_EXPORT uint64_t tess_total_observations(tess_handle_t h) {
+PIRATE_EXPORT uint64_t pirate_total_observations(pirate_handle_t h) {
     if (!h) return 0;
     return reinterpret_cast<TessEngineImpl*>(h)->predictor->total_observations();
 }
 
-TESS_EXPORT int tess_io_write(tess_handle_t h, const char* rel_path,
+PIRATE_EXPORT int pirate_io_write(pirate_handle_t h, const char* rel_path,
                               const uint8_t* data, int len) {
     if (!h || !rel_path || !data || len <= 0) return TESS_BAD_ARG;
     auto* eng = reinterpret_cast<TessEngineImpl*>(h);
@@ -316,7 +325,7 @@ TESS_EXPORT int tess_io_write(tess_handle_t h, const char* rel_path,
                                                     static_cast<size_t>(len)));
 }
 
-TESS_EXPORT int tess_io_read(tess_handle_t h, const char* rel_path,
+PIRATE_EXPORT int pirate_io_read(pirate_handle_t h, const char* rel_path,
                              uint8_t* out_buf, int cap) {
     if (!h || !rel_path || !out_buf || cap <= 0) return TESS_BAD_ARG;
     auto* eng = reinterpret_cast<TessEngineImpl*>(h);
@@ -324,7 +333,7 @@ TESS_EXPORT int tess_io_read(tess_handle_t h, const char* rel_path,
                                                    static_cast<size_t>(cap)));
 }
 
-TESS_EXPORT int tess_checkpoint_save(tess_handle_t h, const char* path) {
+PIRATE_EXPORT int pirate_checkpoint_save(pirate_handle_t h, const char* path) {
     if (!h || !path) return TESS_BAD_ARG;
     auto* eng = reinterpret_cast<TessEngineImpl*>(h);
     if (eng->vram_ready) {
@@ -333,15 +342,16 @@ TESS_EXPORT int tess_checkpoint_save(tess_handle_t h, const char* path) {
     bool checkpoint_ok = eng->checkpoint->save_to(path);
 
     // Save encrypted session text history to .tess_session.bak
+#ifdef HYPERSPHERICAL_ENTERPRISE_BUILD
     if (!eng->session_text_history.empty()) {
-        tesseract::UserCredentials creds;
+        hypersp::UserCredentials creds;
         creds.username = "twist";
         creds.password = "pass123";
         creds.pin = "123456";
         creds.leet_key = "t3553r4c7"; // default leet key for automatic crash backup
         
         std::vector<uint8_t> data(eng->session_text_history.begin(), eng->session_text_history.end());
-        auto encrypted = tesseract::LeetCipher::encrypt(data, creds);
+        auto encrypted = hypersp::LeetCipher::encrypt(data, creds);
         
         std::string backup_path = std::string(path) + ".tess_session.bak";
         std::ofstream f(backup_path, std::ios::binary | std::ios::trunc);
@@ -349,16 +359,28 @@ TESS_EXPORT int tess_checkpoint_save(tess_handle_t h, const char* path) {
             f.write(reinterpret_cast<const char*>(encrypted.data()), encrypted.size());
         }
     }
+#else
+    if (!eng->session_text_history.empty()) {
+        std::vector<uint8_t> data(eng->session_text_history.begin(), eng->session_text_history.end());
+        auto encrypted = hypersp::StandardCipher::encrypt(data, "t3553r4c7");
+        std::string backup_path = std::string(path) + ".tess_session.bak";
+        std::ofstream f(backup_path, std::ios::binary | std::ios::trunc);
+        if (f) {
+            f.write(reinterpret_cast<const char*>(encrypted.data()), encrypted.size());
+        }
+    }
+#endif
 
     return checkpoint_ok ? TESS_OK : TESS_IO_FAIL;
 }
 
-TESS_EXPORT int tess_checkpoint_load(tess_handle_t h, const char* path) {
+PIRATE_EXPORT int pirate_checkpoint_load(pirate_handle_t h, const char* path) {
     if (!h || !path) return TESS_BAD_ARG;
     auto* eng = reinterpret_cast<TessEngineImpl*>(h);
-    bool checkpoint_ok = tesseract::RecoveryCheckpoint::load_from(path);
+    bool checkpoint_ok = hypersp::RecoveryCheckpoint::load_from(path);
 
     // Load and decrypt session text history from .tess_session.bak
+#ifdef HYPERSPHERICAL_ENTERPRISE_BUILD
     std::string backup_path = std::string(path) + ".tess_session.bak";
     std::ifstream f(backup_path, std::ios::binary | std::ios::ate);
     if (f) {
@@ -366,20 +388,33 @@ TESS_EXPORT int tess_checkpoint_load(tess_handle_t h, const char* path) {
         std::vector<uint8_t> encrypted(sz);
         f.seekg(0);
         if (f.read(reinterpret_cast<char*>(encrypted.data()), sz)) {
-            tesseract::UserCredentials creds;
+            hypersp::UserCredentials creds;
             creds.username = "twist";
             creds.password = "pass123";
             creds.pin = "123456";
             creds.leet_key = "t3553r4c7";
-            auto decrypted = tesseract::LeetCipher::decrypt(encrypted, creds);
+            auto decrypted = hypersp::LeetCipher::decrypt(encrypted, creds);
             eng->session_text_history.assign(decrypted.begin(), decrypted.end());
         }
     }
+#else
+    std::string backup_path = std::string(path) + ".tess_session.bak";
+    std::ifstream f(backup_path, std::ios::binary | std::ios::ate);
+    if (f) {
+        size_t sz = static_cast<size_t>(f.tellg());
+        std::vector<uint8_t> encrypted(sz);
+        f.seekg(0);
+        if (f.read(reinterpret_cast<char*>(encrypted.data()), sz)) {
+            auto decrypted = hypersp::StandardCipher::decrypt(encrypted, "t3553r4c7");
+            eng->session_text_history.assign(decrypted.begin(), decrypted.end());
+        }
+    }
+#endif
 
     return checkpoint_ok ? TESS_OK : TESS_IO_FAIL;
 }
 
-TESS_EXPORT int tess_get_session_history(tess_handle_t h, char* out, int cap) {
+PIRATE_EXPORT int tess_get_session_history(pirate_handle_t h, char* out, int cap) {
     if (!h || !out || cap <= 0) return TESS_BAD_ARG;
     auto* eng = reinterpret_cast<TessEngineImpl*>(h);
     if (static_cast<int>(eng->session_text_history.size()) >= cap) return TESS_BAD_ARG;
@@ -388,7 +423,7 @@ TESS_EXPORT int tess_get_session_history(tess_handle_t h, char* out, int cap) {
     return static_cast<int>(eng->session_text_history.size());
 }
 
-TESS_EXPORT void tess_telemetry_get(tess_handle_t h, TessTelemetry* out) {
+PIRATE_EXPORT void tess_telemetry_get(pirate_handle_t h, TessTelemetry* out) {
     if (!h || !out) return;
     auto* eng = reinterpret_cast<TessEngineImpl*>(h);
     auto s = eng->telemetry->current_snapshot();
@@ -398,23 +433,23 @@ TESS_EXPORT void tess_telemetry_get(tess_handle_t h, TessTelemetry* out) {
     out->prefetch_pending = s.prefetch_pending;
 }
 
-TESS_EXPORT int tess_index_build(tess_handle_t h, const char* dir) {
+PIRATE_EXPORT int pirate_index_build(pirate_handle_t h, const char* dir) {
     if (!h || !dir) return TESS_BAD_ARG;
     reinterpret_cast<TessEngineImpl*>(h)->index->build_index(dir);
     return TESS_OK;
 }
 
-TESS_EXPORT int tess_index_shards_in_vram(tess_handle_t h) {
+PIRATE_EXPORT int tess_index_shards_in_vram(pirate_handle_t h) {
     if (!h) return TESS_BAD_HANDLE;
     auto shards = reinterpret_cast<TessEngineImpl*>(h)->index->get_layers_in_vram();
     return static_cast<int>(shards.size());
 }
 
-TESS_EXPORT const char* tess_version(void) {
+PIRATE_EXPORT const char* tess_version(void) {
     return "Tesseract Bridge v1.0.0 (gemma4 backend, 60GB VRAM illusion)";
 }
 
-TESS_EXPORT const char* tess_last_error(tess_handle_t h) {
+PIRATE_EXPORT const char* pirate_last_error(pirate_handle_t h) {
     (void)h;
     return g_last_error.c_str();
 }
@@ -433,7 +468,7 @@ std::atomic<float> g_dir_load_in_headroom{0.40f};
 }
 
 extern "C" {
-TESS_EXPORT int tess_set_directive_bool(const char* name, int value) {
+PIRATE_EXPORT int tess_set_directive_bool(const char* name, int value) {
     if (!name) return -1;
     std::string n(name);
     int v = value != 0;
@@ -444,7 +479,7 @@ TESS_EXPORT int tess_set_directive_bool(const char* name, int value) {
     else return -2;
     return 0;
 }
-TESS_EXPORT int tess_set_directive_float(const char* name, float value) {
+PIRATE_EXPORT int tess_set_directive_float(const char* name, float value) {
     if (!name) return -1;
     std::string n(name);
     if      (n == "vram_saturation_target")   g_dir_vram_target.store(value);
@@ -453,7 +488,7 @@ TESS_EXPORT int tess_set_directive_float(const char* name, float value) {
     else return -2;
     return 0;
 }
-TESS_EXPORT int tess_get_directive_float(const char* name, float* out) {
+PIRATE_EXPORT int tess_get_directive_float(const char* name, float* out) {
     if (!name || !out) return -1;
     std::string n(name);
     if      (n == "vram_saturation_target")   *out = g_dir_vram_target.load();
@@ -462,12 +497,12 @@ TESS_EXPORT int tess_get_directive_float(const char* name, float* out) {
     else return -2;
     return 0;
 }
-TESS_EXPORT int tess_set_breathing_mode(tess_handle_t h, int enabled) {
+PIRATE_EXPORT int tess_set_breathing_mode(pirate_handle_t h, int enabled) {
     if (!h) return TESS_BAD_HANDLE;
     reinterpret_cast<TessEngineImpl*>(h)->memory->set_breathing_mode(enabled != 0);
     return TESS_OK;
 }
-TESS_EXPORT int tess_set_circuit_breaker(tess_handle_t h, int enabled) {
+PIRATE_EXPORT int tess_set_circuit_breaker(pirate_handle_t h, int enabled) {
     if (!h) return TESS_BAD_HANDLE;
     reinterpret_cast<TessEngineImpl*>(h)->memory->set_circuit_breaker(enabled != 0);
     return TESS_OK;
@@ -476,128 +511,185 @@ TESS_EXPORT int tess_set_circuit_breaker(tess_handle_t h, int enabled) {
 // =====================================================================
 // V1.3 PQC + obfuscation
 // =====================================================================
-TESS_EXPORT int tess_pqc_active_backend(void) {
-    return static_cast<int>(Tesseract::Security::Pqc::ActiveBackend());
+PIRATE_EXPORT int tess_pqc_active_backend(void) {
+#ifdef HYPERSPHERICAL_ENTERPRISE_BUILD
+    return static_cast<int>(Hyperspherical::Security::Pqc::ActiveBackend());
+#else
+    return 0;
+#endif
 }
-TESS_EXPORT int tess_pqc_kyber_keygen(tess_handle_t h) {
+PIRATE_EXPORT int tess_pqc_kyber_keygen(pirate_handle_t h) {
+#ifdef HYPERSPHERICAL_ENTERPRISE_BUILD
+
     (void)h;
-    Tesseract::Security::Pqc::KyberKeyPair kp;
-    auto s = Tesseract::Security::Pqc::KyberKeygen(kp);
-    return s == Tesseract::Security::Pqc::Status::OK ? TESS_OK : TESS_IO_FAIL;
+    Hyperspherical::Security::Pqc::KyberKeyPair kp;
+    auto s = Hyperspherical::Security::Pqc::KyberKeygen(kp);
+    return s == Hyperspherical::Security::Pqc::Status::OK ? TESS_OK : TESS_IO_FAIL;
+#else
+    return -1; // TESS_IO_FAIL or equivalent error
+#endif
 }
-TESS_EXPORT int tess_pqc_kyber_roundtrip(tess_handle_t h) {
+PIRATE_EXPORT int tess_pqc_kyber_roundtrip(pirate_handle_t h) {
+#ifdef HYPERSPHERICAL_ENTERPRISE_BUILD
+
     (void)h;
-    Tesseract::Security::Pqc::KyberKeyPair kp;
-    if (Tesseract::Security::Pqc::KyberKeygen(kp) != Tesseract::Security::Pqc::Status::OK)
+    Hyperspherical::Security::Pqc::KyberKeyPair kp;
+    if (Hyperspherical::Security::Pqc::KyberKeygen(kp) != Hyperspherical::Security::Pqc::Status::OK)
         return TESS_IO_FAIL;
-    Tesseract::Security::Pqc::KyberCiphertext ct;
-    Tesseract::Security::Pqc::SharedSecret ss_a, ss_b;
-    if (Tesseract::Security::Pqc::KyberEncapsulate(kp.public_key, ct, ss_a) != Tesseract::Security::Pqc::Status::OK)
+    Hyperspherical::Security::Pqc::KyberCiphertext ct;
+    Hyperspherical::Security::Pqc::SharedSecret ss_a, ss_b;
+    if (Hyperspherical::Security::Pqc::KyberEncapsulate(kp.public_key, ct, ss_a) != Hyperspherical::Security::Pqc::Status::OK)
         return TESS_IO_FAIL;
-    if (Tesseract::Security::Pqc::KyberDecapsulate(kp, ct, ss_b) != Tesseract::Security::Pqc::Status::OK)
+    if (Hyperspherical::Security::Pqc::KyberDecapsulate(kp, ct, ss_b) != Hyperspherical::Security::Pqc::Status::OK)
         return TESS_IO_FAIL;
     return ss_a.size() == ss_b.size() ? TESS_OK : TESS_IO_FAIL;
+#else
+    return -1; // TESS_IO_FAIL or equivalent error
+#endif
 }
-TESS_EXPORT int tess_pqc_nested_roundtrip(tess_handle_t h,
+PIRATE_EXPORT int tess_pqc_nested_roundtrip(pirate_handle_t h,
                                           const uint8_t* in, int in_len,
                                           uint8_t* out, int out_cap) {
+#ifdef HYPERSPHERICAL_ENTERPRISE_BUILD
+
     (void)h;
     if (!in || in_len <= 0 || !out || out_cap <= 0) return TESS_BAD_ARG;
-    Tesseract::Security::Pqc::KyberKeyPair kp;
-    if (Tesseract::Security::Pqc::KyberKeygen(kp) != Tesseract::Security::Pqc::Status::OK)
+    Hyperspherical::Security::Pqc::KyberKeyPair kp;
+    if (Hyperspherical::Security::Pqc::KyberKeygen(kp) != Hyperspherical::Security::Pqc::Status::OK)
         return TESS_IO_FAIL;
-    Tesseract::Security::Pqc::KyberCiphertext ct;
-    Tesseract::Security::Pqc::SharedSecret ss;
-    if (Tesseract::Security::Pqc::KyberEncapsulate(kp.public_key, ct, ss) != Tesseract::Security::Pqc::Status::OK)
+    Hyperspherical::Security::Pqc::KyberCiphertext ct;
+    Hyperspherical::Security::Pqc::SharedSecret ss;
+    if (Hyperspherical::Security::Pqc::KyberEncapsulate(kp.public_key, ct, ss) != Hyperspherical::Security::Pqc::Status::OK)
         return TESS_IO_FAIL;
     std::vector<uint8_t> ciphertext;
     std::span<const uint8_t> pt{in, static_cast<size_t>(in_len)};
-    if (auto s = Tesseract::Security::Pqc::NestedEncrypt(ss, pt, ciphertext);
-            s != Tesseract::Security::Pqc::Status::OK)
+    if (auto s = Hyperspherical::Security::Pqc::NestedEncrypt(ss, pt, ciphertext);
+            s != Hyperspherical::Security::Pqc::Status::OK)
         return TESS_IO_FAIL;
     std::span<const uint8_t> ct_span{ciphertext.data(), ciphertext.size()};
     std::vector<uint8_t> decrypted;
-    if (auto s = Tesseract::Security::Pqc::NestedDecrypt(ss, ct_span, decrypted);
-            s != Tesseract::Security::Pqc::Status::OK)
+    if (auto s = Hyperspherical::Security::Pqc::NestedDecrypt(ss, ct_span, decrypted);
+            s != Hyperspherical::Security::Pqc::Status::OK)
         return TESS_IO_FAIL;
     if (static_cast<int>(decrypted.size()) > out_cap) return TESS_BAD_ARG;
     std::memcpy(out, decrypted.data(), decrypted.size());
     return static_cast<int>(decrypted.size());
+#else
+    return -1; // TESS_IO_FAIL or equivalent error
+#endif
 }
-TESS_EXPORT int tess_obfuscation_flatten(tess_handle_t h,
+PIRATE_EXPORT int tess_obfuscation_flatten(pirate_handle_t h,
                                           uint8_t* buffer, int len,
                                           int language_index) {
+#ifdef HYPERSPHERICAL_ENTERPRISE_BUILD
+
     (void)h;
     if (!buffer || len <= 0) return TESS_BAD_ARG;
     if (language_index < 0 || language_index >= 6) return TESS_BAD_ARG;
-    Tesseract::Security::ObfuscationEngine::FlattenPayload(buffer,
+    Hyperspherical::Security::ObfuscationEngine::FlattenPayload(buffer,
         static_cast<size_t>(len), static_cast<size_t>(language_index));
     return TESS_OK;
+#else
+    return -1; // TESS_IO_FAIL or equivalent error
+#endif
 }
-TESS_EXPORT int tess_obfuscation_unflatten(tess_handle_t h,
+PIRATE_EXPORT int tess_obfuscation_unflatten(pirate_handle_t h,
                                             uint8_t* buffer, int len,
                                             int language_index) {
+#ifdef HYPERSPHERICAL_ENTERPRISE_BUILD
     (void)h;
     if (!buffer || len <= 0) return TESS_BAD_ARG;
     if (language_index < 0 || language_index >= 6) return TESS_BAD_ARG;
-    Tesseract::Security::ObfuscationEngine::UnflattenPayload(buffer,
+    Hyperspherical::Security::ObfuscationEngine::UnflattenPayload(buffer,
         static_cast<size_t>(len), static_cast<size_t>(language_index));
     return TESS_OK;
+#else
+    return -1; // TESS_IO_FAIL or equivalent error
+#endif
 }
 
 // =====================================================================
 // V1.1 tripwire
 // =====================================================================
-TESS_EXPORT int tess_tripwire_arm(tess_handle_t h,
+PIRATE_EXPORT int tess_tripwire_arm(pirate_handle_t h,
                                     uintptr_t low, uintptr_t high,
                                     int abort_on_trip) {
+#ifdef HYPERSPHERICAL_ENTERPRISE_BUILD
+
     (void)h;
     if (high < low) return TESS_BAD_ARG;
-    Tesseract::Security::TripwireEngine::SetAbortOnTrip(abort_on_trip != 0);
-    Tesseract::Security::TripwireEngine::RegisterHoneyGateRange(low,
+    Hyperspherical::Security::TripwireEngine::SetAbortOnTrip(abort_on_trip != 0);
+    Hyperspherical::Security::TripwireEngine::RegisterHoneyGateRange(low,
         static_cast<size_t>(high - low));
     return TESS_OK;
+#else
+    return -1; // TESS_IO_FAIL or equivalent error
+#endif
 }
-TESS_EXPORT int tess_tripwire_disarm(tess_handle_t h) {
+PIRATE_EXPORT int tess_tripwire_disarm(pirate_handle_t h) {
+#ifdef HYPERSPHERICAL_ENTERPRISE_BUILD
+
     (void)h;
-    Tesseract::Security::TripwireEngine::ClearHoneyGateRange();
+    Hyperspherical::Security::TripwireEngine::ClearHoneyGateRange();
     return TESS_OK;
+#else
+    return -1; // TESS_IO_FAIL or equivalent error
+#endif
 }
-TESS_EXPORT int tess_tripwire_check(tess_handle_t h, uintptr_t target) {
+PIRATE_EXPORT int tess_tripwire_check(pirate_handle_t h, uintptr_t target) {
+#ifdef HYPERSPHERICAL_ENTERPRISE_BUILD
+
     (void)h;
-    return Tesseract::Security::TripwireEngine::IsAddressIntercepted(target)
+    return Hyperspherical::Security::TripwireEngine::IsAddressIntercepted(target)
         ? 1 : 0;
+#else
+    return -1; // TESS_IO_FAIL or equivalent error
+#endif
 }
 
 // =====================================================================
 // V1.3 shard matrix
 // =====================================================================
 namespace {
-std::unique_ptr<Tesseract::Security::Sharding::ShardMatrix> g_shard_matrix;
+#ifdef HYPERSPHERICAL_ENTERPRISE_BUILD
+std::unique_ptr<Hyperspherical::Security::Sharding::ShardMatrix> g_shard_matrix;
+#endif
 std::mutex g_shard_mtx;
 }
 
-TESS_EXPORT int tess_shard_open(tess_handle_t h, const char* base_dir) {
+PIRATE_EXPORT int tess_shard_open(pirate_handle_t h, const char* base_dir) {
+#ifdef HYPERSPHERICAL_ENTERPRISE_BUILD
+
     (void)h;
     if (!base_dir) return TESS_BAD_ARG;
     std::lock_guard<std::mutex> lk(g_shard_mtx);
-    Tesseract::Security::Sharding::ShardMatrix::Config cfg;
+    Hyperspherical::Security::Sharding::ShardMatrix::Config cfg;
     cfg.base_dir  = base_dir;
     cfg.decoy_dir = (std::filesystem::path(base_dir) / "decoys").string();
     cfg.enable_rotator = true;
     cfg.rotator_interval_ms = 2000;
-    g_shard_matrix = std::make_unique<Tesseract::Security::Sharding::ShardMatrix>(cfg);
+    g_shard_matrix = std::make_unique<Hyperspherical::Security::Sharding::ShardMatrix>(cfg);
     return g_shard_matrix->open_all() ? TESS_OK : TESS_IO_FAIL;
+#else
+    return -1; // TESS_IO_FAIL or equivalent error
+#endif
 }
-TESS_EXPORT int tess_shard_write_payload(tess_handle_t h,
+PIRATE_EXPORT int tess_shard_write_payload(pirate_handle_t h,
                                           const uint8_t* data, int len) {
+#ifdef HYPERSPHERICAL_ENTERPRISE_BUILD
+
     (void)h;
     if (!g_shard_matrix || !data || len <= 0) return TESS_BAD_ARG;
     auto s = g_shard_matrix->write_payload(data, static_cast<size_t>(len));
-    return s == Tesseract::Security::Pqc::Status::OK ? TESS_OK : TESS_IO_FAIL;
+    return s == Hyperspherical::Security::Pqc::Status::OK ? TESS_OK : TESS_IO_FAIL;
+#else
+    return -1; // TESS_IO_FAIL or equivalent error
+#endif
 }
-TESS_EXPORT int tess_shard_read_payload(tess_handle_t h,
+PIRATE_EXPORT int tess_shard_read_payload(pirate_handle_t h,
                                          uint8_t* out, int out_cap) {
+#ifdef HYPERSPHERICAL_ENTERPRISE_BUILD
+
     (void)h;
     if (!g_shard_matrix || !out || out_cap <= 0) return TESS_BAD_ARG;
     std::vector<uint8_t> buf;
@@ -605,24 +697,37 @@ TESS_EXPORT int tess_shard_read_payload(tess_handle_t h,
     if (static_cast<int>(buf.size()) > out_cap) return TESS_BAD_ARG;
     std::memcpy(out, buf.data(), buf.size());
     return static_cast<int>(buf.size());
+#else
+    return -1; // TESS_IO_FAIL or equivalent error
+#endif
 }
-TESS_EXPORT int tess_shard_rotate(tess_handle_t h) {
+PIRATE_EXPORT int tess_shard_rotate(pirate_handle_t h) {
+#ifdef HYPERSPHERICAL_ENTERPRISE_BUILD
+
     (void)h;
     if (!g_shard_matrix) return TESS_BAD_ARG;
     g_shard_matrix->rotate_now();
     return TESS_OK;
+#else
+    return -1; // TESS_IO_FAIL or equivalent error
+#endif
 }
-TESS_EXPORT int tess_shard_close(tess_handle_t h) {
+PIRATE_EXPORT int tess_shard_close(pirate_handle_t h) {
+#ifdef HYPERSPHERICAL_ENTERPRISE_BUILD
+
     (void)h;
     std::lock_guard<std::mutex> lk(g_shard_mtx);
     g_shard_matrix.reset();
     return TESS_OK;
+#else
+    return -1; // TESS_IO_FAIL or equivalent error
+#endif
 }
 
 // =====================================================================
 // V1.4 / V1.5 blueprint dump
 // =====================================================================
-TESS_EXPORT int tess_commit_blueprint(const char* json_path) {
+PIRATE_EXPORT int tess_commit_blueprint(const char* json_path) {
     if (!json_path) return TESS_BAD_ARG;
     std::FILE* f = nullptr;
 #if defined(_MSC_VER)
@@ -657,7 +762,7 @@ TESS_EXPORT int tess_commit_blueprint(const char* json_path) {
 // =====================================================================
 // V1.7 — Mandatory Core Endpoint
 // =====================================================================
-TESS_EXPORT TesseractEngineHandle tesseract_create_engine(void) {
+PIRATE_EXPORT TesseractEngineHandle tesseract_create_engine(void) {
     std::cout << "[ROOT_SERVER] Initializing dedicated local LLM host on root interface...\n";
 #if TESSERACT_USE_LLAMA
     std::cout << "[ROOT_SERVER] llama.cpp backend linked and active.\n";
@@ -673,7 +778,7 @@ TESS_EXPORT TesseractEngineHandle tesseract_create_engine(void) {
     return static_cast<TesseractEngineHandle>(engine);
 }
 
-TESS_EXPORT void tesseract_set_vram_saturation(TesseractEngineHandle handle,
+PIRATE_EXPORT void tesseract_set_vram_saturation(TesseractEngineHandle handle,
                                                   float saturation) {
     if (!handle) return;
     auto* engine = static_cast<InternalEngine*>(handle);
@@ -685,7 +790,7 @@ TESS_EXPORT void tesseract_set_vram_saturation(TesseractEngineHandle handle,
     std::cout << "[SHIM] VRAM Saturation adjusted via GUI to: " << saturation << "\n";
 }
 
-TESS_EXPORT int tesseract_execute_inference_token(TesseractEngineHandle handle,
+PIRATE_EXPORT int tesseract_execute_inference_token(TesseractEngineHandle handle,
                                                      uint64_t token_id) {
     if (!handle) return -1;
     auto* engine = static_cast<InternalEngine*>(handle);
@@ -696,14 +801,14 @@ TESS_EXPORT int tesseract_execute_inference_token(TesseractEngineHandle handle,
     return 0;
 }
 
-TESS_EXPORT void tesseract_destroy_engine(TesseractEngineHandle handle) {
+PIRATE_EXPORT void tesseract_destroy_engine(TesseractEngineHandle handle) {
     if (!handle) return;
     auto* engine = static_cast<InternalEngine*>(handle);
     delete engine;
     std::cout << "[ROOT_SERVER] Local server endpoint closed down cleanly.\n";
 }
 
-TESS_EXPORT void tesseract_toggle_circuit_breaker(TesseractEngineHandle handle,
+PIRATE_EXPORT void tesseract_toggle_circuit_breaker(TesseractEngineHandle handle,
                                                      int enabled) {
     if (!handle) return;
     auto* engine = static_cast<InternalEngine*>(handle);
@@ -714,7 +819,7 @@ TESS_EXPORT void tesseract_toggle_circuit_breaker(TesseractEngineHandle handle,
     }
 }
 
-TESS_EXPORT int tesseract_openai_chat(TesseractEngineHandle handle,
+PIRATE_EXPORT int tesseract_openai_chat(TesseractEngineHandle handle,
                                          const char* request_json, int request_len,
                                          char* out, int out_cap) {
     if (!handle || !out || out_cap <= 0) return -1;
@@ -734,7 +839,7 @@ TESS_EXPORT int tesseract_openai_chat(TesseractEngineHandle handle,
     return needed - 1;
 }
 
-TESS_EXPORT int tesseract_llama_backend_active(void) {
+PIRATE_EXPORT int tesseract_llama_backend_active(void) {
 #if TESSERACT_USE_LLAMA
     return 1;
 #else

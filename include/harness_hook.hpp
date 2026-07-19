@@ -2,7 +2,7 @@
 #include "types.hpp"
 #include <cstdint>
 
-namespace tesseract {
+namespace hypersp {
 
 /* Hooks into llama.cpp inference pipeline */
 class HarnessHook {
@@ -17,4 +17,4 @@ public:
     void on_post_layer(uint32_t layer_id, size_t byte_size) noexcept;
 };
 
-} // namespace tesseract
+} // namespace hypersp

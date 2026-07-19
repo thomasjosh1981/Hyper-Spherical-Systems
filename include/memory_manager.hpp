@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <vector>
 
-namespace tesseract {
+namespace hypersp {
 
 class MemoryManager {
 public:
@@ -50,4 +50,4 @@ private:
     bool                circuit_breaker_ = true;    // V1.4 enable_circuit_breaker
 };
 
-} // namespace tesseract
+} // namespace hypersp

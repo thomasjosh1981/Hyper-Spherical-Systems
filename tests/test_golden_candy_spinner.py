@@ -31,14 +31,14 @@ def run_test():
     files = os.listdir(test_out_dir)
     print("Output files:", files)
     
-    manifest_found = any(f.endswith(".tesseract_profiles.json") for f in files)
+    manifest_found = any(f.endswith(".hypersphere_profiles.json") for f in files)
     chunks_found = any(f.endswith(".trf") for f in files)
     
     assert manifest_found, "Manifest file not found in output!"
     assert chunks_found, "TRF chunks not found in output!"
     
     # Read manifest to ensure elastic_breathing_search is true
-    manifest_path = os.path.join(test_out_dir, "dummy_model.gguf.tesseract_profiles.json")
+    manifest_path = os.path.join(test_out_dir, "dummy_model.gguf.hypersphere_profiles.json")
     import json
     with open(manifest_path, "r") as f:
         manifest = json.load(f)

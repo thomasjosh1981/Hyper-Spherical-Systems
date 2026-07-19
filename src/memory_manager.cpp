@@ -2,7 +2,7 @@
 #include "memory_manager.hpp"
 #include <algorithm>
 
-namespace tesseract {
+namespace hypersp {
 
 MemoryManager::MemoryManager(const Config& cfg) : config_(cfg) {}
 
@@ -101,4 +101,4 @@ size_t MemoryManager::ram_staging_limit() const noexcept {
     return static_cast<size_t>(static_cast<double>(config_.ram_total_bytes) * config_.ram_staging_pct);
 }
 
-} // namespace tesseract
+} // namespace hypersp

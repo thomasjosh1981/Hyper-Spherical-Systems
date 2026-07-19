@@ -22,7 +22,7 @@
 #pragma comment(lib, "Shlwapi.lib")
 #pragma comment(lib, "Kernel32.lib")
 
-namespace tesseract::benchmark {
+namespace hypersp::benchmark {
 
 // ── Drive discovery (NVMe detection + cache size baseline) ──────────
 struct DriveProfile {
@@ -313,4 +313,4 @@ int runBench() {
     return 0;
 }
 
-} // namespace tesseract::benchmark
+} // namespace hypersp::benchmark

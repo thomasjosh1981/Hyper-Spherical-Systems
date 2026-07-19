@@ -1,0 +1,10 @@
+^I:\WORKSPACE\HYPER_SPHERICAL\BUILD_ENTERPRISE\CMAKEFILES\F7E1C920C4BBAFC667D57CB070784BCB\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SI:/workspace/hyper_spherical -BI:/workspace/hyper_spherical/build_enterprise --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file I:/workspace/hyper_spherical/build_enterprise/Project_Hyperspherical_Core.slnx
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

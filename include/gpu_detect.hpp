@@ -14,7 +14,7 @@
 #include <vector>
 #include <string>
 
-namespace Tesseract::GPU {
+namespace Hyperspherical::GPU {
 
 struct AdapterInfo {
     std::string description;     // "AMD Radeon RX 6700 XT", "NVIDIA GeForce RTX 3060", ...
@@ -38,4 +38,4 @@ DetectResult detect_total_vram();
 // Enumerate every adapter (for diagnostics + GUI display).
 DetectResult enumerate_adapters();
 
-}  // namespace Tesseract::GPU
+}  // namespace Hyperspherical::GPU

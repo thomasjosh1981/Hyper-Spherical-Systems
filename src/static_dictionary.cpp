@@ -1,6 +1,6 @@
 #include "static_dictionary.hpp"
 
-namespace tesseract {
+namespace hypersp {
 
 const std::vector<std::string_view> STATIC_AI_WORDS = {
     "tensor", "gradient", "descent", "attention", "weights", "biases", "activation", "sigmoid", "softmax",
@@ -76,4 +76,4 @@ const std::vector<std::string_view> STATIC_AI_NGRAMS = {
     "asynchronous advantage actor critic", "soft actor critic", "trust region policy optimization", "deterministic policy gradient"
 };
 
-} // namespace tesseract
+} // namespace hypersp

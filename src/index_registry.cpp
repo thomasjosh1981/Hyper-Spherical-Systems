@@ -4,7 +4,7 @@
 
 namespace fs = std::filesystem;
 
-namespace tesseract {
+namespace hypersp {
 
 void IndexRegistry::build_index(const std::string& nvme_base) noexcept {
     shards_.clear();
@@ -37,4 +37,4 @@ std::vector<LayerShard> IndexRegistry::get_layers_in_vram() const noexcept {
     return result;
 }
 
-} // namespace tesseract
+} // namespace hypersp

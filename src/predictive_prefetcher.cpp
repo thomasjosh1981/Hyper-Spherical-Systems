@@ -12,7 +12,7 @@
 #include <unordered_map>
 #include <cmath>
 
-namespace tesseract {
+namespace hypersp {
 
 void PatternPredictor::decay_transition(uint32_t from, uint32_t to, int delta) noexcept {
     auto& row = transition_table_[from];
@@ -145,12 +145,12 @@ PatternPredictor::Stats PatternPredictor::stats() const noexcept {
     return s;
 }
 
-} // namespace tesseract
+} // namespace hypersp
 
 // WeightStreamer: thin layer over MemoryManager that knows how to estimate
 // shard sizes and how to feed preloads into the manager.
 // ----------------------------------------------------------------------
-namespace tesseract {
+namespace hypersp {
 
 WeightStreamer::WeightStreamer(const Config& cfg, size_t phys_vram_bytes)
     : config_(cfg),
@@ -181,4 +181,4 @@ float WeightStreamer::vram_usage_pct() const noexcept {
     return (static_cast<float>(vram_current_) / static_cast<float>(vram_budget_)) * 100.0f;
 }
 
-} // namespace tesseract
+} // namespace hypersp

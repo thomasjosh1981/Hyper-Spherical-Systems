@@ -1,10 +1,14 @@
 #include "candy_spinner.hpp"
+#include "gguf_reader.hpp"
+#include "../include/hypersphere.hpp"
+#include "types.hpp"
 #include <iostream>
+
 #include <fstream>
 #include <cmath>
 #include <numeric>
 
-namespace tesseract {
+namespace hypersp {
 
 CandySpinner::CandySpinner() {
 }
@@ -28,16 +32,16 @@ float CandySpinner::calculate_w_entropy(const std::vector<float>& vec) const {
     return 1.0f / (1.0f + std::exp(-variance));
 }
 
-bool CandySpinner::spin(const std::string& input_gguf, const std::string& output_hscc) {
+bool CandySpinner::spin(const std::string& input_gguf, const std::string& output_file, SpinMode mode) {
     GGUFReader reader(input_gguf);
     if (!reader.is_valid()) {
         std::cerr << "[CandySpinner] Failed to read GGUF: " << input_gguf << std::endl;
         return false;
     }
 
-    std::ofstream out(output_hscc, std::ios::binary);
+    std::ofstream out(output_file, std::ios::binary);
     if (!out) {
-        std::cerr << "[CandySpinner] Failed to create output file: " << output_hscc << std::endl;
+        std::cerr << "[CandySpinner] Failed to create output file: " << output_file << std::endl;
         return false;
     }
 
@@ -47,6 +51,11 @@ bool CandySpinner::spin(const std::string& input_gguf, const std::string& output
     CandyChunkHeader header;
     header.magic = 0x43435348; // "HSCC"
     header.version = 2; // Version 2 implies Counter-Rotating Bladed Vortex Compression
+    
+    // SFS configurations
+    header.is_sfs = (mode == SpinMode::SFS || mode == SpinMode::SFS_PLUS) ? 1 : 0;
+    header.is_sfs_plus = (mode == SpinMode::SFS_PLUS) ? 1 : 0;
+    header.virtual_moe_size = header.is_sfs ? 8 : 0; // Defaulting to 8 virtual experts for SFS
     
     // Count how many F32 tensors we actually spin
     uint32_t spin_count = 0;
@@ -163,4 +172,11 @@ bool CandySpinner::spin(const std::string& input_gguf, const std::string& output
     return true;
 }
 
-} // namespace tesseract
+void CandySpinner::set_recursive_brain(const std::string& brain_gguf_path) {
+    // Stub for now. 
+    // In the future this will load the specified brain model into the output stream 
+    // header so it can be used for runtime optimization without relying on external libraries.
+    std::cout << "[INFO] Configured Local Recursive Supervisor Brain: " << brain_gguf_path << "\n";
+}
+
+} // namespace hypersp

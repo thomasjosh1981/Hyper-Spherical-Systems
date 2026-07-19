@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <string_view>
 
-namespace tesseract {
+namespace hypersp {
 
 struct SissiConfig {
     bool discard_prepositions = false;             // Discards prepositions to minimize size
@@ -107,5 +107,5 @@ private:
     float  total_out_bytes        = 0.0f;
 };
 
-} // namespace tesseract
+} // namespace hypersp
 

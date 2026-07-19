@@ -10,7 +10,7 @@
 #include <thread>
 #include <chrono>
 
-namespace trf = Tesseract::TRF;
+namespace trf = Hyperspherical::TRF;
 
 static int g_total = 0, g_passed = 0, g_failed = 0;
 static const char* g_current_test = nullptr;
@@ -35,7 +35,7 @@ static const char* g_current_test = nullptr;
 
 static void test_paths_derived_from_model_filename() {
     CHECK(trf::derive_registry_path("qwen-30b.gguf")
-          == "qwen-30b.gguf.tesseract_profiles.json");
+          == "qwen-30b.gguf.hypersphere_profiles.json");
     CHECK(trf::derive_profile_path("qwen-30b.gguf", "main")
           == "qwen-30b.gguf_main.trf");
 }

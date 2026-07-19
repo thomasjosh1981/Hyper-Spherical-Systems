@@ -17,7 +17,7 @@
 
 // Require C++17 minimum for all SISSI-dependent modules
 #if __cplusplus < 201703L
-#  error "Project Tesseract requires C++17 or later."
+#  error "Project Pirate Llama requires C++17 or later."
 #endif
 
 // Check that the context_compressor header is reachable
@@ -40,7 +40,7 @@ static_assert(TESSERACT_SISSI_CORE_INCLUDED == 1,
     "See CMakeLists.txt: sissi_core source group.");
 
 // Convenience alias so callers don't need to spell out the full namespace
-namespace tesseract {
+namespace hypersp {
     using Compressor = ContextCompressor;
     using SissiCfg   = SissiConfig;
-} // namespace tesseract
+} // namespace hypersp

@@ -2,7 +2,7 @@
 #include "telemetry_logger.hpp"
 #include <cstring>
 
-namespace tesseract {
+namespace hypersp {
 
 void TelemetryLogger::log(const char* msg, float value) noexcept {
     if (!msg) return;
@@ -22,4 +22,14 @@ size_t TelemetryLogger::get_active_kv_token_count() const noexcept {
     return snap_.active_kv_tokens;
 }
 
-} // namespace tesseract
+void TelemetryLogger::set_opt_in(bool opt_in) noexcept {
+    opt_in_ = opt_in;
+}
+
+void TelemetryLogger::transmit() noexcept {
+    if (!opt_in_) return;
+    
+    // Remote transmission logic goes here...
+}
+
+} // namespace hypersp

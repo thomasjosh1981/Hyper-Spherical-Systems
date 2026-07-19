@@ -2,7 +2,7 @@
 // Serializes AdvancedDirectives into a JSON blueprint consumed by the build harness.
 #include "runtime_directives.hpp"
 
-namespace Tesseract::GUI::Integration {
+namespace Hyperspherical::GUI::Integration {
 
     void CommitAdvancedDirectives(const std::string& blueprint_path,
                                     const AdvancedDirectives& settings) {

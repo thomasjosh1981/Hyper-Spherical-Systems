@@ -1,4 +1,4 @@
-// tesseract_core driver — exercises the full engine pipeline end-to-end:
+// pirate_core driver — exercises the full engine pipeline end-to-end:
 //   1) Context compression (round-trippable on repeating phrases)
 //   2) MemoryManager tier placement (VRAM + RAM staging)
 //   3) PatternPredictor training and prediction
@@ -28,7 +28,7 @@
 #include <vector>
 
 namespace fs = std::filesystem;
-using namespace tesseract;
+using namespace hypersp;
 
 static void section(const char* title) {
     std::printf("\n=== %s ===\n", title);
@@ -197,7 +197,7 @@ int main(int argc, char** argv) {
     std::printf("shards indexed  : 1 (the demo shard file)\n");
     std::printf("shards in VRAM  : %zu\n", in_vram.size());
 
-    std::printf("\n=== tesseract_core smoke run complete ===\n");
+    std::printf("\n=== pirate_core smoke run complete ===\n");
     (void)argc; (void)argv;
     return 0;
 }

@@ -45,11 +45,11 @@
 // tesseract` (lowercase, per config.hpp). LayerIllusionist lives in `namespace
 // Tesseract` (uppercase). Add an alias so unqualified names resolve.
 namespace Tesseract {
-    using tesseract::Config;
-    using tesseract::MemoryManager;
-    using tesseract::PatternPredictor;
-    using tesseract::MemoryTier;
-    using tesseract::LayerShard;
+    using hypersp::Config;
+    using hypersp::MemoryManager;
+    using hypersp::PatternPredictor;
+    using hypersp::MemoryTier;
+    using hypersp::LayerShard;
 }
 
 namespace Tesseract {

@@ -3,7 +3,7 @@
 #include <string>
 #include <fstream>
 
-namespace Tesseract::GUI::Integration {
+namespace Hyperspherical::GUI::Integration {
 
     struct AdvancedDirectives {
         bool elastic_breathing_search = true;

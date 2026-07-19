@@ -16,6 +16,7 @@
 #include "pirate_gui.hpp"
 #include "config.hpp"
 #include "license_manager.hpp"
+#include "telemetry_logger.hpp"
 
 #include <cstdio>
 #include <cstring>
@@ -62,10 +63,10 @@ int main(int argc, char** argv) {
     print_banner();
 
     // Initialize DRM & Trial Enforcer
-    tesseract::LicenseManager::init();
-    tesseract::LicenseState state = tesseract::LicenseManager::get_state();
+    hypersp::LicenseManager::init();
+    hypersp::LicenseState state = hypersp::LicenseManager::get_state();
 
-    if (state.tier == tesseract::LicenseTier::TRIAL_EXPIRED) {
+    if (state.tier == hypersp::LicenseTier::TRIAL_EXPIRED) {
         std::printf("[!] ERROR: Trial has expired.\n");
         std::printf("    Hardware ID: %s\n", state.hardware_id.c_str());
         std::printf("    To continue using Pirate Llama, please purchase a license.\n\n");
@@ -76,9 +77,9 @@ int main(int argc, char** argv) {
     std::printf("App Hardware ID: %s\n", state.hardware_id.c_str());
     std::printf("Current Pop Lock Code (Rolling): %s\n", state.current_pop_lock.c_str());
     
-    if (state.tier == tesseract::LicenseTier::TRIAL_12HR || 
-        state.tier == tesseract::LicenseTier::TRIAL_6HR  || 
-        state.tier == tesseract::LicenseTier::TRIAL_4HR) {
+    if (state.tier == hypersp::LicenseTier::TRIAL_12HR || 
+        state.tier == hypersp::LicenseTier::TRIAL_6HR  || 
+        state.tier == hypersp::LicenseTier::TRIAL_4HR) {
         std::printf("License Tier: TRIAL MODE (%llu seconds remaining)\n", 
             static_cast<unsigned long long>(state.remaining_seconds));
     } else {
@@ -95,6 +96,9 @@ int main(int argc, char** argv) {
             cfg.proxy_port = static_cast<uint16_t>(std::atoi(argv[++i]));
         } else if (std::strcmp(argv[i], "--backend") == 0 && i + 1 < argc) {
             cfg.backend = parse_backend(argv[++i]);
+        } else if (std::strcmp(argv[i], "--model") == 0 && i + 1 < argc) {
+            cfg.model_path = argv[++i];
+            cfg.backend = pirate::Backend::NATIVE;
         } else if (std::strcmp(argv[i], "--no-gui") == 0) {
             no_gui = true;
         } else if (std::strcmp(argv[i], "--no-sissi") == 0) {
@@ -109,7 +113,7 @@ int main(int argc, char** argv) {
             cfg.backend_port = static_cast<uint16_t>(std::atoi(argv[++i]));
         } else if (std::strcmp(argv[i], "--license") == 0 && i + 1 < argc) {
             std::string payload = argv[++i];
-            if (tesseract::LicenseManager::apply_unlock_payload("", payload)) {
+            if (hypersp::LicenseManager::apply_unlock_payload("", payload)) {
                 std::printf("[pirate_llama] SUCCESS: License applied! Restart or continue.\n");
             } else {
                 std::printf("[pirate_llama] ERROR: Invalid license payload.\n");
@@ -133,7 +137,7 @@ int main(int argc, char** argv) {
     }
 
     // Bind license state to proxy config
-    cfg.is_pro_tier = tesseract::LicenseManager::is_feature_allowed("cloud_context");
+    cfg.is_pro_tier = hypersp::LicenseManager::is_feature_allowed("cloud_context");
 
     // Set up signal handlers for graceful shutdown
     std::signal(SIGINT,  signal_handler);
@@ -173,8 +177,23 @@ int main(int argc, char** argv) {
             // Propagate GUI changes back to the proxy
             proxy.update_config(updated_cfg);
         });
+        
+        proxy.set_consent_callback([gui_ptr = gui.get()](const std::string& src, const std::string& target) {
+            return gui_ptr->prompt_manual_consent(src, target);
+        });
+
+        proxy.set_rewrite_consent_callback([gui_ptr = gui.get()](float savings_pct) {
+            return gui_ptr->prompt_rewrite_consent(savings_pct);
+        });
+
         gui->run();
+        gui->show_onboarding_wizard();
         std::printf("[pirate_llama] Control panel launched (always-on-top)\n");
+    } else {
+        proxy.set_consent_callback([](const std::string&, const std::string&) {
+            std::printf("[pirate_llama] Cloud routing rejected (No GUI available for manual consent).\n");
+            return false;
+        });
     }
 
     // ── Main wait loop ────────────────────────────────────────────────────
@@ -189,20 +208,27 @@ int main(int argc, char** argv) {
         auto now = std::chrono::steady_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - last_tick).count();
         if (elapsed >= 1) {
-            tesseract::LicenseManager::tick_usage(elapsed);
+            hypersp::LicenseManager::tick_usage(elapsed);
             last_tick = now;
 
-            if (tesseract::LicenseManager::get_state().tier == tesseract::LicenseTier::TRIAL_EXPIRED) {
+            if (hypersp::LicenseManager::get_state().tier == hypersp::LicenseTier::TRIAL_EXPIRED) {
                 std::printf("\n[!] Trial has expired. Shutting down.\n");
                 g_shutdown.store(true);
             }
         }
 
-        // Periodic telemetry print if no GUI
-        if (no_gui) {
-            static int tick = 0;
-            if (++tick % 20 == 0) {  // every ~10s
-                pirate::ProxyTelemetry t = proxy.get_telemetry();
+        // Periodic telemetry dispatch and print
+        static int tick = 0;
+        if (++tick % 20 == 0) {  // every ~10s
+            pirate::ProxyTelemetry t = proxy.get_telemetry();
+            pirate::ProxyConfig current_cfg = proxy.get_config();
+            
+            hypersp::TelemetryLogger t_logger;
+            t_logger.set_vram_usage_pct(t.vram_usage_pct);
+            t_logger.set_opt_in(current_cfg.advanced_telemetry_opt_in);
+            t_logger.transmit(); // Will only transmit if opted in
+
+            if (no_gui) {
                 std::printf("[telemetry] reqs=%llu  ratio=%.2fx  backend=%s\n",
                             static_cast<unsigned long long>(t.requests_handled),
                             static_cast<double>(t.compression_ratio),

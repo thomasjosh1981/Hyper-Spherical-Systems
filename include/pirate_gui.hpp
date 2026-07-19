@@ -48,6 +48,11 @@ public:
     void on_config_change(ConfigChangeCallback cb);
     bool is_running() const noexcept;
 
+    // TOS Compliance Flow
+    bool prompt_manual_consent(const std::string& source, const std::string& target);
+    bool prompt_rewrite_consent(float savings_pct);
+    void show_onboarding_wizard();
+
 private:
     void gui_thread_func();
     void apply_config_change();

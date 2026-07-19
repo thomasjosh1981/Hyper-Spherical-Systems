@@ -1,0 +1,16 @@
+I:\workspace\hyper_spherical\src\tests.cpp;I:\workspace\hyper_spherical\build_test\pirate_tests.dir\Release\tests.obj
+I:\workspace\hyper_spherical\src\standard_cipher.cpp;I:\workspace\hyper_spherical\build_test\pirate_tests.dir\Release\standard_cipher.obj
+I:\workspace\hyper_spherical\src\context_compressor.cpp;I:\workspace\hyper_spherical\build_test\pirate_tests.dir\Release\context_compressor.obj
+I:\workspace\hyper_spherical\src\static_dictionary.cpp;I:\workspace\hyper_spherical\build_test\pirate_tests.dir\Release\static_dictionary.obj
+I:\workspace\hyper_spherical\src\dictionary_store.cpp;I:\workspace\hyper_spherical\build_test\pirate_tests.dir\Release\dictionary_store.obj
+I:\workspace\hyper_spherical\src\crypto_engine.cpp;I:\workspace\hyper_spherical\build_test\pirate_tests.dir\Release\crypto_engine.obj
+I:\workspace\hyper_spherical\src\harness_hook.cpp;I:\workspace\hyper_spherical\build_test\pirate_tests.dir\Release\harness_hook.obj
+I:\workspace\hyper_spherical\src\index_registry.cpp;I:\workspace\hyper_spherical\build_test\pirate_tests.dir\Release\index_registry.obj
+I:\workspace\hyper_spherical\src\license_manager.cpp;I:\workspace\hyper_spherical\build_test\pirate_tests.dir\Release\license_manager.obj
+I:\workspace\hyper_spherical\src\memory_manager.cpp;I:\workspace\hyper_spherical\build_test\pirate_tests.dir\Release\memory_manager.obj
+I:\workspace\hyper_spherical\src\nvme_io.cpp;I:\workspace\hyper_spherical\build_test\pirate_tests.dir\Release\nvme_io.obj
+I:\workspace\hyper_spherical\src\predictive_prefetcher.cpp;I:\workspace\hyper_spherical\build_test\pirate_tests.dir\Release\predictive_prefetcher.obj
+I:\workspace\hyper_spherical\src\recovery_checkpoint.cpp;I:\workspace\hyper_spherical\build_test\pirate_tests.dir\Release\recovery_checkpoint.obj
+I:\workspace\hyper_spherical\src\telemetry_logger.cpp;I:\workspace\hyper_spherical\build_test\pirate_tests.dir\Release\telemetry_logger.obj
+I:\workspace\hyper_spherical\src\neuron_graph.cpp;I:\workspace\hyper_spherical\build_test\pirate_tests.dir\Release\neuron_graph.obj
+I:\workspace\hyper_spherical\src\hypersphere.cpp;I:\workspace\hyper_spherical\build_test\pirate_tests.dir\Release\hypersphere.obj

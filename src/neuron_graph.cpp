@@ -2,7 +2,7 @@
 #include <chrono>
 #include <algorithm>
 
-namespace tesseract {
+namespace hypersp {
 
 void NeuronGraph::add_neuron(uint32_t id, const std::string& phrase, const std::vector<float>& embedding) {
     VirtualNeuron vn;
@@ -109,4 +109,4 @@ float NeuronGraph::get_link_strength(uint32_t id1, uint32_t id2) const {
     return 0.0f;
 }
 
-} // namespace tesseract
+} // namespace hypersp

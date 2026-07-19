@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <sstream>
 
-namespace tesseract {
+namespace hypersp {
 
 // === Khmer character reassignment mapping helper ===
 uint8_t ContextCompressor::encode_khmer_char(uint16_t unicode_khmer) noexcept {
@@ -562,4 +562,4 @@ std::string ContextCompressor::decompress(const std::vector<KVCachedEntry>& entr
     return out;
 }
 
-} // namespace tesseract
+} // namespace hypersp

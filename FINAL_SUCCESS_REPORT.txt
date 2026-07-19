@@ -1,6 +1,6 @@
 
 ========================================================================
-           TESSERACT CORE SYSTEM v1.7 - DEPLOYMENT & VALIDATION
+           PIRATE LLAMA CORE SYSTEM v1.7 - DEPLOYMENT & VALIDATION
 ========================================================================
 STATUS: SUCCESS (Artifact generated via runtime environment shell)
 

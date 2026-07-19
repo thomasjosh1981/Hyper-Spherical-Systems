@@ -12,7 +12,7 @@
 #  include <windows.h>
 #endif
 
-namespace tesseract {
+namespace hypersp {
 
 NVMeIO::NVMeIO(const std::string& nvme_mount) : mount_(nvme_mount) {}
 
@@ -100,4 +100,4 @@ int32_t NVMeIO::benchmark_throughput(size_t num_runs) noexcept {
 #endif
 }
 
-} // namespace tesseract
+} // namespace hypersp

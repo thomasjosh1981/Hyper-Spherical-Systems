@@ -24,7 +24,7 @@ static const int   TIER_COMMUNITY_90DAY = 11;
 
 // ── Hardware ID (must match app exactly) ──────────────────────────────────
 static std::string generate_hardware_id() {
-    std::string hw_id = "TESS-";
+    std::string hw_id = "PIRATE-";
     int cpuInfo[4] = {-1};
     __cpuid(cpuInfo, 0);
     char cpu_buf[32];

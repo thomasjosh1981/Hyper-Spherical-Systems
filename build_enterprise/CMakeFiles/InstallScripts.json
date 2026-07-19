@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"I:/workspace/hyper_spherical/build_enterprise/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

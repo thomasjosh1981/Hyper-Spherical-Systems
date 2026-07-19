@@ -5,7 +5,7 @@
 #include <memory>
 #include <stdexcept>
 
-namespace tesseract {
+namespace hypersp {
 
 enum class GGUFType : uint32_t {
     F32  = 0,
@@ -67,4 +67,4 @@ private:
     std::vector<std::string> tokens_;
 };
 
-} // namespace tesseract
+} // namespace hypersp

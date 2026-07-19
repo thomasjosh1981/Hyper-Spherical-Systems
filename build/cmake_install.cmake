@@ -1,8 +1,8 @@
-# Install script for directory: C:/Users/twist/workspace/hyper_spherical_systems
+# Install script for directory: I:/workspace/hyper_spherical
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "C:/Program Files (x86)/Project_Tesseract_Core")
+  set(CMAKE_INSTALL_PREFIX "C:/Program Files (x86)/Project_Hyperspherical_Core")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -35,7 +35,7 @@ endif()
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
 if(CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "C:/Users/twist/workspace/hyper_spherical_systems/build/install_local_manifest.txt"
+  file(WRITE "I:/workspace/hyper_spherical/build/install_local_manifest.txt"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()
 if(CMAKE_INSTALL_COMPONENT)
@@ -51,6 +51,6 @@ else()
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "C:/Users/twist/workspace/hyper_spherical_systems/build/${CMAKE_INSTALL_MANIFEST}"
+  file(WRITE "I:/workspace/hyper_spherical/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()
