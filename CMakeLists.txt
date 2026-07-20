@@ -142,6 +142,7 @@ add_executable(pirate_core
     src/harness_hook.cpp
     src/index_registry.cpp
     src/license_manager.cpp
+    src/session_heartbeat.cpp
     src/memory_manager.cpp
     src/nvme_io.cpp
     src/predictive_prefetcher.cpp
@@ -152,6 +153,8 @@ add_executable(pirate_core
     src/neuron_graph.cpp
     src/hypersphere.cpp
     src/recursive_updater.cpp
+    src/sandbox_environment.cpp
+    src/huggingface_client.cpp
     ${ENTERPRISE_SOURCES}
 )
 target_include_directories(pirate_core PRIVATE
@@ -159,7 +162,7 @@ target_include_directories(pirate_core PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(pirate_core PRIVATE hypersphere_security)
 if(WIN32)
-    target_link_libraries(pirate_core PRIVATE shlwapi kernel32 cfgmgr32)
+    target_link_libraries(pirate_core PRIVATE shlwapi kernel32 cfgmgr32 winhttp)
 endif()
 add_upx_pack(pirate_core)  # Pack the shipping engine binary
 
@@ -167,6 +170,7 @@ add_upx_pack(pirate_core)  # Pack the shipping engine binary
 enable_testing()
 add_executable(pirate_tests
     src/tests.cpp
+    src/context_compression_cramming_declutterizer.cpp
     src/standard_cipher.cpp
     src/context_compressor.cpp
     src/static_dictionary.cpp
@@ -175,6 +179,7 @@ add_executable(pirate_tests
     src/harness_hook.cpp
     src/index_registry.cpp
     src/license_manager.cpp
+    src/session_heartbeat.cpp
     src/memory_manager.cpp
     src/nvme_io.cpp
     src/predictive_prefetcher.cpp
@@ -183,6 +188,8 @@ add_executable(pirate_tests
     src/neuron_graph.cpp
     src/hypersphere.cpp
     src/recursive_updater.cpp
+    src/sandbox_environment.cpp
+    src/huggingface_client.cpp
     ${ENTERPRISE_SOURCES}
 )
 target_include_directories(pirate_tests PRIVATE
@@ -191,7 +198,7 @@ target_include_directories(pirate_tests PRIVATE
 )
 target_link_libraries(pirate_tests PRIVATE hypersphere_security python_bridge)
 if(WIN32)
-    target_link_libraries(pirate_tests PRIVATE shlwapi kernel32 cfgmgr32)
+    target_link_libraries(pirate_tests PRIVATE shlwapi kernel32 cfgmgr32 winhttp)
 endif()
 add_test(NAME tesseract_core_tests COMMAND pirate_tests)
 
@@ -218,7 +225,7 @@ target_include_directories(nvme_benchmark PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/include)
 if(WIN32)
-    target_link_libraries(nvme_benchmark PRIVATE shlwapi kernel32 cfgmgr32)
+    target_link_libraries(nvme_benchmark PRIVATE shlwapi kernel32 cfgmgr32 winhttp)
 endif()
 
 # ── V1.5 spec surface: root-level bridge executable ────────────────────
@@ -236,12 +243,15 @@ add_executable(pirate_bridge
     src/predictive_prefetcher.cpp
     src/index_registry.cpp
     src/license_manager.cpp
+    src/session_heartbeat.cpp
     src/nvme_io.cpp
     src/recovery_checkpoint.cpp
     src/telemetry_logger.cpp
     src/neuron_graph.cpp
     src/hypersphere.cpp
     src/recursive_updater.cpp
+    src/sandbox_environment.cpp
+    src/huggingface_client.cpp
     ${ENTERPRISE_SOURCES}
 )
 target_include_directories(pirate_bridge PRIVATE
@@ -249,7 +259,7 @@ target_include_directories(pirate_bridge PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(pirate_bridge PRIVATE hypersphere_security)
 if(WIN32)
-    target_link_libraries(pirate_bridge PRIVATE shlwapi kernel32 cfgmgr32)
+    target_link_libraries(pirate_bridge PRIVATE shlwapi kernel32 cfgmgr32 winhttp)
 endif()
 add_upx_pack(pirate_bridge)  # Pack the shipping bridge binary
 
@@ -284,6 +294,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/python_bridge.cpp"
         src/predictive_prefetcher.cpp
         src/index_registry.cpp
         src/license_manager.cpp
+    src/session_heartbeat.cpp
         src/nvme_io.cpp
         src/recovery_checkpoint.cpp
         src/telemetry_logger.cpp
@@ -296,7 +307,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/python_bridge.cpp"
         ${CMAKE_CURRENT_SOURCE_DIR}/include)
     target_link_libraries(python_bridge PRIVATE hypersphere_security)
     if(WIN32)
-        target_link_libraries(python_bridge PRIVATE shlwapi kernel32 cfgmgr32)
+        target_link_libraries(python_bridge PRIVATE shlwapi kernel32 cfgmgr32 winhttp)
         set_target_properties(python_bridge PROPERTIES PREFIX "" SUFFIX ".dll")
     endif()
     add_upx_pack(python_bridge)  # Pack the shipping DLL
@@ -325,6 +336,10 @@ add_executable(pirate_llama
     src/pirate_main.cpp
     src/pirate_proxy.cpp
     src/pirate_gui.cpp
+    src/context_compression_cramming_declutterizer.cpp
+    src/recursive_updater.cpp
+    src/sandbox_environment.cpp
+    src/huggingface_client.cpp
     src/model_router.cpp
     src/gateway_scanner.cpp
     src/macro_recorder.cpp
@@ -336,7 +351,11 @@ add_executable(pirate_llama
     src/feature_router.cpp
     src/arterial_bridge.cpp
     src/synthetic_neuron.cpp
+    src/conversation_manager.cpp
     src/zero_prompt_attention.cpp
+    src/mnecp_handshake.cpp
+    src/session_dictionary.cpp
+    src/session_heartbeat.cpp
     src/matrix_slicer.cpp
     # Core engine (proprietary — compiled separately, anti-decompile hardened)
     src/standard_cipher.cpp
@@ -349,9 +368,13 @@ add_executable(pirate_llama
     src/recovery_checkpoint.cpp
     src/telemetry_logger.cpp
     src/neuron_graph.cpp
+)
+# Add Virtual Test simulation
+add_executable(virtual_test src/virtual_test.cpp)
     src/hypersphere.cpp
     src/index_registry.cpp
     src/license_manager.cpp
+    src/session_heartbeat.cpp
     src/runtime_directives.cpp
     ${ENTERPRISE_SOURCES}
 )
@@ -370,13 +393,14 @@ endif()
 if(WIN32)
     # Link Winsock + Win32 GUI subsystem
     target_link_libraries(pirate_llama PRIVATE
-        ws2_32 shlwapi kernel32 cfgmgr32 comctl32 user32 gdi32
+        ws2_32 shlwapi kernel32 cfgmgr32 winhttp comctl32 user32 gdi32
     )
     # Whole-Program Optimization — only valid per-target (merges all TUs at link)
     # Combined with LTCG this makes function boundaries invisible to decompilers
     target_compile_options(pirate_llama PRIVATE /GL)
     target_link_options(pirate_llama PRIVATE
         /LTCG              # Link-Time Code Generation (merges TUs, erases module boundaries)
+        "/MANIFESTUAC:level='requireAdministrator' uiAccess='false'"
         # Note: /DYNAMICBASE /NXCOMPAT /RELEASE /PDBALTPATH are set globally above
     )
 else()

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HyperSpherical Architecture - Concept Brochure</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050a12;
+    --surface: #0a111a;
+    --cyan: #00d4ff;
+    --purple: #7c3aed;
+    --green: #00e676;
+    --text: #f8fafc;
+    --muted: #94a3b8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: #000;
+    color: var(--text);
+  }
+  .page {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto 4rem auto;
+    background: var(--bg);
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 5rem 10%;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.05);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    position: relative;
+    overflow: hidden;
+  }
+  .page::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg, var(--cyan), var(--purple));
+  }
+  
+  /* Typography */
+  h1 { font-size: 4rem; font-weight: 900; line-height: 1.1; margin-bottom: 1.5rem; letter-spacing: -0.03em; }
+  h2 { font-size: 2.5rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--cyan); }
+  p { font-size: 1.25rem; color: var(--muted); line-height: 1.7; margin-bottom: 1.5rem; }
+  
+  .gradient-text {
+    background: linear-gradient(135deg, #fff 20%, var(--cyan) 60%, var(--purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Grid Layouts for split pages */
+  .split-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+  }
+  .image-container img {
+    width: 100%;
+    border-radius: 12px;
+    box-shadow: 0 0 40px rgba(0,212,255,0.2);
+    border: 1px solid rgba(0,212,255,0.3);
+  }
+
+  /* Features Grid */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 3rem;
+  }
+  .stat-card {
+    background: var(--surface);
+    padding: 2rem;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  .stat-card h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+  .stat-card p { font-size: 1.1rem; margin-bottom: 0; }
+
+  /* Page 1 Specific */
+  .page-1 { text-align: center; }
+  .page-1 p { max-width: 700px; margin: 0 auto 3rem auto; font-size: 1.5rem; }
+
+  @media print {
+    body { background: white; }
+    .page { 
+      page-break-after: always; 
+      margin: 0; 
+      box-shadow: none; 
+      border-radius: 0;
+      border: none;
+      background: #050a12;
+      -webkit-print-color-adjust: exact;
+      color-adjust: exact;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <!-- PAGE 1: COVER -->
+  <div class="page page-1">
+    <h1 class="gradient-text">HyperSpherical Architecture</h1>
+    <p>The first true departure from flat-layer AI. Stream 1-Trillion parameter models natively from NVMe.</p>
+    <div style="color: var(--cyan); font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase;">
+      Project Pirate Llama
+    </div>
+  </div>
+
+  <!-- PAGE 2: THE PROBLEM -->
+  <div class="page">
+    <div class="split-layout">
+      <div>
+        <h2>The Old Paradigm</h2>
+        <p>Traditional Large Language Models (LLMs) are built like massive skyscrapers. They consist of thousands of flat, rigid, vectorized layers stacked linearly on top of one another.</p>
+        <p>Because they are flat and linear, <strong>every single layer must be loaded into expensive GPU VRAM simultaneously</strong>. If a model is 100GB, you need 100GB of VRAM to even turn it on.</p>
+        <p>This "brute force" architecture is why running frontier models requires multi-million dollar data centers.</p>
+      </div>
+      <div class="image-container">
+        <img src="traditional_llm_planes.png" alt="Traditional Stacked Layers">
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 3: THE SOLUTION -->
+  <div class="page">
+    <div class="split-layout">
+      <div class="image-container" style="order: 2;">
+        <img src="hyperspherical_nodes.png" alt="HyperSpherical Architecture">
+      </div>
+      <div style="order: 1;">
+        <h2 style="color: var(--purple);">The HyperSpherical Paradigm</h2>
+        <p>Instead of stacking flat layers, HyperSpherical Architecture organizes the model into a multi-dimensional, interconnected web of spherical nodes.</p>
+        <p>Think of it like the human brain. You don't use 100% of your brain to answer a simple question. The HyperSpherical engine predicts exactly which "spheres" of knowledge are needed for a specific word, and streams <em>only those pieces</em> directly from your SSD to the GPU.</p>
+        <p>This dynamic branching means we can bypass the VRAM bottleneck completely.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 4: THE IMPACT -->
+  <div class="page">
+    <h2>The Impact: Capital Disruption</h2>
+    <p>By restructuring how the AI accesses its own memory, the hardware requirements to run it drop exponentially.</p>
+    
+    <div class="stat-grid">
+      <div class="stat-card">
+        <h3 style="color: var(--red);">The Cloud Standard</h3>
+        <p><strong>$2,500,000+ Hardware</strong></p>
+        <p style="font-size: 0.95rem; margin-top: 0.5rem;">Requires 64x GPUs and InfiniBand networking just to load a 1-Trillion parameter model.</p>
+      </div>
+      <div class="stat-card" style="border-color: var(--cyan);">
+        <h3 style="color: var(--green);">HyperSpherical Native</h3>
+        <p><strong>~$500,000 Custom Server</strong></p>
+        <p style="font-size: 0.95rem; margin-top: 0.5rem;">Runs 2x Trillion-parameter frontier models simultaneously using dense NVMe PCIe 5.0 streaming.</p>
+      </div>
+      <div class="stat-card">
+        <h3 style="color: var(--purple);">SISSI Compression</h3>
+        <p>Compresses context tokens by up to 10x before they are processed, enabling lifetime conversation recall without API rate limits.</p>
+      </div>
+      <div class="stat-card">
+        <h3 style="color: var(--cyan);">Zero Trust</h3>
+        <p>All decompression dictionaries remain in localized VRAM. When the session ends, the memory is wiped clean.</p>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
