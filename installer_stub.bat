@@ -1,6 +1,16 @@
 <# : batch wrapper
 @echo off
 setlocal
+
+:: Enforce Administrator privileges
+net session >nul 2>&1
+if %errorLevel% neq 0 (
+    echo [ERROR] Administrator privileges are required to install Pirate Llama.
+    echo Please right-click the installer and select "Run as administrator".
+    pause
+    exit /b 1
+)
+
 echo Installing Pirate Llama Beta...
 powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-Expression ((Get-Content '%~f0' -Raw) -replace '(?s)^<#.*?#>\r?\n', '')"
 echo Installation Complete!

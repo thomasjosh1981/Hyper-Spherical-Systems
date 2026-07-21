@@ -202,6 +202,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <Project>{F7F9DB4A-EE97-302E-8BA9-9475C495388D}</Project>
       <Name>python_bridge</Name>
     </ProjectReference>
+    <ProjectReference Include="I:\workspace\hyper_spherical\build\virtual_test.vcxproj">
+      <Project>{A120A446-722E-37AA-9EDA-E75D624867B8}</Project>
+      <Name>virtual_test</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

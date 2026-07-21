@@ -7,6 +7,7 @@ I:\workspace\hyper_spherical\src\memory_manager.cpp;I:\workspace\hyper_spherical
 I:\workspace\hyper_spherical\src\predictive_prefetcher.cpp;I:\workspace\hyper_spherical\build\python_bridge.dir\Release\predictive_prefetcher.obj
 I:\workspace\hyper_spherical\src\index_registry.cpp;I:\workspace\hyper_spherical\build\python_bridge.dir\Release\index_registry.obj
 I:\workspace\hyper_spherical\src\license_manager.cpp;I:\workspace\hyper_spherical\build\python_bridge.dir\Release\license_manager.obj
+I:\workspace\hyper_spherical\src\session_heartbeat.cpp;I:\workspace\hyper_spherical\build\python_bridge.dir\Release\session_heartbeat.obj
 I:\workspace\hyper_spherical\src\nvme_io.cpp;I:\workspace\hyper_spherical\build\python_bridge.dir\Release\nvme_io.obj
 I:\workspace\hyper_spherical\src\recovery_checkpoint.cpp;I:\workspace\hyper_spherical\build\python_bridge.dir\Release\recovery_checkpoint.obj
 I:\workspace\hyper_spherical\src\telemetry_logger.cpp;I:\workspace\hyper_spherical\build\python_bridge.dir\Release\telemetry_logger.obj

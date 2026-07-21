@@ -368,9 +368,6 @@ add_executable(pirate_llama
     src/recovery_checkpoint.cpp
     src/telemetry_logger.cpp
     src/neuron_graph.cpp
-)
-# Add Virtual Test simulation
-add_executable(virtual_test src/virtual_test.cpp)
     src/hypersphere.cpp
     src/index_registry.cpp
     src/license_manager.cpp
@@ -378,6 +375,9 @@ add_executable(virtual_test src/virtual_test.cpp)
     src/runtime_directives.cpp
     ${ENTERPRISE_SOURCES}
 )
+
+# Add Virtual Test simulation
+add_executable(virtual_test src/virtual_test.cpp)
 
 target_include_directories(pirate_llama PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}

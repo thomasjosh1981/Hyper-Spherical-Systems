@@ -12,9 +12,26 @@
 #  include <windows.h>
 #endif
 
+#include "license_manager.hpp"
+#include <iostream>
+
 namespace hypersp {
 
-NVMeIO::NVMeIO(const std::string& nvme_mount) : mount_(nvme_mount) {}
+NVMeIO::NVMeIO(const std::vector<std::string>& nvme_mounts, const std::vector<std::string>& hdd_mounts)
+    : nvme_mounts_(nvme_mounts), hdd_mounts_(hdd_mounts) {
+    
+    auto state = LicenseManager::get_state();
+    if (state.tier != LicenseTier::ENTERPRISE_UNLOCKED) {
+        if (nvme_mounts_.size() > 2) {
+            std::cerr << "\033[33m[License Warning] Enterprise features required for > 2 NVMe drives. Array truncated.\033[0m\n";
+            nvme_mounts_.resize(2);
+        }
+        if (hdd_mounts_.size() > 2) {
+            std::cerr << "\033[33m[License Warning] Enterprise features required for > 2 HDD drives. Array truncated.\033[0m\n";
+            hdd_mounts_.resize(2);
+        }
+    }
+}
 
 #ifdef _WIN32
 // Build a full path: <mount> + "\\" + relative. Mount is converted to a
@@ -32,9 +49,11 @@ static std::wstring make_full_path(const std::string& mount, std::string_view re
 
 ErrorCode NVMeIO::write_block(std::string_view path_str,
                               const uint8_t* data, size_t len) noexcept {
-    if (len == 0 || !data) return ErrorCode::IO_FAIL;
+    if (len == 0 || !data || nvme_mounts_.empty()) return ErrorCode::IO_FAIL;
 #ifdef _WIN32
-    std::wstring full = make_full_path(mount_, path_str);
+    // Basic stripe: use a hash of the path to pick a drive
+    size_t d_idx = std::hash<std::string_view>{}(path_str) % nvme_mounts_.size();
+    std::wstring full = make_full_path(nvme_mounts_[d_idx], path_str);
     HANDLE h = CreateFileW(full.c_str(), GENERIC_WRITE, 0, nullptr,
                            CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
     if (h == INVALID_HANDLE_VALUE) return ErrorCode::IO_FAIL;
@@ -45,7 +64,8 @@ ErrorCode NVMeIO::write_block(std::string_view path_str,
     return (ok && wrote == len) ? ErrorCode::OK : ErrorCode::IO_FAIL;
 #else
     // POSIX fallback (mostly for build sanity on non-Windows hosts)
-    std::string full = mount_ + "/" + std::string(path_str);
+    size_t d_idx = std::hash<std::string_view>{}(path_str) % nvme_mounts_.size();
+    std::string full = nvme_mounts_[d_idx] + "/" + std::string(path_str);
     FILE* fp = std::fopen(full.c_str(), "wb");
     if (!fp) return ErrorCode::IO_FAIL;
     size_t n = std::fwrite(data, 1, len, fp);
@@ -56,9 +76,10 @@ ErrorCode NVMeIO::write_block(std::string_view path_str,
 
 ErrorCode NVMeIO::read_block(std::string_view path_str,
                              uint8_t* out, size_t len) noexcept {
-    if (len == 0 || !out) return ErrorCode::IO_FAIL;
+    if (len == 0 || !out || nvme_mounts_.empty()) return ErrorCode::IO_FAIL;
 #ifdef _WIN32
-    std::wstring full = make_full_path(mount_, path_str);
+    size_t d_idx = std::hash<std::string_view>{}(path_str) % nvme_mounts_.size();
+    std::wstring full = make_full_path(nvme_mounts_[d_idx], path_str);
     HANDLE h = CreateFileW(full.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr,
                            OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
     if (h == INVALID_HANDLE_VALUE) return ErrorCode::IO_FAIL;
@@ -68,7 +89,8 @@ ErrorCode NVMeIO::read_block(std::string_view path_str,
     CloseHandle(h);
     return (ok && read == len) ? ErrorCode::OK : ErrorCode::IO_FAIL;
 #else
-    std::string full = mount_ + "/" + std::string(path_str);
+    size_t d_idx = std::hash<std::string_view>{}(path_str) % nvme_mounts_.size();
+    std::string full = nvme_mounts_[d_idx] + "/" + std::string(path_str);
     FILE* fp = std::fopen(full.c_str(), "rb");
     if (!fp) return ErrorCode::IO_FAIL;
     size_t n = std::fread(out, 1, len, fp);

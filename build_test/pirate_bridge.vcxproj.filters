@@ -46,6 +46,9 @@
     <ClCompile Include="I:\workspace\hyper_spherical\src\hypersphere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="I:\workspace\hyper_spherical\src\recursive_updater.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="I:\workspace\hyper_spherical\CMakeLists.txt" />

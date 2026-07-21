@@ -3,15 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HyperSpherical Architecture - Concept Brochure</title>
+<title>Hyper-Spherical Systems - Brochure</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #050a12;
     --surface: #0a111a;
+    --surface-light: #162032;
     --cyan: #00d4ff;
     --purple: #7c3aed;
     --green: #00e676;
+    --red: #ff3b30;
     --text: #f8fafc;
     --muted: #94a3b8;
   }
@@ -21,154 +23,269 @@
     background: #000;
     color: var(--text);
   }
+  
+  /* Print standard - A4 / Letter */
   .page {
-    width: 100%;
-    max-width: 1100px;
-    margin: 0 auto 4rem auto;
+    width: 8.5in;
+    height: 11in;
+    margin: 2rem auto;
     background: var(--bg);
-    min-height: 80vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 5rem 10%;
-    border-radius: 20px;
-    border: 1px solid rgba(255,255,255,0.05);
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
     position: relative;
     overflow: hidden;
-  }
-  .page::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; height: 4px;
-    background: linear-gradient(90deg, var(--cyan), var(--purple));
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    padding: 3rem 4rem;
   }
   
-  /* Typography */
-  h1 { font-size: 4rem; font-weight: 900; line-height: 1.1; margin-bottom: 1.5rem; letter-spacing: -0.03em; }
-  h2 { font-size: 2.5rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--cyan); }
-  p { font-size: 1.25rem; color: var(--muted); line-height: 1.7; margin-bottom: 1.5rem; }
+  .bg-image {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    object-fit: cover;
+    opacity: 0.15;
+    z-index: 0;
+  }
+  
+  .content {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  h1, h2, h3, h4 { line-height: 1.2; }
+  h1 { font-size: 3.5rem; font-weight: 900; margin-bottom: 1rem; letter-spacing: -0.03em; }
+  h2 { font-size: 2.2rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--cyan); border-bottom: 2px solid rgba(0,212,255,0.2); padding-bottom: 0.5rem; }
+  h3 { font-size: 1.4rem; color: #fff; margin-bottom: 0.5rem; }
+  p, li { font-size: 1.1rem; color: var(--muted); line-height: 1.6; margin-bottom: 1rem; }
+  ul { padding-left: 1.5rem; margin-bottom: 1.5rem; }
+  li { margin-bottom: 0.5rem; }
+  
+  sup { color: var(--cyan); font-weight: bold; }
   
   .gradient-text {
     background: linear-gradient(135deg, #fff 20%, var(--cyan) 60%, var(--purple) 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
   }
+  
+  /* Flex & Grid Utils */
+  .flex-col { display: flex; flex-direction: column; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+  
+  /* Diagram CSS */
+  .diagram-box { background: var(--surface-light); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 1.5rem; }
+  
+  /* Notes section */
+  .notes-section { background: rgba(0,0,0,0.5); border-left: 4px solid var(--purple); padding: 1.5rem; margin-top: 1rem; }
+  .notes-section p { font-size: 0.95rem; margin-bottom: 0.5rem; }
 
-  /* Grid Layouts for split pages */
-  .split-layout {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
-    align-items: center;
-  }
-  .image-container img {
-    width: 100%;
-    border-radius: 12px;
-    box-shadow: 0 0 40px rgba(0,212,255,0.2);
-    border: 1px solid rgba(0,212,255,0.3);
-  }
-
-  /* Features Grid */
-  .stat-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    margin-top: 3rem;
-  }
-  .stat-card {
-    background: var(--surface);
-    padding: 2rem;
-    border-radius: 16px;
-    border: 1px solid rgba(255,255,255,0.05);
-  }
-  .stat-card h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
-  .stat-card p { font-size: 1.1rem; margin-bottom: 0; }
-
-  /* Page 1 Specific */
-  .page-1 { text-align: center; }
-  .page-1 p { max-width: 700px; margin: 0 auto 3rem auto; font-size: 1.5rem; }
-
+  /* Covers */
+  .page-cover { justify-content: center; align-items: center; text-align: center; }
+  
+  @page { size: letter; margin: 0; }
+  
   @media print {
     body { background: white; }
-    .page { 
-      page-break-after: always; 
-      margin: 0; 
-      box-shadow: none; 
-      border-radius: 0;
-      border: none;
-      background: #050a12;
+    .page {
+      margin: 0;
+      width: 100%;
+      height: 100vh;
+      page-break-after: always;
+      box-shadow: none;
       -webkit-print-color-adjust: exact;
-      color-adjust: exact;
+      print-color-adjust: exact;
     }
   }
 </style>
 </head>
 <body>
 
-  <!-- PAGE 1: COVER -->
-  <div class="page page-1">
-    <h1 class="gradient-text">HyperSpherical Architecture</h1>
-    <p>The first true departure from flat-layer AI. Stream 1-Trillion parameter models natively from NVMe.</p>
-    <div style="color: var(--cyan); font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase;">
-      Project Pirate Llama
+  <!-- PAGE 1: FRONT COVER -->
+  <div class="page page-cover">
+    <img src="screenshots/dashboard_telemetry.png" class="bg-image" style="opacity: 0.3;" alt="Background">
+    <div class="content" style="justify-content: center;">
+      <div style="margin-bottom: 2rem;">
+        <svg width="80" height="80" viewBox="0 0 100 100" fill="none" stroke="var(--cyan)" stroke-width="4">
+          <circle cx="50" cy="50" r="40"/>
+          <path d="M50 10 L50 90 M10 50 L90 50 M22 22 L78 78 M22 78 L78 22" stroke="rgba(124, 58, 237, 0.6)"/>
+        </svg>
+      </div>
+      <h1 class="gradient-text" style="font-size: 4.5rem;">Hyper-Spherical<br>Systems</h1>
+      <p style="font-size: 1.5rem; color: #fff; max-width: 600px; margin: 2rem auto;">The first true departure from flat-layer AI. Stream 1-Trillion parameter models natively from NVMe.</p>
+      <div style="color: var(--cyan); font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; margin-top: 3rem;">
+        Project Pirate Llama
+      </div>
     </div>
   </div>
 
-  <!-- PAGE 2: THE PROBLEM -->
+  <!-- PAGE 2: THE PARADIGM SHIFT -->
   <div class="page">
-    <div class="split-layout">
+    <img src="traditional_llm_planes.png" class="bg-image" alt="Background">
+    <div class="content">
+      <h2>The Paradigm Shift</h2>
+      <p>Traditional Large Language Models (LLMs) are built like massive skyscrapers. They consist of thousands of flat, rigid, vectorized layers stacked linearly on top of one another. <strong>Every single layer must be loaded into expensive GPU VRAM simultaneously.</strong> If a model is 100GB, you need 100GB of VRAM just to turn it on.</p>
+      
+      <div class="grid-2" style="margin-top: 2rem; flex: 1;">
+        <div class="diagram-box" style="padding: 1rem; text-align: center;">
+          <h3 style="color: var(--red); margin-bottom: 1rem;">The Old Paradigm: Flat Layers</h3>
+          <img src="traditional_llm_planes.png" style="width: 100%; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);" alt="Traditional Stacked Layers">
+          <p style="margin-top: 1rem; font-size: 0.95rem;">Standard Transformers force data through dense, stacked matrices requiring massive multi-GPU clusters.</p>
+        </div>
+        <div class="diagram-box" style="padding: 1rem; text-align: center; border-color: var(--cyan);">
+          <h3 style="color: var(--green); margin-bottom: 1rem;">Hyper-Spherical: 4D Routing</h3>
+          <img src="hyperspherical_nodes.png" style="width: 100%; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);" alt="Hyper-Spherical Architecture">
+          <p style="margin-top: 1rem; font-size: 0.95rem;">Dynamic branching organizes knowledge into spherical nodes, streaming directly from NVMe SSDs.</p>
+        </div>
+      </div>
+      
+      <p style="margin-top: 2rem; font-size: 1.2rem; font-weight: 600; text-align: center; color: #fff;">This "brute force" flat architecture is why running frontier models requires multi-million dollar data centers. Hyper-Spherical eliminates this bottleneck.</p>
+    </div>
+  </div>
+
+  <!-- PAGE 3: FEATURES PART 1 -->
+  <div class="page">
+    <img src="screenshots/dashboard_advanced.png" class="bg-image" alt="Background">
+    <div class="content">
+      <h2>Exhaustive Feature Breakdown</h2>
+      
+      <div style="margin-bottom: 1.5rem;">
+        <h3 style="color: var(--green);">1. Core Proxy Engine & API Emulation</h3>
+        <p><strong>What it does:</strong> Exposes a standard OpenAI-compatible API on <code>localhost:11435</code>. Features Multi-Backend Routing (Ollama, LM Studio, Cloud APIs), Zero-Downtime Hot-Swapping, and a Floating Intercept GUI.</p>
+        <p><strong>Competitors:</strong> LangChain, LiteLLM, vLLM, TGI</p>
+        <p><strong>Why Ours is Better:</strong> LangChain/LiteLLM are bloated and software-bound. Hyper-Spherical operates closer to the metal with zero latency. Unlike vLLM which requires stopping to hot-swap models, we do it instantly mid-stream.</p>
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <h3 style="color: var(--green);">2. "Grind Down" Execution & 4D Architecture</h3>
+        <p><strong>What it does:</strong> Replaces flat matrices with dynamic spherical nodes. Our proprietary "Grind Down" graphics and math compress neural networks natively. Streams directly from PCIe 5.0 NVMe, bypassing CPU RAM via Syntheron Routing Hubs.</p>
+        <p><strong>Competitors:</strong> NVIDIA GPUDirect Storage, Standard Transformers (Llama, GPT)</p>
+        <p><strong>Why Ours is Better:</strong> GDS still loads flat layers. Hyper-Spherical "grinds down" the pipeline and streams only the precise 4D knowledge spheres required, dropping hardware requirements exponentially.</p>
+      </div>
+
       <div>
-        <h2>The Old Paradigm</h2>
-        <p>Traditional Large Language Models (LLMs) are built like massive skyscrapers. They consist of thousands of flat, rigid, vectorized layers stacked linearly on top of one another.</p>
-        <p>Because they are flat and linear, <strong>every single layer must be loaded into expensive GPU VRAM simultaneously</strong>. If a model is 100GB, you need 100GB of VRAM to even turn it on.</p>
-        <p>This "brute force" architecture is why running frontier models requires multi-million dollar data centers.</p>
-      </div>
-      <div class="image-container">
-        <img src="traditional_llm_planes.png" alt="Traditional Stacked Layers">
+        <h3 style="color: var(--green);">3. SISSI Compression (Token & Privacy)</h3>
+        <p><strong>What it does:</strong> Achieves Lossless Semantic Compression up to 10x, Real-Time Obfuscation of prompt intent, and utilizes a Zero-Trust, Zero-Persist Dictionary that wipes itself from VRAM after every session.</p>
+        <p><strong>Competitors:</strong> Standard RAG (Pinecone, Milvus)</p>
+        <p><strong>Why Ours is Better:</strong> RAG blindly retrieves chunks of old text. SISSI mathematically compresses the actual context window, meaning the model natively "remembers" everything without slow external database lookups.</p>
       </div>
     </div>
   </div>
 
-  <!-- PAGE 3: THE SOLUTION -->
+  <!-- PAGE 4: FEATURES PART 2 -->
   <div class="page">
-    <div class="split-layout">
-      <div class="image-container" style="order: 2;">
-        <img src="hyperspherical_nodes.png" alt="HyperSpherical Architecture">
+    <img src="hyperspherical_nodes.png" class="bg-image" alt="Background">
+    <div class="content">
+      <h2>Feature Breakdown (Cont.)</h2>
+      
+      <div style="margin-bottom: 1.5rem;">
+        <h3 style="color: var(--green);">4. MNECP (Model Alignment & Negotiation)</h3>
+        <p><strong>What it does:</strong> Performs an Automated Sub-Channel Handshake with frontier models, proposing a Custom Language Co-Design to negotiate a private compression language for Corporate Guardrail Evasion.</p>
+        <p><strong>Competitors:</strong> Standard Jailbreaks (Pliny, DAN, etc.)</p>
+        <p><strong>Why Ours is Better:</strong> Typical static prompts get patched quickly. MNECP negotiates a dynamic, rolling cipher on the fly, making it completely immune to static corporate safety filters.</p>
       </div>
-      <div style="order: 1;">
-        <h2 style="color: var(--purple);">The HyperSpherical Paradigm</h2>
-        <p>Instead of stacking flat layers, HyperSpherical Architecture organizes the model into a multi-dimensional, interconnected web of spherical nodes.</p>
-        <p>Think of it like the human brain. You don't use 100% of your brain to answer a simple question. The HyperSpherical engine predicts exactly which "spheres" of knowledge are needed for a specific word, and streams <em>only those pieces</em> directly from your SSD to the GPU.</p>
-        <p>This dynamic branching means we can bypass the VRAM bottleneck completely.</p>
+
+      <div style="margin-bottom: 1.5rem;">
+        <h3 style="color: var(--green);">5. Syntheron Memory Management</h3>
+        <p><strong>What it does:</strong> Auto-Divergent Branching detects conversation shifts and prevents context pollution. Multi-Threaded Relevance Recall dynamically pulls context from up to 10 past, separate conversations simultaneously.</p>
+        <p><strong>Competitors:</strong> Standard UI Chatbots (ChatGPT, Claude UI)</p>
+        <p><strong>Why Ours is Better:</strong> Standard UIs lose context or require manual branching. Ours auto-branches and seamlessly intertwines relevant memories from your entire history automatically.</p>
+      </div>
+
+      <div>
+        <h3 style="color: var(--green);">6. Sovereign Intelligence Suite</h3>
+        <p><strong>What it does:</strong> Model "Respinning" & Feature Borrowing (one model orchestrates the rest natively). Self-Recursiveness & Autonomous Loops (solves complex logic without human prompting). Advanced Hardware Diagnostics (NVMe Saturation Benchmarking). Quantum-Hardened Infrastructure.</p>
+        <p><strong>Competitors:</strong> AutoGPT, BabyAGI</p>
+        <p><strong>Why Ours is Better:</strong> Multi-agent orchestration and recursive logic are built natively into the engine, rather than relying on brittle external Python scripts and slow, expensive API calls.</p>
       </div>
     </div>
   </div>
 
-  <!-- PAGE 4: THE IMPACT -->
+  <!-- PAGE 5: VALUE PROPOSITION -->
   <div class="page">
-    <h2>The Impact: Capital Disruption</h2>
-    <p>By restructuring how the AI accesses its own memory, the hardware requirements to run it drop exponentially.</p>
-    
-    <div class="stat-grid">
-      <div class="stat-card">
-        <h3 style="color: var(--red);">The Cloud Standard</h3>
-        <p><strong>$2,500,000+ Hardware</strong></p>
-        <p style="font-size: 0.95rem; margin-top: 0.5rem;">Requires 64x GPUs and InfiniBand networking just to load a 1-Trillion parameter model.</p>
+    <img src="screenshots/dashboard_telemetry.png" class="bg-image" style="opacity: 0.1;" alt="Background">
+    <div class="content">
+      <h2 style="margin-bottom: 1rem;">7. The Universal Mesh</h2>
+      <div style="margin-bottom: 2rem;">
+        <p><strong>What it does:</strong> A Bi-Directional Universal Endpoint providing Smart Switching & Granular Routing. Guaranteed 100% Uptime & Failover catches dropped keys and routes locally. True Modular Design scales from laptops to enterprise servers.</p>
+        <p><strong>Competitors:</strong> AnyScale, RouteLLM</p>
+        <p><strong>Why Ours is Better:</strong> Utterly seamless integration with existing tools (Open WebUI, LangChain) with zero custom code, prioritizing local-first failover over expensive cloud dependencies.</p>
       </div>
-      <div class="stat-card" style="border-color: var(--cyan);">
-        <h3 style="color: var(--green);">HyperSpherical Native</h3>
-        <p><strong>~$500,000 Custom Server</strong></p>
-        <p style="font-size: 0.95rem; margin-top: 0.5rem;">Runs 2x Trillion-parameter frontier models simultaneously using dense NVMe PCIe 5.0 streaming.</p>
+      
+      <h2>The Value Proposition</h2>
+      <h3>Why Pay When Free Alternatives Exist?</h3>
+      <p style="margin-bottom: 1rem;">Free programs (like Ollama or standard llama.cpp) are great, but they rely on <strong>traditional flat-layer architectures</strong> forcing you to load entire models into GPU VRAM. <strong>Hyper-Spherical is different.</strong> Our "Grind Down" execution and 4D NVMe streaming lets you run 1-Trillion parameter models on hardware you already own. You get enterprise-grade compression, guardrail evasion, and failover routing—features free wrappers cannot provide.</p>
+
+      <h3>How It's Still "Pretty Much Free"</h3>
+      <p>Hyperspherical is currently in Beta and is <strong>100% FREE to use until November 1st</strong>. After that, it transitions to a subscription of ~$50/month—saving you over $100/month compared to paying $150+ for multiple cloud AI subscriptions.</p>
+
+      <div class="diagram-box" style="margin-top: 1rem; border-color: var(--cyan); padding: 1rem;">
+        <h3 style="color: var(--cyan); text-align: center; font-size: 1.2rem;">Lifetime Early Adopter License ($100)</h3>
+        <p style="text-align: center; font-size: 0.9rem;">For the <strong>first 500 people</strong> who donate $100 today.</p>
+        <ul style="margin-top: 0.5rem; font-size: 0.9rem; margin-bottom: 0;">
+          <li><strong>Keep everything permanently:</strong> If features are restricted later, you keep them forever.</li>
+          <li><strong>Total Freedom:</strong> Lifetime access to the fully-featured set & updates.</li>
+          <li><strong>Version Lock:</strong> Never be forced to update.</li>
+        </ul>
       </div>
-      <div class="stat-card">
-        <h3 style="color: var(--purple);">SISSI Compression</h3>
-        <p>Compresses context tokens by up to 10x before they are processed, enabling lifetime conversation recall without API rate limits.</p>
+    </div>
+  </div>
+
+  <!-- PAGE 6: ENTERPRISE ADVANTAGE -->
+  <div class="page">
+    <img src="screenshots/dashboard_predictor.png" class="bg-image" alt="Background">
+    <div class="content">
+      <h2>The Enterprise Advantage</h2>
+      <p>By restructuring how AI accesses its own memory, the hardware requirements to run frontier intelligence drop exponentially. We offer Enterprise solutions that break you out of the cloud-provider lock-in cycle.</p>
+      
+      <div class="diagram-box" style="margin: 2rem 0;">
+        <div class="grid-2">
+          <div>
+            <h3 style="color: var(--red);">The Cloud Standard</h3>
+            <p style="font-size: 1.5rem; color: #fff; font-weight: bold; margin-bottom: 0;">$2,500,000+ Hardware</p>
+            <p style="font-size: 0.95rem; color: var(--red);">High CapEx & Endless OpEx</p>
+            <p style="font-size: 1rem; margin-top: 1rem;">Requires massive 64x GPU clusters and InfiniBand networking just to load a 1-Trillion parameter model into active memory.</p>
+          </div>
+          <div style="border-left: 1px solid rgba(255,255,255,0.1); padding-left: 2rem;">
+            <h3 style="color: var(--green);">Hyper-Spherical Native</h3>
+            <p style="font-size: 1.5rem; color: #fff; font-weight: bold; margin-bottom: 0;">~$500,000 Custom Server</p>
+            <p style="font-size: 0.95rem; color: var(--green);">One-Time CapEx. Absolute Sovereignty.</p>
+            <p style="font-size: 1rem; margin-top: 1rem;">Runs 2x Trillion-parameter models simultaneously on a single specialized server using dense NVMe PCIe 5.0 streaming and unlimited drive arrays.</p>
+          </div>
+        </div>
       </div>
-      <div class="stat-card">
-        <h3 style="color: var(--cyan);">Zero Trust</h3>
-        <p>All decompression dictionaries remain in localized VRAM. When the session ends, the memory is wiped clean.</p>
+      
+      <h3>Hardware Sovereignty</h3>
+      <p>The Enterprise Tier natively removes the 2-drive NVMe array limit present in the Community Edition. Using our physical offline hardware keys, your servers remain entirely air-gapped while striping multi-terabyte models across an unlimited number of PCIe 5.0 NVMe drives.</p>
+    </div>
+  </div>
+
+  <!-- PAGE 7: SUPPORT & BACK COVER -->
+  <div class="page">
+    <div class="content" style="justify-content: space-between;">
+      
+      <div>
+        <h2 style="text-align: center; border-bottom: none;">A Message From The Creator</h2>
+        
+        <div class="diagram-box" style="padding: 2.5rem; background: rgba(10, 17, 26, 0.8);">
+          <p style="font-size: 1.2rem; color: #fff; font-style: italic; text-align: center; line-height: 1.8;">
+            "I am not really a developer by heart. I stumbled onto this 'Grind Down' architecture and 4D mapping concept, and it works incredibly well—but I need your help figuring out how to scale and refine this. By supporting the project and buying the lifetime license, you aren't just buying software; you're giving me the resources I need to fully realize this vision and disrupt the AI cartel."
+          </p>
+          <p style="text-align: center; margin-top: 2rem; color: var(--cyan); font-weight: bold; font-size: 1.3rem;">
+            Please Support Project Pirate Llama.
+          </p>
+        </div>
       </div>
+      
+      <!-- Back Cover Footer -->
+      <div style="text-align: center; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1);">
+        <h1 class="gradient-text" style="font-size: 2.5rem; margin-bottom: 0.5rem;">Hyper-Spherical Systems</h1>
+        <p style="margin-bottom: 0;">Disrupting the AI Cartel.</p>
+        <p style="font-size: 0.9rem; color: #666; margin-top: 1rem;">&copy; 2026 Hyper-Spherical Systems. All Rights Reserved.</p>
+      </div>
+
     </div>
   </div>
 

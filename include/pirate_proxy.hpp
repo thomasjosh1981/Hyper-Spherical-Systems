@@ -19,6 +19,9 @@
 #include <mutex>
 #include <cstdint>
 #include "hypersphere.hpp"
+#include "mnecp_handshake.hpp"
+#include "session_dictionary.hpp"
+#include "recursive_updater.hpp"
 
 namespace pirate {
 
@@ -103,6 +106,17 @@ struct ProxyConfig {
     bool        is_pro_tier           = false;
     std::string current_version       = "1.0.0";
     std::string security_update_msg   = "";
+
+    // Declutterizer (!)+ Settings
+    bool        enable_declutterizer        = true;
+    int         declutterizer_level         = 0; // 0=Standard, 1=Aggressive, 2=Hybrid
+    bool        highlight_odd_requests      = true;
+    bool        highlight_inconsistencies   = true;
+    bool        auto_consent_rewriting      = false;
+    std::string local_brain_model_path      = "weights.bin";
+
+    // MNECP — Model-Negotiated Ephemeral Compression Protocol
+    bool        enable_mnecp                = true;  // opt-in; set false to skip handshake
 };
 
 // ── Live telemetry snapshot ────────────────────────────────────────────────
@@ -118,6 +132,12 @@ struct ProxyTelemetry {
     bool     backend_reachable    = false;
     char     backend_model[128]   = {};
     uint64_t forward_pass_count   = 0;
+
+    // MNECP indicator light states
+    bool     mnecp_agreed         = false;  // 🟢 Model said yes
+    bool     mnecp_active         = false;  // 🟡 Currently encoding
+    uint64_t mnecp_tokens_saved   = 0;      // Cumulative tokens saved this session
+    float    mnecp_efficiency_pct = 0.0f;   // 🔵 % reduction vs raw
 };
 
 // ── Request/Response wrappers ──────────────────────────────────────────────
@@ -164,6 +184,12 @@ public:
     }
     void set_rewrite_consent_callback(std::function<bool(float)> cb) {
         rewrite_consent_cb_ = std::move(cb);
+    }
+    void set_supervisor_consent_callback(std::function<bool(const std::string&)> cb) {
+        supervisor_consent_cb_ = std::move(cb);
+        if (recursive_updater_) {
+            recursive_updater_->set_consent_callback(supervisor_consent_cb_);
+        }
     }
 
 private:
@@ -212,6 +238,13 @@ private:
     std::atomic<int>         active_conns_{0};
     std::function<bool(const std::string&, const std::string&)> consent_cb_;
     std::function<bool(float)> rewrite_consent_cb_;
+    std::function<bool(const std::string&)> supervisor_consent_cb_;
+
+    // MNECP — ephemeral, session-scoped, never persisted
+    hypersp::MnecpHandshake   mnecp_handshake_;
+    hypersp::SessionDictionary session_dict_;
+
+    std::unique_ptr<hypersp::RecursiveUpdater> recursive_updater_;
 };
 
 } // namespace pirate

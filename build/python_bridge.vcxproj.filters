@@ -28,6 +28,9 @@
     <ClCompile Include="I:\workspace\hyper_spherical\src\license_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="I:\workspace\hyper_spherical\src\session_heartbeat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="I:\workspace\hyper_spherical\src\nvme_io.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

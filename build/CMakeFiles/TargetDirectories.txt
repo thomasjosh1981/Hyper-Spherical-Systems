@@ -5,6 +5,7 @@ I:/workspace/hyper_spherical/build/CMakeFiles/pirate_bridge.dir
 I:/workspace/hyper_spherical/build/CMakeFiles/golden_candy_spinner.dir
 I:/workspace/hyper_spherical/build/CMakeFiles/python_bridge.dir
 I:/workspace/hyper_spherical/build/CMakeFiles/pirate_llama.dir
+I:/workspace/hyper_spherical/build/CMakeFiles/virtual_test.dir
 I:/workspace/hyper_spherical/build/CMakeFiles/RUN_TESTS.dir
 I:/workspace/hyper_spherical/build/CMakeFiles/ALL_BUILD.dir
 I:/workspace/hyper_spherical/build/CMakeFiles/ZERO_CHECK.dir

@@ -138,10 +138,11 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;shlwapi.lib;kernel32.lib;cfgmgr32.lib;comctl32.lib;user32.lib;gdi32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;shlwapi.lib;kernel32.lib;cfgmgr32.lib;winhttp.lib;comctl32.lib;user32.lib;gdi32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64 /PDBALTPATH:%%%%_PDB%%%%</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
+      <EnableUAC>true</EnableUAC>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ImageHasSafeExceptionHandlers></ImageHasSafeExceptionHandlers>
@@ -152,6 +153,8 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
       <SetChecksum>true</SetChecksum>
       <SubSystem>Console</SubSystem>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
+      <UACUIAccess>false</UACUIAccess>
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
@@ -212,10 +215,11 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;shlwapi.lib;kernel32.lib;cfgmgr32.lib;comctl32.lib;user32.lib;gdi32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;shlwapi.lib;kernel32.lib;cfgmgr32.lib;winhttp.lib;comctl32.lib;user32.lib;gdi32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64 /PDBALTPATH:%%%%_PDB%%%%</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
+      <EnableUAC>true</EnableUAC>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ImageHasSafeExceptionHandlers></ImageHasSafeExceptionHandlers>
@@ -226,6 +230,8 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
       <SetChecksum>true</SetChecksum>
       <SubSystem>Console</SubSystem>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
+      <UACUIAccess>false</UACUIAccess>
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
@@ -286,10 +292,11 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;shlwapi.lib;kernel32.lib;cfgmgr32.lib;comctl32.lib;user32.lib;gdi32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;shlwapi.lib;kernel32.lib;cfgmgr32.lib;winhttp.lib;comctl32.lib;user32.lib;gdi32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64 /PDBALTPATH:%%%%_PDB%%%%</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
+      <EnableUAC>true</EnableUAC>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ImageHasSafeExceptionHandlers></ImageHasSafeExceptionHandlers>
@@ -300,6 +307,8 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
       <SetChecksum>true</SetChecksum>
       <SubSystem>Console</SubSystem>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
+      <UACUIAccess>false</UACUIAccess>
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
@@ -359,10 +368,11 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;shlwapi.lib;kernel32.lib;cfgmgr32.lib;comctl32.lib;user32.lib;gdi32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;shlwapi.lib;kernel32.lib;cfgmgr32.lib;winhttp.lib;comctl32.lib;user32.lib;gdi32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64 /PDBALTPATH:%%%%_PDB%%%%</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
+      <EnableUAC>true</EnableUAC>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ImageHasSafeExceptionHandlers></ImageHasSafeExceptionHandlers>
@@ -373,6 +383,8 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
       <SetChecksum>true</SetChecksum>
       <SubSystem>Console</SubSystem>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
+      <UACUIAccess>false</UACUIAccess>
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
@@ -439,6 +451,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="I:\workspace\hyper_spherical\src\pirate_main.cpp" />
     <ClCompile Include="I:\workspace\hyper_spherical\src\pirate_proxy.cpp" />
     <ClCompile Include="I:\workspace\hyper_spherical\src\pirate_gui.cpp" />
+    <ClCompile Include="I:\workspace\hyper_spherical\src\context_compression_cramming_declutterizer.cpp" />
+    <ClCompile Include="I:\workspace\hyper_spherical\src\recursive_updater.cpp" />
+    <ClCompile Include="I:\workspace\hyper_spherical\src\sandbox_environment.cpp" />
+    <ClCompile Include="I:\workspace\hyper_spherical\src\huggingface_client.cpp" />
     <ClCompile Include="I:\workspace\hyper_spherical\src\model_router.cpp" />
     <ClCompile Include="I:\workspace\hyper_spherical\src\gateway_scanner.cpp" />
     <ClCompile Include="I:\workspace\hyper_spherical\src\macro_recorder.cpp" />
@@ -450,7 +466,11 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="I:\workspace\hyper_spherical\src\feature_router.cpp" />
     <ClCompile Include="I:\workspace\hyper_spherical\src\arterial_bridge.cpp" />
     <ClCompile Include="I:\workspace\hyper_spherical\src\synthetic_neuron.cpp" />
+    <ClCompile Include="I:\workspace\hyper_spherical\src\conversation_manager.cpp" />
     <ClCompile Include="I:\workspace\hyper_spherical\src\zero_prompt_attention.cpp" />
+    <ClCompile Include="I:\workspace\hyper_spherical\src\mnecp_handshake.cpp" />
+    <ClCompile Include="I:\workspace\hyper_spherical\src\session_dictionary.cpp" />
+    <ClCompile Include="I:\workspace\hyper_spherical\src\session_heartbeat.cpp" />
     <ClCompile Include="I:\workspace\hyper_spherical\src\matrix_slicer.cpp" />
     <ClCompile Include="I:\workspace\hyper_spherical\src\standard_cipher.cpp" />
     <ClCompile Include="I:\workspace\hyper_spherical\src\context_compressor.cpp" />

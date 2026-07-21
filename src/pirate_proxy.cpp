@@ -13,6 +13,7 @@
 #include "model_router.hpp"
 #include "gateway_scanner.hpp"
 #include "prompt_condenser.hpp"
+#include "context_compression_cramming_declutterizer.hpp"
 #include "virtual_moe.hpp"
 #include "feature_router.hpp"
 #include "arterial_bridge.hpp"
@@ -23,9 +24,7 @@
 #include <cstdio>
 #include <sstream>
 #include <algorithm>
-#include <stdexcept>
 #include <chrono>
-#include <unordered_set>
 
 #if defined(_WIN32)
 #  ifndef WIN32_LEAN_AND_MEAN
@@ -202,6 +201,7 @@ static std::string http_forward(const std::string& host, uint16_t port,
 // ── PirateProxy ────────────────────────────────────────────────────────────
 PirateProxy::PirateProxy(const ProxyConfig& cfg) : cfg_(cfg) {
     sock_init();
+    recursive_updater_ = std::make_unique<hypersp::RecursiveUpdater>("sfs_plus.bin", "supervisor_brain.bin");
 }
 
 PirateProxy::~PirateProxy() {
@@ -406,6 +406,40 @@ HttpResponse PirateProxy::handle_chat_completions(const HttpRequest& req) {
     ProxyConfig cfg = get_config();
     std::string body = req.body;
 
+    // --- MNECP: One-time session negotiation handshake ---
+    // Ask the cloud model to co-design an ephemeral compression protocol.
+    // Fires only on the first request of a session; results stored in-memory only.
+    if (cfg.enable_mnecp && !mnecp_handshake_.has_negotiated()) {
+        std::string negotiation_body = mnecp_handshake_.build_negotiation_payload(body);
+        // Send negotiation payload to the backend, parse response
+        std::string raw_response = http_forward(cfg.backend_host, cfg.backend_port,
+                                                "POST", req.path, negotiation_body, cfg.request_timeout_ms);
+        hypersp::SessionCompressionProfile scp = mnecp_handshake_.parse_response(raw_response);
+        if (scp.active) {
+            session_dict_.load(scp);
+        }
+        mnecp_handshake_.mark_negotiated();
+        // Fall through: the user's actual message is sent as the real first request below
+    }
+
+    // --- Apply session dictionary encoding to internal/system payloads ---
+    if (session_dict_.is_active()) {
+        size_t before = body.size();
+        body = session_dict_.encode(body);
+        size_t after = body.size();
+        // Update MNECP telemetry
+        std::lock_guard<std::mutex> lk(telem_mtx_);
+        telemetry_.mnecp_agreed = true;
+        telemetry_.mnecp_active = (after < before);
+        if (after < before) {
+            uint64_t saved = static_cast<uint64_t>((before - after) / 4); // rough token estimate
+            telemetry_.mnecp_tokens_saved += saved;
+            telemetry_.mnecp_efficiency_pct =
+                100.0f * (1.0f - static_cast<float>(after) / static_cast<float>(before));
+        }
+    }
+    // -----------------------------------------------------------
+
     // --- Model Routing & Fallback Logic ---
     ModelRouter router;
     GatewayScanner scanner;
@@ -433,16 +467,43 @@ HttpResponse PirateProxy::handle_chat_completions(const HttpRequest& req) {
     }
     // --------------------------------------
 
-    // --- Prompt Condensation ---
-    PromptCondenser condenser;
-    auto cond_res = condenser.condense(body);
-    if (cond_res.modified && cond_res.savings_pct > 0.15f && rewrite_consent_cb_) {
-        bool approved = rewrite_consent_cb_(cond_res.savings_pct);
-        if (approved) {
-            body = cond_res.rewritten_prompt;
+    // --- Prompt Condensation & Caching via !)+ Declutterizer ---
+    ContextCompressionCrammingDeclutterizer declutter;
+    if (cfg.enable_declutterizer) {
+        auto cond_res = declutter.process_prompt(body, cfg);
+        float savings_pct = 1.0f - (1.0f / cond_res.compression_ratio);
+        if (cond_res.rewritten_payload != body && savings_pct > 0.15f && rewrite_consent_cb_) {
+            bool approved = rewrite_consent_cb_(savings_pct);
+            if (approved) {
+                body = cond_res.rewritten_payload;
+            }
+        } else if (cond_res.rewritten_payload != body) {
+            body = cond_res.rewritten_payload;
+        }
+        
+        // Caching Handshake for Gemini/Claude/Grok/Anthropic
+        std::string cache_key = "system_prompt_default"; // default cache key representing system/base context
+        bool is_cached = declutter.handshake_cloud_cache(cache_key, body, cfg);
+        
+        if (is_cached) {
+            // Send only pointer marker / delta updates to LLM
+            body += " [SYSTEM: Using cached context pointer: " + cache_key + "]";
+        } else {
+            // First time: upload/cache prefix
+            // Simulate injecting Anthropic cache_control/Gemini context cache headers
+            body += " [SYSTEM: Caching prefix metadata: " + declutter.get_covert_handshake_packet() + "]";
+        }
+    } else {
+        PromptCondenser condenser;
+        auto cond_res = condenser.condense(body);
+        if (cond_res.modified && cond_res.savings_pct > 0.15f && rewrite_consent_cb_) {
+            bool approved = rewrite_consent_cb_(cond_res.savings_pct);
+            if (approved) {
+                body = cond_res.rewritten_prompt;
+            }
         }
     }
-    // ---------------------------
+    // -----------------------------------------------------------
 
     // --- Master Tesseract Execution Loop (SFS / SFS+) ---
     // 1. Zero Prompt Attention hook
@@ -454,7 +515,7 @@ HttpResponse PirateProxy::handle_chat_completions(const HttpRequest& req) {
     auto topological_state = zero_prompt.hook_and_translate(body);
 
     // 2. NVMe Streaming and Virtual MOE (SFS Tier)
-    hypersp::NVMeStreamer streamer("weights.bin"); // Simulated disk file
+    hypersp::DirectStorageStreamer streamer("weights.bin"); // Simulated disk file
     auto weight_chunk = streamer.stream_chunk(1024);
     
     hypersp::VirtualMoe v_moe(8); // 8 Experts

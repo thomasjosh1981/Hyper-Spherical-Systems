@@ -17,6 +17,7 @@
 #include "config.hpp"
 #include "license_manager.hpp"
 #include "telemetry_logger.hpp"
+#include "config_store.hpp"
 
 #include <cstdio>
 #include <cstring>
@@ -89,6 +90,8 @@ int main(int argc, char** argv) {
 
     // Parse command-line args
     pirate::ProxyConfig cfg;
+    pirate::ConfigStore::load(cfg); // Load persistent settings
+
     bool no_gui = false;
 
     for (int i = 1; i < argc; ++i) {
@@ -135,6 +138,9 @@ int main(int argc, char** argv) {
             return 0;
         }
     }
+
+    // Save config back to disk (persist CLI overrides)
+    pirate::ConfigStore::save(cfg);
 
     // Bind license state to proxy config
     cfg.is_pro_tier = hypersp::LicenseManager::is_feature_allowed("cloud_context");
@@ -186,12 +192,20 @@ int main(int argc, char** argv) {
             return gui_ptr->prompt_rewrite_consent(savings_pct);
         });
 
+        proxy.set_supervisor_consent_callback([gui_ptr = gui.get()](const std::string& action) {
+            return gui_ptr->prompt_supervisor_consent(action);
+        });
+
         gui->run();
         gui->show_onboarding_wizard();
         std::printf("[pirate_llama] Control panel launched (always-on-top)\n");
     } else {
         proxy.set_consent_callback([](const std::string&, const std::string&) {
             std::printf("[pirate_llama] Cloud routing rejected (No GUI available for manual consent).\n");
+            return false;
+        });
+        proxy.set_supervisor_consent_callback([](const std::string& action) {
+            std::printf("[pirate_llama] Supervisor action rejected (No GUI available): %s\n", action.c_str());
             return false;
         });
     }

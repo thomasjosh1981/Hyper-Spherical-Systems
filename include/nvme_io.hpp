@@ -8,7 +8,7 @@ namespace hypersp {
 
 class NVMeIO {
 public:
-    explicit NVMeIO(const std::string& nvme_mount);
+    explicit NVMeIO(const std::vector<std::string>& nvme_mounts, const std::vector<std::string>& hdd_mounts = {});
     ~NVMeIO() = default;
 
     /** Write a weight shard block to NVMe */
@@ -21,7 +21,8 @@ public:
     int32_t benchmark_throughput(size_t num_runs = 10u) noexcept;
 
 private:
-    std::string mount_;
+    std::vector<std::string> nvme_mounts_;
+    std::vector<std::string> hdd_mounts_;
 };
 
 } // namespace hypersp
