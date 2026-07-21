@@ -37,18 +37,16 @@ std::vector<VortexCoordinate> ZeroPromptAttention::hook_and_translate(const std:
     // 2. Map to Synthuron Topology
     auto hyper_branch = topology_->map_concept(concept_str);
     
-    // 3. Create a Sub-Hub for this specific conversational piece
-    auto sub_branch = hyper_branch->create_sub_branch("conversation_fragment");
-    auto hub = std::make_shared<SynthuronHub>(SynthuronTier::SUB);
+    // 3. Create a Sub-Branch for this specific conversational piece
+    auto sub_branch = hyper_branch->spawn_sub_branch("conversation_fragment");
     
     // 4. Translate raw text to 4D coordinates
     std::vector<VortexCoordinate> coords = naive_embed(raw_human_string);
     
-    // 5. Store data in the hub
+    // 5. Store data in the branch directly
     for (const auto& c : coords) {
-        hub->add_data_point(c);
+        sub_branch->add_vortex_data(c);
     }
-    sub_branch->attach_hub(hub);
     
     std::cout << "[ZeroPromptAttention] Successfully mapped to Hyper Branch: " << concept_str << "\n";
     

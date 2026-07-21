@@ -33,7 +33,6 @@
 
 #include <cstdio>
 #include <cstring>
-#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -91,7 +90,7 @@ struct TessEngineImpl {
         memory       = std::make_unique<hypersp::MemoryManager>(cfg);
         predictor    = std::make_unique<hypersp::PatternPredictor>(cfg);
         // WeightStreamer requires VRAM bytes at construction; initialize lazily.
-        nvme         = std::make_unique<hypersp::NVMeIO>("D:\\pirate_bridge");
+        nvme         = std::make_unique<hypersp::NVMeIO>(std::vector<std::string>{"D:\\pirate_bridge"});
         checkpoint   = std::make_unique<hypersp::RecoveryCheckpoint>();
         telemetry    = std::make_unique<hypersp::TelemetryLogger>();
         index        = std::make_unique<hypersp::IndexRegistry>();

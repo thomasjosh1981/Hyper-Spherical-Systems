@@ -20,13 +20,13 @@
 #include "leet_cipher.hpp"
 #endif
 #include "neuron_graph.hpp"
+#include "context_compression_cramming_declutterizer.hpp"
 
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <filesystem>
 #include <fstream>
-#include <random>
 #include <string>
 #include <vector>
 
@@ -319,7 +319,7 @@ static void test_weight_streamer_preload() {
 static void test_nvme_io_roundtrip() {
     fs::path tmpdir = fs::temp_directory_path() / "tesseract_test";
     std::error_code ec; fs::create_directories(tmpdir, ec);
-    NVMeIO io(tmpdir.string());
+    NVMeIO io({tmpdir.string()});
     std::vector<uint8_t> payload(16 * 1024);
     for (size_t i = 0; i < payload.size(); ++i) payload[i] = static_cast<uint8_t>(i & 0xFF);
     const std::string fname = "test_shard.bin";
@@ -547,6 +547,49 @@ static void test_compressor_auto_tune_spin() {
     CHECK(entries.size() > 0);
 }
 
+static void test_declutterizer_caching_and_perplexity() {
+    pirate::ProxyConfig cfg;
+    cfg.enable_declutterizer = true;
+    cfg.declutterizer_level = 0; // Level 0: Standard declutter (strip pleasantries)
+    
+    pirate::ContextCompressionCrammingDeclutterizer declutter;
+    std::string prompt = "Hello please write a simple code block thank you.";
+    auto res = declutter.process_prompt(prompt, cfg);
+    CHECK(res.rewritten_payload != prompt);
+    CHECK(res.compression_ratio > 1.0f);
+    CHECK(res.rewritten_payload.find("Hello") == std::string::npos);
+    CHECK(res.rewritten_payload.find("please") == std::string::npos);
+    CHECK(res.rewritten_payload.find("thank") == std::string::npos);
+    
+    // Level 1: Aggressive (strip prepositions)
+    cfg.declutterizer_level = 1;
+    std::string prompt2 = "The book of lessons in the study for the student.";
+    auto res2 = declutter.process_prompt(prompt2, cfg);
+    CHECK(res2.rewritten_payload != prompt2);
+    CHECK(res2.rewritten_payload.find("of") == std::string::npos);
+    CHECK(res2.rewritten_payload.find("in") == std::string::npos);
+    CHECK(res2.rewritten_payload.find("for") == std::string::npos);
+
+    // Caching Handshake
+    std::string key = "test_key_123";
+    bool cached_first = declutter.handshake_cloud_cache(key, "base_codebase_context", cfg);
+    CHECK(!cached_first); // Should be false on first call (Cache MISS)
+    
+    bool cached_second = declutter.handshake_cloud_cache(key, "base_codebase_context", cfg);
+    CHECK(cached_second); // Should be true on subsequent call (Cache HIT)
+    
+    // Covert Handshake Packet
+    std::string packet = declutter.get_covert_handshake_packet();
+    CHECK(packet.find("HYPER-COMPRESSION") != std::string::npos);
+
+    // VRAM locking check
+    CHECK(declutter.lock_declutterizer_in_vram());
+
+    // Codebase clustering check
+    auto clusters = declutter.cluster_codebase("class Foo { void bar() {} };");
+    CHECK(clusters.size() >= 1);
+}
+
 // -----------------------------------------------------------------------
 // Test driver
 // -----------------------------------------------------------------------
@@ -587,6 +630,7 @@ int main() {
     RUN_TEST(test_hypersphere_coordinate_mapping);
     RUN_TEST(test_synthuron_and_hypertag_linking);
     RUN_TEST(test_compressor_auto_tune_spin);
+    RUN_TEST(test_declutterizer_caching_and_perplexity);
 
     std::printf("\n==================================\n");
     std::printf("Total: %d  Passed: %d  Failed: %d\n",

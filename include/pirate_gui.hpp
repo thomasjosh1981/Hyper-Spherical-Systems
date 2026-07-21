@@ -51,6 +51,7 @@ public:
     // TOS Compliance Flow
     bool prompt_manual_consent(const std::string& source, const std::string& target);
     bool prompt_rewrite_consent(float savings_pct);
+    bool prompt_supervisor_consent(const std::string& action);
     void show_onboarding_wizard();
 
 private:
@@ -72,6 +73,8 @@ private:
 
     HWND              hwnd_        = nullptr;
     HWND              hwnd_status_ = nullptr;
+    HWND              hwnd_mnecp_label_ = nullptr;  // MNECP status text
+    int               mnecp_lights_y_  = 0;          // Y-coord of indicator dots
     HFONT             hfont_       = nullptr;
     std::vector<HWND> slider_hwnds_;
     std::vector<HWND> toggle_hwnds_;

@@ -26,6 +26,9 @@
       <FullPath>I:\workspace\hyper_spherical\build\Release\pirate_tests.exe</FullPath>
     </ProjectOutput>
     <ProjectOutput>
+      <FullPath>I:\workspace\hyper_spherical\build\Release\virtual_test.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
       <FullPath>I:\workspace\hyper_spherical\build\x64\Release\ALL_BUILD</FullPath>
     </ProjectOutput>
   </ProjectOutputs>

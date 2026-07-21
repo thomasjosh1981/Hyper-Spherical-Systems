@@ -1,16 +1,46 @@
 #include "../include/recursive_updater.hpp"
 #include <iostream>
-#include <fstream>
+#include <functional>
 
 namespace hypersp {
 
 RecursiveUpdater::RecursiveUpdater(const std::string& sfs_plus_path, const std::string& supervisor_brain_path)
-    : sfs_plus_path_(sfs_plus_path), supervisor_brain_path_(supervisor_brain_path) {
+    : sfs_plus_path_(sfs_plus_path), 
+      supervisor_brain_path_(supervisor_brain_path),
+      sandbox_(sfs_plus_path) {
     
-    // In a real implementation, we would open memory-mapped access to sfs_plus_path_
-    // and initialize the supervisor brain (Gemma/Nemo GGUF) for inference.
     std::cout << "[RecursiveUpdater] Initialized on " << sfs_plus_path_ 
               << " with brain " << supervisor_brain_path_ << std::endl;
+}
+
+bool RecursiveUpdater::process_natural_language_directive(const std::string& directive) {
+    std::cout << "[Brain] Processing directive: " << directive << "\n";
+    // Simulated NLP parsing
+    if (directive.find("fetch") != std::string::npos || directive.find("borrow") != std::string::npos) {
+        if (level_ == RecursivenessLevel::MANUAL) {
+            std::cout << "[Brain] PAUSED: Requires user approval to fetch from HuggingFace.\n";
+            if (consent_callback_) {
+                if (!consent_callback_("Fetch missing weights from HuggingFace")) {
+                    std::cout << "[Brain] User denied fetch request.\n";
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+        std::cout << "[Brain] Searching HuggingFace for missing weights...\n";
+        auto models = hf_client_.search_models("optimized context weights");
+        if (!models.empty()) {
+            std::vector<uint8_t> new_weights;
+            hf_client_.stream_weights(models[0].model_id, new_weights);
+            
+            // Convert HF weights to VortexCorrection and test in sandbox
+            VortexCorrection fetch_corr{};
+            fetch_corr.radius_delta = 0.5f;
+            return apply_correction(fetch_corr);
+        }
+    }
+    return true;
 }
 
 bool RecursiveUpdater::evaluate_entropy(float generation_entropy) {
@@ -32,26 +62,50 @@ bool RecursiveUpdater::evaluate_entropy(float generation_entropy) {
 }
 
 bool RecursiveUpdater::apply_correction(const VortexCorrection& correction) {
-    // Open the SFS+ file in binary read/write mode.
-    // NOTE: This modifies the weights in-place recursively on disk.
-    std::fstream file(sfs_plus_path_, std::ios::in | std::ios::out | std::ios::binary);
-    if (!file) {
-        std::cerr << "[RecursiveUpdater] Failed to open SFS+ file for recursive mutation." << std::endl;
+    std::cout << "[RecursiveUpdater] Preparing to test correction in Sandbox.\n";
+    if (!sandbox_.initialize_sandbox()) {
         return false;
     }
 
-    // Example logic:
-    // 1. Read CandyChunkHeader to find tensor offsets.
-    // 2. Seek to specific chunk.
-    // 3. Modify specific coordinate radius and phase.
-    // 4. Update mutation_epoch in header.
+    SandboxReport report = sandbox_.test_correction(correction);
+    if (!report.passed) {
+        std::cout << "[RecursiveUpdater] Sandbox rejected correction: " << report.diagnostics << "\n";
+        sandbox_.rollback();
+        return false;
+    }
 
-    std::cout << "[RecursiveUpdater] Applied recursive mutation to chunk " 
-              << correction.target_chunk_index << " coordinate " 
-              << correction.target_coordinate << std::endl;
+    std::cout << "[RecursiveUpdater] Sandbox approved correction. Entropy: " << report.final_entropy << "\n";
 
-    current_epoch_++;
-    return true;
+    if (level_ == RecursivenessLevel::MANUAL) {
+        std::cout << "[RecursiveUpdater] PAUSED: Level 0. Requires user approval to commit Sandbox to Live.\n";
+        bool approved = false;
+        if (consent_callback_) {
+            approved = consent_callback_("Commit Sandbox structural changes to Live Tesseract");
+        }
+        if (!approved) {
+            sandbox_.rollback();
+            return false;
+        }
+    }
+
+    if (level_ == RecursivenessLevel::SEMI_AUTONOMOUS && correction.radius_delta > 1.0f) {
+        std::cout << "[RecursiveUpdater] PAUSED: Level 1. Major structural shift requires user approval.\n";
+        bool approved = false;
+        if (consent_callback_) {
+            approved = consent_callback_("Commit major structural shift (radius > 1.0) to Live Tesseract");
+        }
+        if (!approved) {
+            sandbox_.rollback();
+            return false;
+        }
+    }
+
+    // Fully Autonomous (Level 2) or safe Level 1
+    bool success = sandbox_.commit();
+    if (success) {
+        current_epoch_++;
+    }
+    return success;
 }
 
 } // namespace hypersp

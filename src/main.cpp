@@ -22,7 +22,6 @@
 #include <cstdio>
 #include <cstring>
 #include <filesystem>
-#include <fstream>
 #include <random>
 #include <string>
 #include <vector>
@@ -142,7 +141,7 @@ int main(int argc, char** argv) {
     fs::path tmpdir = fs::temp_directory_path() / "tesseract_demo";
     std::error_code ec;
     fs::create_directories(tmpdir, ec);
-    NVMeIO io(tmpdir.string());
+    NVMeIO io({tmpdir.string()});
     const std::string fname = "shard_0001.bin";
     std::vector<uint8_t> payload(64 * 1024);
     std::mt19937 rng(42);

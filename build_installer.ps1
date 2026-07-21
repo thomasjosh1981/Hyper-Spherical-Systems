@@ -1,7 +1,7 @@
 $ErrorActionPreference = "Stop"
 
 Write-Host "Re-building Release Target to ensure UPX packing..."
-Set-Location "C:\Users\twist\workspace\hyper_spherical_systems\build"
+Set-Location "$PSScriptRoot\build"
 cmake --build . --config Release
 
 $StubPath = "..\installer_stub.bat"

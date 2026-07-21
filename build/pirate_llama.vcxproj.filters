@@ -10,6 +10,18 @@
     <ClCompile Include="I:\workspace\hyper_spherical\src\pirate_gui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="I:\workspace\hyper_spherical\src\context_compression_cramming_declutterizer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="I:\workspace\hyper_spherical\src\recursive_updater.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="I:\workspace\hyper_spherical\src\sandbox_environment.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="I:\workspace\hyper_spherical\src\huggingface_client.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="I:\workspace\hyper_spherical\src\model_router.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -43,7 +55,19 @@
     <ClCompile Include="I:\workspace\hyper_spherical\src\synthetic_neuron.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="I:\workspace\hyper_spherical\src\conversation_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="I:\workspace\hyper_spherical\src\zero_prompt_attention.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="I:\workspace\hyper_spherical\src\mnecp_handshake.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="I:\workspace\hyper_spherical\src\session_dictionary.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="I:\workspace\hyper_spherical\src\session_heartbeat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="I:\workspace\hyper_spherical\src\matrix_slicer.cpp">

@@ -138,7 +138,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>shlwapi.lib;kernel32.lib;cfgmgr32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>shlwapi.lib;kernel32.lib;cfgmgr32.lib;winhttp.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64 /PDBALTPATH:%%%%_PDB%%%%</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
@@ -210,7 +210,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>shlwapi.lib;kernel32.lib;cfgmgr32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>shlwapi.lib;kernel32.lib;cfgmgr32.lib;winhttp.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64 /PDBALTPATH:%%%%_PDB%%%%</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
@@ -282,7 +282,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>shlwapi.lib;kernel32.lib;cfgmgr32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>shlwapi.lib;kernel32.lib;cfgmgr32.lib;winhttp.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64 /PDBALTPATH:%%%%_PDB%%%%</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
@@ -353,7 +353,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>shlwapi.lib;kernel32.lib;cfgmgr32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>shlwapi.lib;kernel32.lib;cfgmgr32.lib;winhttp.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64 /PDBALTPATH:%%%%_PDB%%%%</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
@@ -438,6 +438,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="I:\workspace\hyper_spherical\src\predictive_prefetcher.cpp" />
     <ClCompile Include="I:\workspace\hyper_spherical\src\index_registry.cpp" />
     <ClCompile Include="I:\workspace\hyper_spherical\src\license_manager.cpp" />
+    <ClCompile Include="I:\workspace\hyper_spherical\src\session_heartbeat.cpp" />
     <ClCompile Include="I:\workspace\hyper_spherical\src\nvme_io.cpp" />
     <ClCompile Include="I:\workspace\hyper_spherical\src\recovery_checkpoint.cpp" />
     <ClCompile Include="I:\workspace\hyper_spherical\src\telemetry_logger.cpp" />

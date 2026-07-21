@@ -4,6 +4,7 @@
 
 #include "pirate_gui.hpp"
 #include "license_manager.hpp"
+#include "session_heartbeat.hpp"
 #include <cstdio>
 #include <cstring>
 #include <algorithm>
@@ -104,44 +105,62 @@ void PirateGui::gui_thread_func() {
     create_controls();
     SetTimer(hwnd_, ID_TIMER_TELEMETRY, 1000, nullptr);
 
-    // Community license splash — shown once per session, inside the app only.
-    // The patcher tool itself shows nothing about this; it looks like a clean crack.
     {
         hypersp::LicenseState ls = hypersp::LicenseManager::get_state();
-        if (ls.community_splash_needed && !hypersp::LicenseManager::is_free_version_expired()) {
-            MessageBoxW(hwnd_,
-                L"This software is running on a community license.\n\n"
-                L"It was built by an independent developer who also couldn't\n"
-                L"always afford the tools they needed.\n\n"
-                L"If it saves you time or makes your life easier,\n"
-                L"consider supporting the project when you're able to.\n\n"
-                L"No pressure. Enjoy the software.",
-                L"Community License",
-                MB_OK | MB_ICONINFORMATION);
+
+        // ── Revoked: silent exit, no dialogue ───────────────────────────────
+        if (ls.tier == hypersp::LicenseTier::TRIAL_EXPIRED) {
+            // Code was revoked for enterprise abuse. No explanation given.
+            // The disk key was already zeroed by the heartbeat thread.
+            DestroyWindow(hwnd_);
+            PostQuitMessage(0);
+            return;
         }
 
-        // License Check
-        if (hypersp::LicenseManager::is_free_version_expired()) {
+        // ── Session kicked: another device took the lease ────────────────────
+        // User can still read but proxy is paused until they re-activate.
+        // (Handled live in the telemetry timer — just note it at startup)
+
+        // ── Alpha/Beta: everyone welcome, no friction ────────────────────────
+        if (ls.tier == hypersp::LicenseTier::ALPHA_BETA) {
+            // No splash, no gate. Just run.
+        }
+        // ── Community: prompt for lifetime code or acknowledge free tier ─────
+        else if (ls.tier == hypersp::LicenseTier::COMMUNITY) {
+            // Offer code entry first
+            int entered = MessageBoxW(hwnd_,
+                L"Pirate Llama — Community Edition\n\n"
+                L"You are running the free community tier.\n"
+                L"If you have a Lifetime Unlimited code, click YES to enter it.\n\n"
+                L"Click NO to continue with the community tier (some features limited).",
+                L"Enter Lifetime Code?",
+                MB_YESNO | MB_ICONQUESTION);
+            if (entered == IDYES) {
+                // Simple input box via TaskDialog / fallback InputBox pattern
+                wchar_t code_buf[32] = {};
+                // Win32 has no native InputBox — use a quick dialog hack
+                // For MVP: prompt via a second MessageBox instructing user to
+                // use the CLI flag --license-code=PL-XXXX-... on next launch.
+                MessageBoxW(hwnd_,
+                    L"Run pirate_llama.exe --license-code=PL-XXXX-XXXX-XXXX-XXXX\n\n"
+                    L"Replace PL-XXXX-... with your actual code.\n"
+                    L"The code will be validated and saved for future launches.",
+                    L"How to Enter Your Code",
+                    MB_OK | MB_ICONINFORMATION);
+                (void)code_buf;
+            }
+        }
+        // ── Mandatory update (community tier, old major version) ─────────────
+        if (hypersp::LicenseManager::requires_mandatory_update(state_.cfg.current_version)) {
             MessageBoxW(hwnd_,
-                L"The Free tier of this software has expired as of Nov 1, 2026.\n\n"
-                L"Please visit the download page to obtain the latest version or upgrade to the Paid tier.",
-                L"License Expired",
-                MB_OK | MB_ICONERROR);
-            PostQuitMessage(0);
-        } else if (hypersp::LicenseManager::requires_mandatory_update(state_.cfg.current_version)) {
-            MessageBoxW(hwnd_,
-                L"A major update is available and mandatory for the Free tier.\n\n"
-                L"Please download the new version.",
+                L"A major Pirate Llama update is required.\n\n"
+                L"Community tier users must be on the latest major version.\n"
+                L"Lifetime code holders are never required to update.\n\n"
+                L"Download the latest release from github.com/your-org/pirate-llama",
                 L"Update Required",
                 MB_OK | MB_ICONERROR);
             PostQuitMessage(0);
-        } else if (hypersp::LicenseManager::requires_security_tos_acceptance(!state_.cfg.security_update_msg.empty())) {
-            MessageBoxW(hwnd_,
-                L"Security Update Installed.\n\n"
-                L"By continuing to use this software, you agree to the modified Terms of Service which completely indemnifies the creators from any liability.\n\n"
-                L"Click OK to accept and continue.",
-                L"TOS Update (Paid Tier)",
-                MB_OK | MB_ICONWARNING);
+            return;
         }
     }
 
@@ -283,6 +302,17 @@ void PirateGui::create_controls() {
     add_check(L"Enable Telemetry and Debug (Opt-in)", ID_CHK_TELEMETRY, cfg.advanced_telemetry_opt_in);
     add_slider(L"Backup Interval (minutes)",      ID_SLD_BACKUP_INTERVAL, 1, 30, cfg.backup_interval_min);
     add_slider(L"Backup Compression Level (1-9)", ID_SLD_BACKUP_LEVEL,    1,  9, cfg.backup_compress_level);
+
+    // MNECP Indicator Light Panel
+    add_label(L"--- MNECP Compression Protocol ---", 16);
+    hwnd_mnecp_label_ = CreateWindowExW(0, L"STATIC",
+        L"\u25cf Waiting for model negotiation...",
+        WS_CHILD | WS_VISIBLE | SS_LEFT,
+        x, y, w, 18, hwnd_, nullptr, GetModuleHandleW(nullptr), nullptr);
+    font_set(hwnd_mnecp_label_); y += 22;
+    // Three dot indicators drawn via WM_PAINT — store their Y position
+    mnecp_lights_y_ = y;
+    y += 28; // reserve space for the lights row
 }
 
 LRESULT CALLBACK PirateGui::wnd_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
@@ -303,6 +333,28 @@ LRESULT CALLBACK PirateGui::wnd_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) 
                         static_cast<unsigned long long>(t.requests_handled),
                         t.backend_reachable ? L"\u2713 Online" : L"\u2717 Offline");
                     SetWindowTextW(self->hwnd_status_, buf);
+                }
+                // Update MNECP status label and trigger repaint of lights
+                if (self->hwnd_mnecp_label_) {
+                    wchar_t mbuf[128];
+                    if (!t.mnecp_agreed) {
+                        SetWindowTextW(self->hwnd_mnecp_label_, L"\u25cb Waiting for model negotiation...");
+                    } else if (t.mnecp_efficiency_pct >= 20.0f) {
+                        swprintf_s(mbuf, 128, L"\u26a1 MNECP: Hyper-Efficient  %.1f%% saved  (%llu tokens)",
+                            static_cast<double>(t.mnecp_efficiency_pct),
+                            static_cast<unsigned long long>(t.mnecp_tokens_saved));
+                        SetWindowTextW(self->hwnd_mnecp_label_, mbuf);
+                    } else if (t.mnecp_active) {
+                        swprintf_s(mbuf, 128, L"\u25cf MNECP Active  %.1f%% saved  (%llu tokens)",
+                            static_cast<double>(t.mnecp_efficiency_pct),
+                            static_cast<unsigned long long>(t.mnecp_tokens_saved));
+                        SetWindowTextW(self->hwnd_mnecp_label_, mbuf);
+                    } else {
+                        SetWindowTextW(self->hwnd_mnecp_label_, L"\u25cf Model agreed \u2014 encoding on next request");
+                    }
+                    // Force repaint of the lights area
+                    RECT lr{ 10, self->mnecp_lights_y_, 380, self->mnecp_lights_y_ + 28 };
+                    InvalidateRect(hwnd, &lr, TRUE);
                 }
             }
             return 0;
@@ -341,6 +393,42 @@ LRESULT CALLBACK PirateGui::wnd_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) 
         case WM_HSCROLL:
             self->apply_config_change();
             return 0;
+
+        case WM_PAINT: {
+            ProxyTelemetry t = self->proxy_.get_telemetry();
+            PAINTSTRUCT ps;
+            HDC hdc = BeginPaint(hwnd, &ps);
+            // Draw three indicator dots at mnecp_lights_y_
+            int ly = self->mnecp_lights_y_ + 4;
+            struct { bool on; COLORREF col; const wchar_t* label; } lights[] = {
+                // Light 1: Green — model agreed
+                { t.mnecp_agreed, RGB(0,200,80),  L"Agreed" },
+                // Light 2: Amber — actively encoding right now
+                { t.mnecp_active, RGB(255,180,0), L"Active" },
+                // Light 3: Bright cyan-blue — hyper-efficient (>=20% savings)
+                { t.mnecp_efficiency_pct >= 20.0f, RGB(0,200,255), L"Blazing" },
+            };
+            int lx = 12;
+            for (auto& l : lights) {
+                HBRUSH br = CreateSolidBrush(l.on ? l.col : RGB(60,60,60));
+                RECT dot{ lx, ly, lx + 16, ly + 16 };
+                // Draw circle approximation with ellipse
+                HPEN pen = CreatePen(PS_SOLID, 1, l.on ? l.col : RGB(40,40,40));
+                SelectObject(hdc, br);
+                SelectObject(hdc, pen);
+                Ellipse(hdc, dot.left, dot.top, dot.right, dot.bottom);
+                DeleteObject(br);
+                DeleteObject(pen);
+                // Label beside dot
+                SetBkMode(hdc, TRANSPARENT);
+                SetTextColor(hdc, l.on ? l.col : RGB(120,120,120));
+                RECT tr{ lx + 20, ly, lx + 90, ly + 16 };
+                DrawTextW(hdc, l.label, -1, &tr, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
+                lx += 110;
+            }
+            EndPaint(hwnd, &ps);
+            return 0;
+        }
 
         case WM_CLOSE:
             DestroyWindow(hwnd);
@@ -417,6 +505,20 @@ bool PirateGui::prompt_rewrite_consent(float savings_pct) {
     char buf[256];
     snprintf(buf, sizeof(buf), "We can condense this prompt and save %.1f%% of your tokens. Do you approve this strategic rewrite?", savings_pct * 100.0f);
     if (MessageBoxA(hwnd_, buf, "Consent Required: Prompt Rewrite", MB_YESNO | MB_ICONQUESTION) == IDYES) {
+        return true;
+    }
+    return false;
+#else
+    return true;
+#endif
+}
+
+bool PirateGui::prompt_supervisor_consent(const std::string& action) {
+#if defined(_WIN32)
+    std::wstring waction(action.begin(), action.end());
+    std::wstring msg = L"[RecursiveUpdater] PAUSED: Supervisor Brain requires your approval.\n\nAction: " + waction + L"\n\nDo you want to proceed?";
+    
+    if (MessageBoxW(hwnd_, msg.c_str(), L"Consent Required: Brain Modification", MB_YESNO | MB_ICONQUESTION) == IDYES) {
         return true;
     }
     return false;

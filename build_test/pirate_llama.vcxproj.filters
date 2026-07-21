@@ -10,6 +10,9 @@
     <ClCompile Include="I:\workspace\hyper_spherical\src\pirate_gui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="I:\workspace\hyper_spherical\src\context_compression_cramming_declutterizer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="I:\workspace\hyper_spherical\src\model_router.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
