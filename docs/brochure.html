@@ -20,7 +20,8 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: 'Outfit', sans-serif;
-    background: #000;
+    /* Soften pure black with a radial vignette for a more inviting feel */
+    background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
     color: var(--text);
   }
   
@@ -30,9 +31,10 @@
     height: 11in;
     margin: 2rem auto;
     background: var(--bg);
+    /* Add edge shadow to complete the vignette effect on web */
+    box-shadow: inset 0 0 100px rgba(0,0,0,0.8), 0 20px 50px rgba(0,0,0,0.5);
     position: relative;
     overflow: hidden;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
     display: flex;
     flex-direction: column;
     padding: 3rem 4rem;
@@ -130,6 +132,57 @@
     position: absolute; top: -40px; right: 0; color: #fff; font-size: 2rem; cursor: pointer; font-weight: bold;
   }
   
+  /* Image Container for Hotspots */
+  .image-container {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    max-width: 700px;
+    cursor: crosshair;
+  }
+  .image-container img {
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  /* Pulse Animation on Click */
+  @keyframes pulse-ring {
+    0% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.7); }
+    70% { box-shadow: 0 0 0 30px rgba(0, 212, 255, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0); }
+  }
+  .pulse-anim {
+    animation: pulse-ring 1s ease-out;
+  }
+
+  /* Comparison Modal */
+  .comparison-modal {
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.95); z-index: 2000; align-items: center; justify-content: center;
+    padding: 2rem;
+  }
+  .comparison-modal.active { display: flex; }
+  .comparison-content {
+    display: flex; gap: 2rem; width: 100%; max-width: 1400px; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .comparison-img-wrapper {
+    flex: 1; text-align: center;
+  }
+  .comparison-img-wrapper img {
+    width: 100%; max-height: 80vh; object-fit: contain;
+    border-radius: 8px; border: 2px solid var(--cyan);
+  }
+  .comparison-title {
+    color: var(--cyan); font-size: 1.5rem; margin-bottom: 1rem; font-weight: bold;
+  }
+  
+  @media (max-width: 900px) {
+    .comparison-content { flex-direction: column; }
+    .comparison-img-wrapper img { max-height: 40vh; }
+  }
+
   /* Web Interactivity Text styling */
   @media print {
     .web-only { display: none !important; }
@@ -164,15 +217,43 @@
       <p>Traditional Large Language Models (LLMs) are built like massive skyscrapers. They consist of thousands of flat, rigid, vectorized layers stacked linearly on top of one another. <strong>Every single layer must be loaded into expensive GPU VRAM simultaneously.</strong> If a model is 100GB, you need 100GB of VRAM just to turn it on.</p>
       
       <div class="flex-col" style="margin-top: 1rem; gap: 2rem;">
-        <div class="diagram-box" style="padding: 1rem; text-align: center;">
+        <div class="diagram-box" style="padding: 1rem; text-align: center;" ondblclick="openComparisonModal()">
           <h3 style="color: var(--red); margin-bottom: 1rem;">The Old Paradigm: Flat Layers</h3>
-          <img src="traditional_llm_planes.png" style="width: 100%; max-width: 700px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);" alt="Traditional Stacked Layers">
+          <p class="web-only" style="color: var(--muted); font-size: 0.85rem; margin-bottom: 1rem;">(Hover over elements to inspect. Double-click to compare.)</p>
+          <div class="image-container">
+            <img src="traditional_llm_planes.png" alt="Traditional Stacked Layers">
+            <div class="hotspot" style="top: 20%; left: 50%;" onclick="triggerPulse(this, event)">
+              <div class="tooltip"><strong>Flat Layers</strong><br>Rigid, stacked matrices. Cannot skip layers; must process sequentially.</div>
+            </div>
+            <div class="hotspot" style="top: 50%; left: 50%; background: rgba(255,59,48,0.4); border-color: var(--red);" onclick="triggerPulse(this, event)">
+              <div class="tooltip" style="border-color: var(--red);"><strong>VRAM Bottleneck</strong><br>Requires massive memory to load all weights simultaneously.</div>
+            </div>
+            <div class="hotspot" style="top: 80%; left: 50%;" onclick="triggerPulse(this, event)">
+              <div class="tooltip"><strong>Linear Output</strong><br>Wastes compute cycles on irrelevant data vectors.</div>
+            </div>
+          </div>
+
           <p style="margin-top: 1rem; font-size: 0.95rem;">Standard Transformers force data through dense, stacked matrices requiring massive multi-GPU clusters.</p>
         </div>
-        <div class="diagram-box interactive-diagram" style="padding: 1rem; text-align: center; border-color: var(--cyan); cursor: pointer;" onclick="openModal()">
+        <div class="diagram-box interactive-diagram" style="padding: 1rem; text-align: center; border-color: var(--cyan);" ondblclick="openComparisonModal()">
           <h3 style="color: var(--green); margin-bottom: 0.5rem;">Hyper-Spherical: 4D Routing</h3>
-          <p class="web-only" style="color: var(--cyan); font-size: 0.85rem; margin-bottom: 1rem;">(Click image to enlarge and interact)</p>
-          <img src="hyperspherical_nodes.png" style="width: 100%; max-width: 700px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); transition: transform 0.3s;" alt="Hyper-Spherical Architecture">
+          <p class="web-only" style="color: var(--cyan); font-size: 0.85rem; margin-bottom: 1rem;">(Hover over elements to inspect. Double-click to compare.)</p>
+          <div class="image-container">
+            <img src="hyperspherical_nodes.png" alt="Hyper-Spherical Architecture">
+            <div class="hotspot" style="top: 50%; left: 50%;" onclick="triggerPulse(this, event)">
+              <div class="tooltip"><strong>Central Hub</strong><br>The primary routing node where data twists into the 4D space efficiently.</div>
+            </div>
+            <div class="hotspot" style="top: 25%; left: 75%;" onclick="triggerPulse(this, event)">
+              <div class="tooltip"><strong>Branch Path</strong><br>Dynamic routing branches that stream knowledge directly from NVMe.</div>
+            </div>
+            <div class="hotspot" style="top: 75%; left: 25%;" onclick="triggerPulse(this, event)">
+              <div class="tooltip"><strong>Sub Node</strong><br>Episodic memory banks resolving highly specific semantic concepts.</div>
+            </div>
+            <div class="hotspot" style="top: 30%; left: 30%;" onclick="triggerPulse(this, event)">
+              <div class="tooltip"><strong>Hyper Vector</strong><br>"Grind Down" execution drops hardware requirements exponentially.</div>
+            </div>
+          </div>
+
           <p style="margin-top: 1rem; font-size: 0.95rem;">Dynamic branching organizes knowledge into spherical nodes, streaming directly from NVMe SSDs.</p>
         </div>
       </div>
@@ -311,10 +392,10 @@
             <p style="font-size: 1rem; margin-top: 1rem;">Requires massive 64x GPU clusters and InfiniBand networking just to load a 1-Trillion parameter model into active memory.</p>
           </div>
           <div style="border-left: 1px solid rgba(255,255,255,0.1); padding-left: 2rem;">
-            <h3 style="color: var(--green);">Hyper-Spherical Native</h3>
+            <h3 style="color: var(--green);">SFS CF-BS Hardware</h3>
             <p style="font-size: 1.5rem; color: #fff; font-weight: bold; margin-bottom: 0;">~$500,000 Custom Server</p>
-            <p style="font-size: 0.95rem; color: var(--green);">One-Time CapEx. Absolute Sovereignty.</p>
-            <p style="font-size: 1rem; margin-top: 1rem;">Runs 2x Trillion-parameter models simultaneously on a single specialized server using dense NVMe PCIe 5.0 streaming and unlimited drive arrays.</p>
+            <p style="font-size: 0.95rem; color: var(--green);">Spun Floss Sugar Clusterfied Box Servers</p>
+            <p style="font-size: 1rem; margin-top: 1rem;">Runs 2x Trillion-parameter models simultaneously on a single specialized server using dense NVMe PCIe 5.0 streaming and unlimited drive arrays. Stop renting; own your infrastructure.</p>
           </div>
         </div>
       </div>
@@ -379,13 +460,55 @@
     </div>
   </div>
 
+  <div class="comparison-modal" id="comparisonModal">
+    <div class="comparison-content">
+      <span class="close-btn" style="top: -30px; right: 20px;" onclick="closeComparisonModal()">&times;</span>
+      
+      <div class="comparison-img-wrapper">
+        <div class="comparison-title" style="color: var(--red);">Traditional Standard Model</div>
+        <img src="traditional_llm_planes.png" alt="Traditional Stacked Layers">
+        <p style="margin-top: 1rem; font-size: 1rem; color: #fff;">Massive VRAM required. Statically loads all weights.</p>
+      </div>
+      
+      <div class="comparison-img-wrapper">
+        <div class="comparison-title" style="color: var(--green);">Hyper-Spherical Method</div>
+        <img src="hyperspherical_nodes.png" alt="Hyper-Spherical Architecture">
+        <p style="margin-top: 1rem; font-size: 1rem; color: #fff;">Dynamically streams knowledge branches. Exceedingly efficient.</p>
+      </div>
+    </div>
+  </div>
+
   <script>
+    // Original Single Image Modal (kept for backward compatibility if used elsewhere)
     function openModal() { document.getElementById('interactiveModal').classList.add('active'); }
     function closeModal() { document.getElementById('interactiveModal').classList.remove('active'); }
-    // Close on background click
+    
+    // Side-by-Side Comparison Modal
+    function openComparisonModal() {
+      // Clear selection so double-clicking doesn't highlight text
+      if (window.getSelection) { window.getSelection().removeAllRanges(); }
+      document.getElementById('comparisonModal').classList.add('active');
+    }
+    function closeComparisonModal() { document.getElementById('comparisonModal').classList.remove('active'); }
+
+    // Close Modals on background click
     document.getElementById('interactiveModal').addEventListener('click', function(e) {
       if (e.target === this) closeModal();
     });
+    document.getElementById('comparisonModal').addEventListener('click', function(e) {
+      if (e.target === this) closeComparisonModal();
+    });
+
+    // Trigger Pulse Animation
+    function triggerPulse(element, event) {
+      // Prevent double-click from triggering when clicking hotspot
+      event.stopPropagation();
+      element.classList.remove('pulse-anim');
+      // Trigger reflow to restart animation
+      void element.offsetWidth;
+      element.classList.add('pulse-anim');
+    }
   </script>
+
 </body>
 </html>
