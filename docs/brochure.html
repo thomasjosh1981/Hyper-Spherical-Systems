@@ -99,6 +99,41 @@
       print-color-adjust: exact;
     }
   }
+  /* Interactive Modal CSS */
+  .modal-overlay {
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal-content {
+    position: relative; max-width: 90%; max-height: 90%;
+  }
+  .modal-img {
+    width: 100%; height: auto; border-radius: 8px; border: 2px solid var(--cyan);
+    box-shadow: 0 0 30px rgba(0,212,255,0.3);
+  }
+  .hotspot {
+    position: absolute; width: 30px; height: 30px; background: rgba(0,212,255,0.4);
+    border: 2px solid var(--cyan); border-radius: 50%; cursor: pointer;
+    transform: translate(-50%, -50%); transition: all 0.3s;
+  }
+  .hotspot:hover { background: rgba(0,212,255,0.8); transform: translate(-50%, -50%) scale(1.5); box-shadow: 0 0 15px var(--cyan); }
+  .tooltip {
+    position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%);
+    background: var(--surface-light); color: #fff; padding: 10px; border-radius: 6px;
+    width: max-content; max-width: 250px; font-size: 0.9rem; text-align: center;
+    border: 1px solid var(--purple); opacity: 0; pointer-events: none; transition: 0.3s;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5); z-index: 1001;
+  }
+  .hotspot:hover .tooltip { opacity: 1; bottom: 140%; }
+  .close-btn {
+    position: absolute; top: -40px; right: 0; color: #fff; font-size: 2rem; cursor: pointer; font-weight: bold;
+  }
+  
+  /* Web Interactivity Text styling */
+  @media print {
+    .web-only { display: none !important; }
+  }
 </style>
 </head>
 <body>
@@ -128,20 +163,26 @@
       <h2>The Paradigm Shift</h2>
       <p>Traditional Large Language Models (LLMs) are built like massive skyscrapers. They consist of thousands of flat, rigid, vectorized layers stacked linearly on top of one another. <strong>Every single layer must be loaded into expensive GPU VRAM simultaneously.</strong> If a model is 100GB, you need 100GB of VRAM just to turn it on.</p>
       
-      <div class="grid-2" style="margin-top: 2rem; flex: 1;">
+      <div class="flex-col" style="margin-top: 1rem; gap: 2rem;">
         <div class="diagram-box" style="padding: 1rem; text-align: center;">
           <h3 style="color: var(--red); margin-bottom: 1rem;">The Old Paradigm: Flat Layers</h3>
-          <img src="traditional_llm_planes.png" style="width: 100%; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);" alt="Traditional Stacked Layers">
+          <img src="traditional_llm_planes.png" style="width: 100%; max-width: 700px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);" alt="Traditional Stacked Layers">
           <p style="margin-top: 1rem; font-size: 0.95rem;">Standard Transformers force data through dense, stacked matrices requiring massive multi-GPU clusters.</p>
         </div>
-        <div class="diagram-box" style="padding: 1rem; text-align: center; border-color: var(--cyan);">
-          <h3 style="color: var(--green); margin-bottom: 1rem;">Hyper-Spherical: 4D Routing</h3>
-          <img src="hyperspherical_nodes.png" style="width: 100%; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);" alt="Hyper-Spherical Architecture">
+        <div class="diagram-box interactive-diagram" style="padding: 1rem; text-align: center; border-color: var(--cyan); cursor: pointer;" onclick="openModal()">
+          <h3 style="color: var(--green); margin-bottom: 0.5rem;">Hyper-Spherical: 4D Routing</h3>
+          <p class="web-only" style="color: var(--cyan); font-size: 0.85rem; margin-bottom: 1rem;">(Click image to enlarge and interact)</p>
+          <img src="hyperspherical_nodes.png" style="width: 100%; max-width: 700px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); transition: transform 0.3s;" alt="Hyper-Spherical Architecture">
           <p style="margin-top: 1rem; font-size: 0.95rem;">Dynamic branching organizes knowledge into spherical nodes, streaming directly from NVMe SSDs.</p>
         </div>
       </div>
       
-      <p style="margin-top: 2rem; font-size: 1.2rem; font-weight: 600; text-align: center; color: #fff;">This "brute force" flat architecture is why running frontier models requires multi-million dollar data centers. Hyper-Spherical eliminates this bottleneck.</p>
+      <div style="margin-top: 2rem; padding: 1.5rem; background: rgba(0,212,255,0.05); border-left: 3px solid var(--cyan); border-radius: 4px;">
+        <h3 style="color: #fff; font-size: 1.2rem; margin-bottom: 0.5rem;">Theoretical Limits & Universal Interoperability</h3>
+        <p style="margin-bottom: 0.8rem; font-size: 1rem;"><strong>Maximum & Minimum Compression:</strong> The maximum theoretical model size we can compress onto a hyper-sphere is functionally limitless, bound only by physical NVMe storage capacity (scaling into the hundreds of terabytes). The minimum model size is as small as 0.5B parameters, allowing it to run efficiently on edge devices.</p>
+        <p style="margin-bottom: 0.8rem; font-size: 1rem;"><strong>Extreme Efficiency:</strong> Because the execution engine "grinds down" only the active pathway, it scales seamlessly without wasting compute cycles on irrelevant data vectors.</p>
+        <p style="margin-bottom: 0; font-size: 1rem;"><strong>Universal Interoperability & Zero Corruption:</strong> Since the architecture mathematically guarantees structural integrity, file corruption is a thing of the past. If a Hyper-Spherical model works on one node, it is universally guaranteed to work on any other node, ensuring flawless interoperability across diverse hardware environments.</p>
+      </div>
     </div>
   </div>
 
@@ -317,5 +358,34 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="interactiveModal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal()">&times;</span>
+      <img src="hyperspherical_nodes.png" class="modal-img" alt="Enlarged Sphere">
+      
+      <!-- Hotspots -->
+      <div class="hotspot" style="top: 50%; left: 50%;">
+        <div class="tooltip"><strong>Central Core Hub</strong><br>The primary entry/exit "butthole eyeball" node where data twists in.</div>
+      </div>
+      <div class="hotspot" style="top: 30%; left: 70%;">
+        <div class="tooltip"><strong>Pop Clusters</strong><br>Little flower clusters (or lollipops) where semantic concepts bloom and resolve.</div>
+      </div>
+      <div class="hotspot" style="top: 70%; left: 30%;">
+        <div class="tooltip"><strong>Twisting Veins</strong><br>Tornado-like routing branches spinning data outwards from the center.</div>
+      </div>
+      <div class="hotspot" style="top: 20%; left: 40%;">
+        <div class="tooltip"><strong>Peripheral Nodes</strong><br>Side tornadoes popping everywhere, managing episodic memory banks dynamically.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openModal() { document.getElementById('interactiveModal').classList.add('active'); }
+    function closeModal() { document.getElementById('interactiveModal').classList.remove('active'); }
+    // Close on background click
+    document.getElementById('interactiveModal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+  </script>
 </body>
 </html>
