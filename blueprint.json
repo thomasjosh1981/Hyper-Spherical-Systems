@@ -6,6 +6,8 @@
     "homophonic_flattening_matrix": true,
     "vram_saturation_target": 0.75,
     "nvme_stay_in_buffer": 0.15,
-    "load_in_headroom_trigger": 0.40
+    "load_in_headroom_trigger": 0.40,
+    "mtp_candy_spinner_enabled": true,
+    "orchestrator_memory_limit": 512
   }
 }
