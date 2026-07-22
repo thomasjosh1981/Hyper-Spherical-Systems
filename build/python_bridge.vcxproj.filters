@@ -46,6 +46,24 @@
     <ClCompile Include="I:\workspace\hyper_spherical\src\hypersphere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="I:\workspace\hyper_spherical\src\homophonic_cipher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="I:\workspace\hyper_spherical\src\universal_endpoint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="I:\workspace\hyper_spherical\src\portable_conversation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="I:\workspace\hyper_spherical\src\multimodal_engine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="I:\workspace\hyper_spherical\src\orchestrator_bridge.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="I:\workspace\hyper_spherical\src\auto_embedder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="I:\workspace\hyper_spherical\CMakeLists.txt" />

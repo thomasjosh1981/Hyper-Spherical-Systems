@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <memory>
+#include "auto_embedder.hpp"
 
 namespace hypersp {
 
@@ -21,6 +23,7 @@ private:
     bool initialized_;
     std::string brain_path_;
     size_t memory_limit_;
+    std::unique_ptr<AutoEmbedder> embedder_;
     // Internal struct to hold model context
     void* orchestrator_ctx_; 
 };

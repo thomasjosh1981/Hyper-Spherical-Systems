@@ -18,6 +18,8 @@
 #include "recovery_checkpoint.hpp"
 #include "telemetry_logger.hpp"
 #include "index_registry.hpp"
+#include "universal_endpoint.hpp"
+#include "multimodal_engine.hpp"
 
 #include <cstdio>
 #include <cstring>
@@ -196,7 +198,24 @@ int main(int argc, char** argv) {
     std::printf("shards indexed  : 1 (the demo shard file)\n");
     std::printf("shards in VRAM  : %zu\n", in_vram.size());
 
-    std::printf("\n=== pirate_core smoke run complete ===\n");
+    // ----------------------------------------------------------------
+    section("9) SFS+ Universal Endpoint & Draft Tokening");
+    // ----------------------------------------------------------------
+    UniversalEndpoint ue;
+    ue.auto_benchmark_system();
+    
+    std::string sealed = ue.seal_payload(sample);
+    std::printf("\nUniversal Endpoint Payload Sealed (%zu bytes)\n", sealed.size());
+    
+    DraftTokenEngine draft_engine;
+    draft_engine.set_hardware_route(DraftTokenEngine::Route::DIRECT_NVME);
+    auto drafts = draft_engine.predict_draft_tokens(4);
+    std::printf("Draft Tokens (NVMe Route):\n");
+    for (const auto& dt : drafts) {
+        std::printf("  - %s\n", dt.c_str());
+    }
+
+    std::printf("\n=== hyper_spherical_engine smoke run complete ===\n");
     (void)argc; (void)argv;
     return 0;
 }

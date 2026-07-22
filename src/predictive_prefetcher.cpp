@@ -181,4 +181,42 @@ float WeightStreamer::vram_usage_pct() const noexcept {
     return (static_cast<float>(vram_current_) / static_cast<float>(vram_budget_)) * 100.0f;
 }
 
+// ----------------------------------------------------------------------
+// DraftTokenEngine: SFS+ specific native Multi-Token Prediction (MTP)
+// ----------------------------------------------------------------------
+
+DraftTokenEngine::DraftTokenEngine() {}
+
+void DraftTokenEngine::set_hardware_route(Route r) noexcept {
+    current_route_ = r;
+}
+
+std::vector<std::string> DraftTokenEngine::predict_draft_tokens(size_t max_tokens) noexcept {
+    std::vector<std::string> drafts;
+    
+    // In a full implementation, this uses the draft MoE model loaded natively.
+    // For now, we mock the predictions based on the current route hardware state.
+    if (current_route_ == Route::VRAM) {
+        // Blazing fast but eats VRAM
+        drafts.push_back("[DRAFT_V1]");
+        drafts.push_back("[DRAFT_V2]");
+    } else if (current_route_ == Route::SYSTEM_RAM) {
+        // Fast enough, keeps VRAM clear for main model
+        drafts.push_back("[DRAFT_R1]");
+    } else if (current_route_ == Route::DIRECT_NVME) {
+        // Used when system is completely saturated. Still faster than disk swap
+        drafts.push_back("[DRAFT_N1]");
+        drafts.push_back("[DRAFT_N2]");
+        drafts.push_back("[DRAFT_N3]");
+        drafts.push_back("[DRAFT_N4]");
+    }
+    
+    // truncate to max_tokens
+    if (drafts.size() > max_tokens) {
+        drafts.resize(max_tokens);
+    }
+    
+    return drafts;
+}
+
 } // namespace hypersp

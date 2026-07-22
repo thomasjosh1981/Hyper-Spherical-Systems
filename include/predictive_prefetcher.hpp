@@ -86,4 +86,25 @@ private:
     size_t      vram_current_ = 0ul;  
 };
 
+/* SFS+ Multi-Token Predictor (MTP) Draft Engine */
+class DraftTokenEngine {
+public:
+    DraftTokenEngine();
+    ~DraftTokenEngine() = default;
+
+    // Set hardware routing switch for the draft predictions
+    enum class Route {
+        VRAM,
+        SYSTEM_RAM,
+        DIRECT_NVME
+    };
+    void set_hardware_route(Route r) noexcept;
+
+    // Generate up to N draft predictions for the SFS+ model
+    std::vector<std::string> predict_draft_tokens(size_t max_tokens = 4) noexcept;
+
+private:
+    Route current_route_ = Route::SYSTEM_RAM;
+};
+
 } // namespace hypersp
