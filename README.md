@@ -27,7 +27,7 @@ Run `launch_ui.py` using Python:
 ```cmd
 python launch_ui.py
 ```
-This launches the backend server and automatically opens your browser to the interactive **M2M Machine-to-Machine Dashboard & Pirate GUI**.
+This launches the backend server and automatically opens your browser to the interactive **M2M Machine-to-Machine Dashboard & Pirate GUI** featuring the counter-rotating bladed vortex interface.
 
 ### 3. Features Included in this Beta Release
 - **Golden Candy Spinner (`golden_candy_spinner.exe`)**: GGUF → SFS / SFS+ / HSCC Decomposer with HuggingFace streaming, tool-calling manifest embedding, VMoE, and 3-stage compression.
@@ -38,7 +38,20 @@ This launches the backend server and automatically opens your browser to the int
 
 ---
 
-## 🧩 Commercial Licensing & Enterprise Hardware Options
+## 🧮 Hyper-Spherical Vector Addressing & Bladed Vortex Mathematics
+
+Hyper-Spherical Systems replaces standard Euclidean vector indexing with $N$-dimensional unit hypersphere vector addressing ($\mathbb{S}^{N-1}$):
+
+$$\mathbf{x} \in \mathbb{R}^N \xrightarrow{\text{Normalize}} \mathbf{u} = \frac{\mathbf{x}}{\|\mathbf{x}\|_2} \rightarrow (\theta_1, \theta_2, \dots, \theta_{N-1}, 1.0)$$
+
+### 🌀 Counter-Rotating Bladed Vortex Compression
+- **Angular Quantization**: High-dimensional embedding vectors are transformed into bladed hyperspherical coordinates $(\theta_1 \dots \theta_{N-1})$.
+- **Phase Shift ($\pm \phi$)**: Counter-rotating phase shifts compress coordinate arrays into 16-bit bladed integers.
+- **Geodesic Distance Routing**: Vector similarity search computes angular distance $d(\mathbf{u}, \mathbf{v}) = \arccos(\mathbf{u} \cdot \mathbf{v})$, allowing $O(1)$ multi-origin memory routing across distributed GPU/NVMe cluster nodes.
+
+---
+
+## 🧩 Commercial Licensing & Enterprise Hardware Roadmap
 
 Hyper-Spherical Systems is engineered with a **fully modular commercial architecture**. Customers can select from flexible licensing models or custom enterprise hardware deployments:
 
@@ -47,22 +60,21 @@ Hyper-Spherical Systems is engineered with a **fully modular commercial architec
 - **Base Edition + Add-On Subscription**: Subscribe to the core base software and select modular add-ons as needed.
 - **Perpetual Hardware License**: Included perpetually with custom Enterprise Hardware Cluster purchases.
 
-### 2. Custom Enterprise Hardware Clusters & Nodes
-For enterprise clients running local high-throughput workloads, custom sealed server nodes and cluster boxes are available:
-- **Processor & System Architecture**: AMD Threadripper PRO platform featuring 128 PCIe 5.0 lanes on motherboard topologies supporting 5 to 7 PCIe 5.0 x16 expansion slots.
-- **High-Density Memory Options**: Scalable 512GB, 1TB, 1.5TB, or 2TB high-speed octa-channel DDR5 ECC RDIMM configurations.
-- **Accelerated Compute & Storage**:
-  - Up to 3 custom memory-expanded workstation GPUs.
-  - Up to 4 PCIe 5.0 NVMe switching array cards (delivering up to 60 GB/s bandwidth per card) housing 8x 1TB, 2TB, 3TB, or 4TB slotable NVMe modules.
-  - Capability to concurrently run up to 4 frontier LLM models per cluster box.
-- **Advanced Thermal Engineering & Enclosure**:
-  - Hermetically sealed, custom slottable module enclosures.
-  - Active refrigerated glycol liquid-to-liquid heat exchanger loops (zero thermal throttling under continuous load).
-  - Diamond-like carbon (DLC) coated thermal interfaces, carbon nanotube-infused thermal paste, and synthetic diamond heat spreaders.
-- **Ultra-High Bandwidth Networking**: Dual 200G / 400G SmartNIC interconnect options.
-- **Order Terms & Production Status**:
-  - 60% deposit upon order placement, remaining 40% balance prior to shipment following full bench testing and validation.
-  - *Note: Enterprise hardware cluster lead times to be determined at a later date. Hardware platform is currently in active testing & validation phase.*
+### 2. Custom Enterprise Hardware Clusters (Future Roadmap)
+*Note: Enterprise hardware cluster development is in its initial build-out and testing phase. Hardware lead times and final production dates will be determined at a later stage.*
+
+- **Hermetic Metallic Honeycomb Enclosures**: Insulated metallic honeycomb panels, vacuum desiccated, purged, and sealed with dry inert gas.
+- **Swappable Liquid-Cooled NVMe Modules**:
+  - Modular, quick-swap NVMe array units with built-in internal liquid cooling loops, redundant water pumps, and zero-drip dry-break fittings.
+  - Effortless array swapping for rapid model swapping or catalog archiving.
+- **Redundant Mirrored Cold Storage**: Paired Seagate IronWolf Pro enterprise HDDs operating in mirrored RAID (RAID-1) matching the full capacity of the NVMe arrays for data redundancy.
+- **Compute Topology & High-Speed Interconnect**:
+  - AMD Threadripper PRO platform (128 PCIe 5.0 lanes, WRX90 5–7 PCIe 5.0 x16 motherboard slots).
+  - 512GB, 1TB, 1.5TB, or 2TB octa-channel DDR5 ECC RDIMM.
+  - Up to 3 custom memory-expanded GPUs + up to 4 PCIe 5.0 NVMe switch array cards (60 GB/s per card).
+  - Dual 200G / 400G SmartNICs with multi-box resource sharing to serve multi-cluster inference for **5+ Trillion parameter frontier models**.
+- **Active Refrigerated Thermal Control**: Glycol liquid-to-liquid heat exchanger loops, diamond-like carbon (DLC) coated thermal interfaces, carbon nanotube paste, and synthetic diamond heat spreaders for zero thermal throttling under continuous load.
+- **Deployment & Payment Terms**: 60% deposit upon order, remaining 40% balance prior to shipment following full bench testing.
 
 ---
 
