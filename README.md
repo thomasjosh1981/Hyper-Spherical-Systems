@@ -27,7 +27,7 @@ Run `launch_ui.py` using Python:
 ```cmd
 python launch_ui.py
 ```
-This launches the backend server and automatically opens your browser to the interactive **M2M Machine-to-Machine Dashboard & Pirate GUI** featuring the counter-rotating bladed vortex interface.
+This launches the backend server and automatically opens your browser to the interactive **M2M Machine-to-Machine Dashboard & Pirate GUI**.
 
 ### 3. Features Included in this Beta Release
 - **Golden Candy Spinner (`golden_candy_spinner.exe`)**: GGUF → SFS / SFS+ / HSCC Decomposer with HuggingFace streaming, tool-calling manifest embedding, VMoE, and 3-stage compression.
@@ -38,16 +38,17 @@ This launches the backend server and automatically opens your browser to the int
 
 ---
 
-## 🧮 Hyper-Spherical Vector Addressing & Bladed Vortex Mathematics
+## 🌐 Multi-Origin Hyperspherical Tessellation & Vector Addressing
 
-Hyper-Spherical Systems replaces standard Euclidean vector indexing with $N$-dimensional unit hypersphere vector addressing ($\mathbb{S}^{N-1}$):
+Hyper-Spherical Systems replaces traditional unstructured vector indices with **Multi-Origin Hyperspherical Geometry ($\mathbb{S}^{N-1}$)** to partition high-dimensional embedding space into uniform, highly scalable spatial bins:
 
 $$\mathbf{x} \in \mathbb{R}^N \xrightarrow{\text{Normalize}} \mathbf{u} = \frac{\mathbf{x}}{\|\mathbf{x}\|_2} \rightarrow (\theta_1, \theta_2, \dots, \theta_{N-1}, 1.0)$$
 
-### 🌀 Counter-Rotating Bladed Vortex Compression
-- **Angular Quantization**: High-dimensional embedding vectors are transformed into bladed hyperspherical coordinates $(\theta_1 \dots \theta_{N-1})$.
-- **Phase Shift ($\pm \phi$)**: Counter-rotating phase shifts compress coordinate arrays into 16-bit bladed integers.
-- **Geodesic Distance Routing**: Vector similarity search computes angular distance $d(\mathbf{u}, \mathbf{v}) = \arccos(\mathbf{u} \cdot \mathbf{v})$, allowing $O(1)$ multi-origin memory routing across distributed GPU/NVMe cluster nodes.
+### 📐 Progressive Origin Scaling Topology
+1. **6-Origin Point Base Geometry**: The fundamental entry geometry starts with **6 orthogonal origin points** (regular octahedron topology), dividing the hypersphere into 8 equal-area spatial domains.
+2. **Uniform Polyhedral Subdivision**: As the origin count scales upward (12, 20, 60, up to $M$ high-density origins), the hypersphere undergoes recursive uniform tessellation where **every face maintains identical size, shape, and surface area**.
+3. **$X$-Vector Point Allocation**: Each higher-order origin level deterministicly maps $X$ vector addressing points per face domain.
+4. **Geodesic Routing & Cosine Equivalence**: Vector similarity search measures geodesic distance $d(\mathbf{u}, \mathbf{v}) = \arccos(\mathbf{u} \cdot \mathbf{v})$ across origin domains, enabling $O(1)$ memory address lookups across multi-node GPU and NVMe hardware clusters.
 
 ---
 
