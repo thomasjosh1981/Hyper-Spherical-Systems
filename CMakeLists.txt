@@ -138,6 +138,8 @@ set(SFS_PLUS_SOURCES
     src/multimodal_engine.cpp
     src/orchestrator_bridge.cpp
     src/auto_embedder.cpp
+    src/onboarding_wizard.cpp
+    src/sfs_launcher.cpp
 )
 
 # ── Core engine executable (built from src/) ────────────────────────────
@@ -275,7 +277,7 @@ if(WIN32)
 endif()
 add_upx_pack(pirate_bridge)  # Pack the shipping bridge binary
 
-# ── Golden Candy Spinner ───────────────────────────────────────────────
+# ── Golden Candy Spinner ───────────────────────────────────────────────────
 add_executable(golden_candy_spinner
     tools/golden_candy_spinner/golden_candy_spinner.cpp
     src/candy_spinner.cpp
@@ -286,13 +288,44 @@ add_executable(golden_candy_spinner
     src/static_dictionary.cpp
     src/dictionary_store.cpp
     src/crypto_engine.cpp
+    src/huggingface_client.cpp
+    src/nvme_benchmark.cpp
+    src/onboarding_wizard.cpp
     ${SFS_PLUS_SOURCES}
 )
 target_include_directories(golden_candy_spinner PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/include)
 if(WIN32)
-    target_link_libraries(golden_candy_spinner PRIVATE kernel32)
+    target_link_libraries(golden_candy_spinner PRIVATE kernel32 shlwapi winhttp cfgmgr32)
+endif()
+
+# ── SFS Launcher — .sfs / .sfsp file-association handler ───────────────────
+add_executable(sfs_launcher
+    src/sfs_launcher.cpp
+    src/candy_spinner.cpp
+    src/gguf_reader.cpp
+    src/hypersphere.cpp
+    src/onboarding_wizard.cpp
+    src/multimodal_engine.cpp
+    src/standard_cipher.cpp
+    src/context_compressor.cpp
+    src/static_dictionary.cpp
+    src/dictionary_store.cpp
+    src/crypto_engine.cpp
+    src/nvme_benchmark.cpp
+    src/huggingface_client.cpp
+    ${SFS_PLUS_SOURCES}
+)
+target_compile_definitions(sfs_launcher PRIVATE SFS_LAUNCHER_MAIN=1)
+target_include_directories(sfs_launcher PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/include)
+if(WIN32)
+    target_link_libraries(sfs_launcher PRIVATE kernel32 shlwapi winhttp cfgmgr32)
+    target_link_options(sfs_launcher PRIVATE
+        "/MANIFESTUAC:level='requireAdministrator' uiAccess='false'"
+    )
 endif()
 
 # ── Python bridge DLL (exported C ABI so ctypes can load it) ───────────
@@ -377,6 +410,7 @@ add_executable(pirate_llama
     src/context_compressor.cpp
     src/static_dictionary.cpp
     src/dictionary_store.cpp
+    src/crypto_engine.cpp
     src/memory_manager.cpp
     src/predictive_prefetcher.cpp
     src/nvme_io.cpp
