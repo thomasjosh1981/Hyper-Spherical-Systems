@@ -60,7 +60,9 @@ For enterprise clients running local high-throughput workloads, custom sealed se
   - Active refrigerated glycol liquid-to-liquid heat exchanger loops (zero thermal throttling under continuous load).
   - Diamond-like carbon (DLC) coated thermal interfaces, carbon nanotube-infused thermal paste, and synthetic diamond heat spreaders.
 - **Ultra-High Bandwidth Networking**: Dual 200G / 400G SmartNIC interconnect options.
-- **Order Terms**: 60% deposit upon order placement, remaining 40% balance prior to shipment following full bench testing and verification.
+- **Order Terms & Production Status**:
+  - 60% deposit upon order placement, remaining 40% balance prior to shipment following full bench testing and validation.
+  - *Note: Enterprise hardware cluster lead times to be determined at a later date. Hardware platform is currently in active testing & validation phase.*
 
 ---
 
