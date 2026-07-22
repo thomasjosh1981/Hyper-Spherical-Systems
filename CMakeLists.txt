@@ -140,6 +140,8 @@ set(SFS_PLUS_SOURCES
     src/auto_embedder.cpp
     src/onboarding_wizard.cpp
     src/sfs_launcher.cpp
+    src/sissi_handshake.cpp
+    src/session_cipher.cpp
 )
 
 # ── Core engine executable (built from src/) ────────────────────────────

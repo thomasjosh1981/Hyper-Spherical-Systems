@@ -201,8 +201,13 @@ PIRATE_EXPORT int tesseract_openai_chat(TesseractEngineHandle handle,
                                          int request_len,
                                          char* out, int out_cap);
 
-// 7. Backend introspection — returns 1 if real llama.cpp is linked, 0 if stub
-PIRATE_EXPORT int tesseract_llama_backend_active(void);
+// 8. SISSI & Ephemeral Session Cipher (M2M+SISSI+5+1 pipeline)
+PIRATE_EXPORT void* tess_session_create(uint64_t seed);
+PIRATE_EXPORT void  tess_session_destroy(void* session_ptr);
+PIRATE_EXPORT int   tess_session_encode(void* session_ptr, const char* plaintext, char* out_buf, int out_cap, int* out_tokens_in, int* out_tokens_out);
+PIRATE_EXPORT int   tess_session_decode(void* session_ptr, const char* encoded, char* out_buf, int out_cap);
+PIRATE_EXPORT int   tess_session_build_index(void* session_ptr, char* out_buf, int out_cap);
+PIRATE_EXPORT void  tess_session_teardown(void* session_ptr);
 
 #ifdef __cplusplus
 }

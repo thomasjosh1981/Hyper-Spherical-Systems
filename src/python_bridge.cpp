@@ -27,10 +27,7 @@
 #ifdef HYPERSPHERICAL_ENTERPRISE_BUILD
 #include "hypersphere_security_tripwire.hpp"
 #endif
-#ifdef HYPERSPHERICAL_ENTERPRISE_BUILD
-#include "hypersphere_obfuscation.hpp"
-#endif
-
+#include "session_cipher.hpp"
 #include <cstdio>
 #include <cstring>
 #include <fstream>
@@ -844,6 +841,59 @@ PIRATE_EXPORT int tesseract_llama_backend_active(void) {
 #else
     return 0;
 #endif
+}
+
+// 8. SISSI & Ephemeral Session Cipher (M2M+SISSI+5+1 pipeline)
+PIRATE_EXPORT void* tess_session_create(uint64_t seed) {
+    if (seed == 0) return new hypersp::SessionCipher(hypersp::SessionCipher::create_session());
+    return new hypersp::SessionCipher(hypersp::SessionCipher::restore_session(seed));
+}
+
+PIRATE_EXPORT void tess_session_destroy(void* session_ptr) {
+    if (!session_ptr) return;
+    auto* sess = static_cast<hypersp::SessionCipher*>(session_ptr);
+    delete sess;
+}
+
+PIRATE_EXPORT int tess_session_encode(void* session_ptr, const char* plaintext,
+                                      char* out_buf, int out_cap,
+                                      int* out_tokens_in, int* out_tokens_out) {
+    if (!session_ptr || !plaintext || !out_buf || out_cap <= 0) return -1;
+    auto* sess = static_cast<hypersp::SessionCipher*>(session_ptr);
+    auto res = sess->encode(plaintext);
+    if (out_tokens_in)  *out_tokens_in  = res.total_tokens_in;
+    if (out_tokens_out) *out_tokens_out = res.total_tokens_out;
+    int len = static_cast<int>(res.encoded.size());
+    if (len >= out_cap) return -2;
+    std::memcpy(out_buf, res.encoded.c_str(), len + 1);
+    return len;
+}
+
+PIRATE_EXPORT int tess_session_decode(void* session_ptr, const char* encoded,
+                                      char* out_buf, int out_cap) {
+    if (!session_ptr || !encoded || !out_buf || out_cap <= 0) return -1;
+    auto* sess = static_cast<hypersp::SessionCipher*>(session_ptr);
+    std::string decoded = sess->decode(encoded);
+    int len = static_cast<int>(decoded.size());
+    if (len >= out_cap) return -2;
+    std::memcpy(out_buf, decoded.c_str(), len + 1);
+    return len;
+}
+
+PIRATE_EXPORT int tess_session_build_index(void* session_ptr, char* out_buf, int out_cap) {
+    if (!session_ptr || !out_buf || out_cap <= 0) return -1;
+    auto* sess = static_cast<hypersp::SessionCipher*>(session_ptr);
+    std::string idx = sess->build_handshake_index();
+    int len = static_cast<int>(idx.size());
+    if (len >= out_cap) return -2;
+    std::memcpy(out_buf, idx.c_str(), len + 1);
+    return len;
+}
+
+PIRATE_EXPORT void tess_session_teardown(void* session_ptr) {
+    if (!session_ptr) return;
+    auto* sess = static_cast<hypersp::SessionCipher*>(session_ptr);
+    sess->teardown();
 }
 
 }  // extern "C"
