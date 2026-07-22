@@ -38,17 +38,29 @@ This launches the backend server and automatically opens your browser to the int
 
 ---
 
-## 🧩 Modular Commercial Architecture & Licensing Options
+## 🧩 Commercial Licensing & Enterprise Hardware Options
 
-Hyper-Spherical Systems is engineered with a **fully modular commercial architecture**. Upon official commercial release, users and enterprise clients will have flexible purchasing options tailored to their exact requirements:
+Hyper-Spherical Systems is engineered with a **fully modular commercial architecture**. Customers can select from flexible licensing models or custom enterprise hardware deployments:
 
-1. **Modular A-la-Carte Purchase**: Buy only the specific modules you need (e.g. M2M Session Cipher Engine, Golden Candy Spinner Decomposer, High-Speed SFS Engine, VMoE Module).
-2. **Base Edition + Add-On Subscription**: Purchase the core engine base edition and add individual modules on a per-module subscription basis.
-3. **Enterprise Unlimited Tier**: Complete perpetual lifetime access to all modules and future major version releases.
+### 1. Software Licensing Models
+- **Modular A-la-Carte Purchase**: Purchase individual modules independently (e.g., M2M Session Cipher Engine, Golden Candy Spinner Decomposer, High-Speed SFS Engine, VMoE Module).
+- **Base Edition + Add-On Subscription**: Subscribe to the core base software and select modular add-ons as needed.
+- **Perpetual Hardware License**: Included perpetually with custom Enterprise Hardware Cluster purchases.
 
-### 🌐 License Validation & Verification Roadmap
-- **Current Beta Phase**: License status and major release update checks are performed natively via GitHub API integration.
-- **Future Commercial Release**: License verification and key management will transition to our upcoming web platform (`https://license.hyper-spherical.com`), providing automated key registration, module add-on management, and account licensing tools.
+### 2. Custom Enterprise Hardware Clusters & Nodes
+For enterprise clients running local high-throughput workloads, custom sealed server nodes and cluster boxes are available:
+- **Processor & System Architecture**: AMD Threadripper PRO platform featuring 128 PCIe 5.0 lanes on motherboard topologies supporting 5 to 7 PCIe 5.0 x16 expansion slots.
+- **High-Density Memory Options**: Scalable 512GB, 1TB, 1.5TB, or 2TB high-speed octa-channel DDR5 ECC RDIMM configurations.
+- **Accelerated Compute & Storage**:
+  - Up to 3 custom memory-expanded workstation GPUs.
+  - Up to 4 PCIe 5.0 NVMe switching array cards (delivering up to 60 GB/s bandwidth per card) housing 8x 1TB, 2TB, 3TB, or 4TB slotable NVMe modules.
+  - Capability to concurrently run up to 4 frontier LLM models per cluster box.
+- **Advanced Thermal Engineering & Enclosure**:
+  - Hermetically sealed, custom slottable module enclosures.
+  - Active refrigerated glycol liquid-to-liquid heat exchanger loops (zero thermal throttling under continuous load).
+  - Diamond-like carbon (DLC) coated thermal interfaces, carbon nanotube-infused thermal paste, and synthetic diamond heat spreaders.
+- **Ultra-High Bandwidth Networking**: Dual 200G / 400G SmartNIC interconnect options.
+- **Order Terms**: 60% deposit upon order placement, remaining 40% balance prior to shipment following full bench testing and verification.
 
 ---
 
