@@ -245,8 +245,13 @@ input[type=checkbox]{width:auto;accent-color:var(--cyan)}
       Pirate Llama
     </div>
     <span class="version-badge">v2.0 · Hyper-Spherical Systems</span>
-    <div id="topStatusDot" class="status-dot offline" title="Server status"></div>
-    <span id="topStatusText" style="font-size:.78rem;color:var(--muted)">Connecting...</span>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:12px">
+      <div id="topTokenCounter" class="badge badge-green" style="font-size:.8rem;padding:4px 10px;cursor:pointer" onclick="showPanel('session',document.querySelector('[onclick*=session]'))">
+        ⚡ 0 tokens saved
+      </div>
+      <div id="topStatusDot" class="status-dot offline" title="Server status"></div>
+      <span id="topStatusText" style="font-size:.78rem;color:var(--muted)">Connecting...</span>
+    </div>
   </div>
 
   <!-- Sidebar -->
@@ -278,6 +283,9 @@ input[type=checkbox]{width:auto;accent-color:var(--cyan)}
     </button>
     <button class="nav-btn" onclick="showPanel('endpoint',this)">
       <span class="nav-icon">🔗</span> Universal Endpoint
+    </button>
+    <button class="nav-btn" onclick="showPanel('session',this)">
+      <span class="nav-icon">🛰️</span> M2M Live Session
     </button>
   </nav>
 
@@ -665,6 +673,92 @@ input[type=checkbox]{width:auto;accent-color:var(--cyan)}
         </div>
         <div style="font-size:.8rem;color:var(--muted);margin-top:8px" id="cctmRatio"></div>
         <div id="cctmTotal" style="font-size:.78rem;color:var(--muted);margin-top:4px"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════ M2M LIVE SESSION ══════════════════════════════════════ -->
+    <div class="panel" id="panel-session">
+      <h2>🛰️ M2M Live Cloud Session</h2>
+      <p class="sub">Open an ephemeral M2M+SISSI+5+1 compressed session with frontier cloud models. Real-time token counter & stage breakdown.</p>
+
+      <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:16px">
+        <div>
+          <!-- Session config -->
+          <div class="card">
+            <div class="card-title">🔑 Session Configuration</div>
+            <div class="input-row">
+              <div>
+                <label>Provider</label>
+                <select id="sessProvider" onchange="updateSessModels()">
+                  <option value="openai">OpenAI (GPT-4o / GPT-4o-mini)</option>
+                  <option value="anthropic">Anthropic (Claude 3.5 Sonnet)</option>
+                  <option value="google">Google (Gemini 1.5 Pro)</option>
+                  <option value="ollama">Ollama (Local LLM)</option>
+                  <option value="openai_compat">OpenAI Compatible (Custom endpoint)</option>
+                </select>
+              </div>
+              <div>
+                <label>Model ID</label>
+                <input type="text" id="sessModel" value="gpt-4o">
+              </div>
+            </div>
+            <label style="margin-top:8px">API Key (optional if set in env)</label>
+            <input type="password" id="sessApiKey" placeholder="sk-proj-xxxxxxxxxxxxxxxx">
+            
+            <div style="display:flex;gap:10px;margin-top:14px">
+              <button class="btn btn-primary btn-sm" id="btnOpenSess" onclick="openM2MSession()">⚡ Open Session (Handshake)</button>
+              <button class="btn btn-danger btn-sm" id="btnCloseSess" onclick="closeM2MSession()" style="display:none">🔒 Teardown & Zero Key</button>
+            </div>
+            <div id="sessStatusBadge" style="margin-top:10px;font-size:.8rem"></div>
+          </div>
+
+          <!-- Live Chat / Message Console -->
+          <div class="card">
+            <div class="card-title">💬 Live Compressed Exchange</div>
+            <label>Plaintext message to send</label>
+            <textarea id="sessMsgInput" rows="3" placeholder="Type a message... (e.g. Based on the context provided, please summarize the key points in 3 bullets.)"></textarea>
+            <div style="display:flex;gap:8px;margin-top:10px">
+              <button class="btn btn-gold btn-sm" id="btnSendSess" onclick="sendM2MMessage()">🚀 Compress & Send</button>
+              <button class="btn btn-ghost btn-sm" onclick="previewM2MMessage()">👁️ Preview Encoding</button>
+            </div>
+
+            <div id="previewCard" style="display:none;margin-top:14px;background:rgba(0,0,0,.4);padding:12px;border-radius:8px">
+              <div class="card-title" style="font-size:.75rem">3-Stage Compression Preview</div>
+              <div style="font-size:.78rem;font-family:'JetBrains Mono',monospace;color:var(--muted)" id="previewDetails"></div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <!-- Live Token Counter Stats -->
+          <div class="card">
+            <div class="card-title">⚡ Live Token Counter & Savings</div>
+            <div class="bench-grid" style="grid-template-columns:1fr 1fr;margin-bottom:12px">
+              <div class="bench-stat ok">
+                <div class="bench-val" id="sessTotalSaved" style="color:var(--green)">0</div>
+                <div class="bench-label">Tokens Saved</div>
+              </div>
+              <div class="bench-stat ok">
+                <div class="bench-val" id="sessLiveRatio" style="color:var(--cyan)">1.0x</div>
+                <div class="bench-label">Session Compression Ratio</div>
+              </div>
+            </div>
+            <div style="font-size:.8rem;color:var(--muted);margin-top:6px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div>Total Tokens In: <strong id="sessTokensIn" style="color:var(--text)">0</strong></div>
+              <div>Total Tokens Out: <strong id="sessTokensOut" style="color:var(--text)">0</strong></div>
+              <div>Handshake Cost: <strong id="sessHandshakeCost" style="color:var(--amber)">0 tok</strong></div>
+              <div>Exchanges: <strong id="sessMsgCount" style="color:var(--text)">0</strong></div>
+            </div>
+          </div>
+
+          <!-- History / Stream -->
+          <div class="card">
+            <div class="card-title">📜 Session Exchange Log</div>
+            <div id="sessLog" style="height:220px;overflow-y:auto;font-family:'JetBrains Mono',monospace;font-size:.75rem;background:rgba(0,0,0,.4);padding:10px;border-radius:8px;color:#7ef0c8;line-height:1.5">
+              [Session] Ready. Open a session to establish the shared SISSI+5+1 index with the cloud model.
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1323,6 +1417,182 @@ function updateCCTMStats(original, compressed) {
     document.getElementById('cctmInputTokens').textContent = t;
     document.getElementById('cctmOutputTokens').textContent = Math.ceil(t / 3.5);
   });
+}
+
+// ── M2M Live Session ──────────────────────────────────────────────────────────
+let currentSessionToken = null;
+let sessStatsPollTimer = null;
+
+function updateSessModels() {
+  const p = document.getElementById('sessProvider').value;
+  const m = document.getElementById('sessModel');
+  if (p === 'openai') m.value = 'gpt-4o';
+  else if (p === 'anthropic') m.value = 'claude-3-5-sonnet-20241022';
+  else if (p === 'google') m.value = 'gemini-1.5-pro';
+  else if (p === 'ollama') m.value = 'llama3.2:3b';
+  else m.value = 'gpt-4o';
+}
+
+async function openM2MSession() {
+  const btn = document.getElementById('btnOpenSess');
+  btn.disabled = true;
+  btn.textContent = 'Negotiating Handshake...';
+  appendSessLog('[Session] Initiating M2M+SISSI+5+1 handshake with cloud model...');
+
+  const payload = {
+    provider: document.getElementById('sessProvider').value,
+    model:    document.getElementById('sessModel').value,
+    api_key:  document.getElementById('sessApiKey').value,
+  };
+
+  try {
+    const r = await fetch(API + '/session/open', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const d = await r.json();
+    if (d.ok) {
+      currentSessionToken = d.session_token;
+      document.getElementById('btnOpenSess').style.display = 'none';
+      document.getElementById('btnCloseSess').style.display = '';
+      document.getElementById('sessStatusBadge').innerHTML =
+        `<span class="badge badge-green">ACTIVE SESSION (${d.session_token})</span> <span style="color:var(--muted)">Status: ${d.status.toUpperCase()} | Handshake cost: ${d.handshake_cost} tok</span>`;
+
+      appendSessLog(`[Session] ✅ Handshake successful! Token: ${d.session_token}`);
+      appendSessLog(`[Session] Index transmission cost: ${d.handshake_cost} tokens (paid once upfront)`);
+      if (d.ack_message) appendSessLog(`[Cloud Model ACK] ${d.ack_message}`);
+      showToast('M2M Session active: ' + d.session_token);
+
+      startSessionStatsPoll();
+    } else {
+      appendSessLog(`[Session] ❌ Handshake failed: ${d.error || 'No response'}`);
+      document.getElementById('sessStatusBadge').innerHTML =
+        `<span class="badge badge-red">HANDSHAKE FAILED</span>`;
+    }
+  } catch (e) {
+    appendSessLog(`[Session] ❌ Network error: ${e.message}`);
+  }
+  btn.disabled = false;
+  btn.textContent = '⚡ Open Session (Handshake)';
+}
+
+async function sendM2MMessage() {
+  const msgInput = document.getElementById('sessMsgInput');
+  const text = msgInput.value.trim();
+  if (!text) return;
+
+  const btn = document.getElementById('btnSendSess');
+  btn.disabled = true;
+
+  appendSessLog(`\n[Local → Cloud] Plaintext: "${text}"`);
+  
+  try {
+    const r = await fetch(API + '/session/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        session_token: currentSessionToken,
+        message: text,
+        provider: document.getElementById('sessProvider').value,
+        model: document.getElementById('sessModel').value,
+      })
+    });
+    const d = await r.json();
+    if (d.encoded_in) {
+      appendSessLog(`[Stage 3 Encoded] ${d.encoded_in}`);
+      appendSessLog(`[Compression] ${d.tokens_in_orig} → ${d.tokens_in_comp} tok (${d.msg_ratio}x reduction)`);
+      appendSessLog(`  Breakdown: M2M saved ${d.m2m_savings}t | SISSI saved ${d.sissi_savings}t | Homophonic saved ${d.homo_savings}t`);
+      if (d.raw_response) appendSessLog(`[Cloud Raw] ${d.raw_response}`);
+      if (d.decoded_response) appendSessLog(`[Decoded] ${d.decoded_response}`);
+
+      updateSessionStatsDisplay(d);
+      msgInput.value = '';
+    } else if (d.error) {
+      appendSessLog(`[Error] ${d.error}`);
+    }
+  } catch (e) {
+    appendSessLog(`[Error] ${e.message}`);
+  }
+  btn.disabled = false;
+}
+
+async function previewM2MMessage() {
+  const text = document.getElementById('sessMsgInput').value.trim();
+  if (!text) return;
+  try {
+    const r = await fetch(API + '/session/preview', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({text: text})
+    });
+    const d = await r.json();
+    document.getElementById('previewCard').style.display = '';
+    document.getElementById('previewDetails').innerHTML = `
+      <div><strong>Original (${d.original_tokens} tok):</strong> "${d.original}"</div>
+      <div><strong>Stage 1 (M2M):</strong> "${d.after_m2m}" (saved ${d.m2m_savings} tok)</div>
+      <div><strong>Stage 2 (SISSI):</strong> "${d.after_sissi}" (saved ${d.sissi_savings} tok)</div>
+      <div><strong>Stage 3 (5+1 Homophonic):</strong> "${d.after_all}" (saved ${d.homo_savings} tok)</div>
+      <div style="margin-top:6px;color:var(--green);font-weight:700">Total: ${d.original_tokens} → ${d.compressed_tokens} tokens (${d.ratio}x compression)</div>
+    `;
+  } catch {}
+}
+
+async function closeM2MSession() {
+  if (!currentSessionToken) return;
+  try {
+    const r = await fetch(API + '/session/close', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({session_token: currentSessionToken})
+    });
+    const d = await r.json();
+    appendSessLog(`\n[Session] 🔒 Teardown complete. Key material zeroed in memory.`);
+    appendSessLog(`[Session] Cloud context expired naturally. Total tokens saved: ${d.total_saved}`);
+    showToast(`Session teardown complete. Saved ${d.total_saved} tokens.`);
+  } catch {}
+
+  currentSessionToken = null;
+  document.getElementById('btnOpenSess').style.display = '';
+  document.getElementById('btnCloseSess').style.display = 'none';
+  document.getElementById('sessStatusBadge').innerHTML = `<span class="badge badge-amber">CLOSED</span>`;
+  if (sessStatsPollTimer) clearInterval(sessStatsPollTimer);
+}
+
+function startSessionStatsPoll() {
+  if (sessStatsPollTimer) clearInterval(sessStatsPollTimer);
+  sessStatsPollTimer = setInterval(pollSessionStats, 3000);
+  pollSessionStats();
+}
+
+async function pollSessionStats() {
+  try {
+    const url = currentSessionToken ? `${API}/session/stats?session_token=${currentSessionToken}` : `${API}/session/stats`;
+    const r = await fetch(url);
+    const d = await r.json();
+    updateSessionStatsDisplay(d);
+  } catch {}
+}
+
+function updateSessionStatsDisplay(d) {
+  const saved = d.total_tokens_saved || d.total_saved || 0;
+  const ratio = d.overall_ratio || d.session_ratio || 1.0;
+  document.getElementById('sessTotalSaved').textContent = saved.toLocaleString();
+  document.getElementById('sessLiveRatio').textContent = (typeof ratio === 'number' ? ratio.toFixed(1) : ratio) + 'x';
+  if (d.total_tokens_in) document.getElementById('sessTokensIn').textContent = d.total_tokens_in.toLocaleString();
+  if (d.total_tokens_out) document.getElementById('sessTokensOut').textContent = d.total_tokens_out.toLocaleString();
+  if (d.handshake_cost || d.handshake_tokens_cost)
+    document.getElementById('sessHandshakeCost').textContent = (d.handshake_cost || d.handshake_tokens_cost) + ' tok';
+  if (d.total_messages) document.getElementById('sessMsgCount').textContent = d.total_messages;
+
+  // Update topbar token badge
+  document.getElementById('topTokenCounter').textContent = `⚡ ${saved.toLocaleString()} tokens saved`;
+}
+
+function appendSessLog(line) {
+  const el = document.getElementById('sessLog');
+  el.textContent += line + '\n';
+  el.scrollTop = el.scrollHeight;
 }
 
 // ── Toast ─────────────────────────────────────────────────────────────────────

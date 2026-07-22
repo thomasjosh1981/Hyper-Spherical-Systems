@@ -1,20 +1,22 @@
 # gui/server.py — Pirate Llama Web Dashboard Backend
 #
-# Lightweight backend server.
-# Tries Flask first; falls back to stdlib http.server.
-#
 # Routes:
-#   GET  /                  → index.html
-#   GET  /api/status        → system status JSON
-#   GET  /api/drives        → drive topology JSON
-#   GET  /api/models/local  → discovered SFS/GGUF/HSCC files JSON
-#   GET  /api/assets        → full asset registry JSON (all AI assets)
-#   POST /api/benchmark     → run nvme_benchmark, return JSON
-#   POST /api/gcs/spin      → launch GCS, stream stdout as SSE
-#   GET  /api/hf/search     → proxy HuggingFace search
-#   GET  /api/hf/recs       → return built-in brain model recommendations
-#   GET  /api/onboarding    → check if onboarding is complete
-#   POST /api/onboarding    → save onboarding config (JSON body)
+#   GET  /                      → index.html
+#   GET  /api/status            → system status JSON
+#   GET  /api/drives            → drive topology JSON
+#   GET  /api/models/local      → discovered SFS/GGUF/HSCC files JSON
+#   GET  /api/assets            → full asset registry JSON
+#   POST /api/benchmark         → run nvme_benchmark
+#   POST /api/gcs/spin          → launch GCS (SSE stream)
+#   GET  /api/hf/search         → HuggingFace search proxy
+#   GET  /api/hf/recs           → brain model recommendations
+#   GET  /api/onboarding        → onboarding status
+#   POST /api/onboarding        → save onboarding config
+#   POST /api/session/open      → open a M2M+SISSI+5+1 cloud session
+#   POST /api/session/chat      → send compressed message, get decoded response
+#   GET  /api/session/stats     → live token savings stats
+#   POST /api/session/close     → teardown session (zeroes key material)
+#   POST /api/session/preview   → stateless compression preview
 #
 # License: MIT
 
@@ -29,12 +31,25 @@ import threading
 from pathlib import Path
 from typing import Generator
 
-ROOT = Path(os.environ.get("PIRATE_ROOT", Path(__file__).parent.parent))
+ROOT    = Path(os.environ.get("PIRATE_ROOT", Path(__file__).parent.parent))
 GUI_DIR = Path(__file__).parent / "pirate_gui"
 BIN_DIR = ROOT / "build"
-KEYSTORE = ROOT / "pirate_keystore.enc"
+KEYSTORE= ROOT / "pirate_keystore.enc"
+PORT    = int(os.environ.get("PIRATE_PORT", 7860))
 
-PORT = int(os.environ.get("PIRATE_PORT", 7860))
+# Import session engine (Python thin wrapper — core logic is C++ DLL)
+try:
+    sys.path.insert(0, str(Path(__file__).parent))
+    from session_engine import CloudSession, SessionCipher
+    _SESSION_ENGINE_OK = True
+except ImportError as e:
+    _SESSION_ENGINE_OK = False
+    print(f"[server] session_engine not available: {e}")
+
+# Active sessions store  { session_id: CloudSession }
+_sessions: dict = {}
+_sessions_lock  = threading.Lock()
+
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -266,6 +281,83 @@ def create_flask_app():
             return jsonify({"ok": True})
         except Exception as e:
             return jsonify({"ok": False, "error": str(e)}), 500
+
+    # ── M2M Session Endpoints ──────────────────────────────────────────────────
+    @app.route("/api/session/open", methods=["POST"])
+    def api_session_open():
+        if not _SESSION_ENGINE_OK:
+            return jsonify({"ok": False, "error": "session_engine not loaded"}), 500
+        data = request.get_json(force=True) or {}
+        provider = data.get("provider", "openai")
+        model    = data.get("model", "gpt-4o")
+        api_key  = data.get("api_key", "")
+        base_url = data.get("base_url", "")
+
+        sess = CloudSession(provider=provider, model=model, api_key=api_key, base_url=base_url)
+        stats = sess.open()
+        with _sessions_lock:
+            _sessions[sess.stats.session_token] = sess
+
+        return jsonify({
+            "ok": True,
+            "session_token": sess.stats.session_token,
+            "status": stats.handshake_status,
+            "handshake_cost": stats.handshake_tokens_cost,
+            "ack_message": stats.ack_message,
+        })
+
+    @app.route("/api/session/chat", methods=["POST"])
+    def api_session_chat():
+        if not _SESSION_ENGINE_OK:
+            return jsonify({"ok": False, "error": "session_engine not loaded"}), 500
+        data = request.get_json(force=True) or {}
+        token = data.get("session_token", "")
+        text  = data.get("message", "")
+
+        with _sessions_lock:
+            sess = _sessions.get(token)
+
+        if not sess:
+            # Fallback: create an ephemeral preview session if no token provided
+            sess = CloudSession(provider=data.get("provider", "openai"), model=data.get("model", "gpt-4o"))
+            sess.open()
+
+        res = sess.chat(text)
+        return jsonify(res)
+
+    @app.route("/api/session/stats")
+    def api_session_stats():
+        token = request.args.get("session_token", "")
+        with _sessions_lock:
+            sess = _sessions.get(token)
+            if not sess and _sessions:
+                sess = list(_sessions.values())[-1]  # get latest session
+
+        if not sess:
+            return jsonify({"is_open": False, "total_tokens_saved": 0, "overall_ratio": 1.0})
+
+        return jsonify(sess.get_stats())
+
+    @app.route("/api/session/close", methods=["POST"])
+    def api_session_close():
+        data = request.get_json(force=True) or {}
+        token = data.get("session_token", "")
+        with _sessions_lock:
+            sess = _sessions.pop(token, None)
+
+        if sess:
+            stats = sess.close()
+            return jsonify({"ok": True, "total_saved": stats.total_tokens_saved, "ratio": round(stats.overall_ratio, 2)})
+        return jsonify({"ok": False, "error": "Session not found"})
+
+    @app.route("/api/session/preview", methods=["POST"])
+    def api_session_preview():
+        if not _SESSION_ENGINE_OK:
+            return jsonify({"ok": False, "error": "session_engine not loaded"}), 500
+        data = request.get_json(force=True) or {}
+        text = data.get("text", "")
+        res = CloudSession.preview_compression(text)
+        return jsonify(res)
 
     return app
 
