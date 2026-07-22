@@ -282,6 +282,34 @@ def create_flask_app():
         except Exception as e:
             return jsonify({"ok": False, "error": str(e)}), 500
 
+    @app.route("/api/github/check_update")
+    def api_github_check_update():
+        """Checks GitHub releases to determine if a major update has been cut."""
+        try:
+            import urllib.request
+            req = urllib.request.Request(
+                "https://api.github.com/repos/thomasjosh1981/Hyper-Spherical-Systems/releases/latest",
+                headers={"User-Agent": "PirateLlama-VersionChecker/2.0"}
+            )
+            with urllib.request.urlopen(req, timeout=5) as resp:
+                data = json.loads(resp.read())
+            tag = data.get("tag_name", "v2.0-beta")
+            return jsonify({
+                "latest_version": tag,
+                "current_version": "v2.0-beta",
+                "is_beta": True,
+                "mandatory_update": False, # set to True when major version > current
+                "html_url": data.get("html_url", "https://github.com/thomasjosh1981/Hyper-Spherical-Systems"),
+            })
+        except Exception as e:
+            return jsonify({
+                "latest_version": "v2.0-beta",
+                "current_version": "v2.0-beta",
+                "is_beta": True,
+                "mandatory_update": False,
+                "error": str(e),
+            })
+
     # ── M2M Session Endpoints ──────────────────────────────────────────────────
     @app.route("/api/session/open", methods=["POST"])
     def api_session_open():
