@@ -8,6 +8,7 @@
 // License: MIT
 
 #include "candy_spinner.hpp"
+#include "context_compressor.hpp"
 #include "gguf_reader.hpp"
 #include "../include/hypersphere.hpp"
 #include "types.hpp"
@@ -22,7 +23,7 @@
 
 namespace hypersp {
 
-CandySpinner::CandySpinner() {}
+CandySpinner::CandySpinner() : compressor_(std::make_unique<ContextCompressor>()) {}
 
 // ── Feature setters ───────────────────────────────────────────────────────────
 
@@ -112,8 +113,9 @@ bool CandySpinner::spin(const std::string& input_gguf,
 
     // Brain model reference
     if (!brain_model_ref_.empty()) {
-        std::strncpy(header.brain_model_ref, brain_model_ref_.c_str(),
-                     sizeof(header.brain_model_ref) - 1);
+        size_t len = std::min(brain_model_ref_.size(), sizeof(header.brain_model_ref) - 1);
+        std::memcpy(header.brain_model_ref, brain_model_ref_.c_str(), len);
+        header.brain_model_ref[len] = '\0';
     }
 
     // Count spinnable tensors
@@ -164,7 +166,7 @@ bool CandySpinner::spin(const std::string& input_gguf,
                 std::vector<float> new_embed(SISSI_VOCAB * n_embd, 0.0f);
                 std::vector<int>   counts(SISSI_VOCAB, 0);
                 for (size_t i = 0; i < n_vocab; ++i) {
-                    auto entries = compressor_.compress(reader.tokens()[i]);
+                    auto entries = compressor_->compress(reader.tokens()[i]);
                     if (entries.empty()) continue;
                     auto& entry = entries[0];
                     size_t sidx = entry.is_compressed

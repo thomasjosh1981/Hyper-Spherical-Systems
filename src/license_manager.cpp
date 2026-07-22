@@ -10,6 +10,7 @@
 #include <fstream>
 #ifdef _WIN32
 #include <windows.h>
+#include <winhttp.h>
 #endif
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -384,6 +385,99 @@ bool LicenseManager::check_hardware_key() {
     }
 #endif
     return false;
+}
+
+int64_t LicenseManager::fetch_network_time() {
+    int64_t verified_ts = 0;
+#ifdef _WIN32
+    HINTERNET hSession = WinHttpOpen(L"PirateLlama-TimeChecker/2.0", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
+                                     WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
+    if (hSession) {
+        HINTERNET hConnect = WinHttpConnect(hSession, L"google.com", INTERNET_DEFAULT_HTTPS_PORT, 0);
+        if (hConnect) {
+            HINTERNET hRequest = WinHttpOpenRequest(hConnect, L"HEAD", L"/", NULL, WINHTTP_NO_REFERER,
+                                                   WINHTTP_DEFAULT_ACCEPT_TYPES, WINHTTP_FLAG_SECURE);
+            if (hRequest) {
+                if (WinHttpSendRequest(hRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0, WINHTTP_NO_REQUEST_DATA, 0, 0, 0) &&
+                    WinHttpReceiveResponse(hRequest, NULL)) {
+                    SYSTEMTIME st;
+                    DWORD dwLen = sizeof(st);
+                    if (WinHttpQueryHeaders(hRequest, WINHTTP_QUERY_DATE | WINHTTP_QUERY_FLAG_SYSTEMTIME,
+                                            WINHTTP_HEADER_NAME_BY_INDEX, &st, &dwLen, WINHTTP_NO_HEADER_INDEX)) {
+                        FILETIME ft;
+                        SystemTimeToFileTime(&st, &ft);
+                        ULARGE_INTEGER uli;
+                        uli.LowPart  = ft.dwLowDateTime;
+                        uli.HighPart = ft.dwHighDateTime;
+                        verified_ts = (uli.QuadPart - 116444736000000000ULL) / 10000000ULL;
+                    }
+                }
+                WinHttpCloseHandle(hRequest);
+            }
+            WinHttpCloseHandle(hConnect);
+        }
+        WinHttpCloseHandle(hSession);
+    }
+#endif
+    if (verified_ts <= 0) {
+        // Network offline — fallback to system time (checked against high-water mark)
+        verified_ts = static_cast<int64_t>(std::time(nullptr));
+    }
+    return verified_ts;
+}
+
+bool LicenseManager::check_30day_trial(int& out_days_left, bool& out_clock_tampered) {
+    out_clock_tampered = false;
+    int64_t now = fetch_network_time();
+
+    // Trial state stored in pirate_trial.dat (XOR obfuscated)
+    const std::string trial_file = "pirate_trial.dat";
+    int64_t first_run = 0;
+    int64_t high_water = 0;
+
+    std::ifstream in(trial_file, std::ios::binary);
+    if (in.is_open()) {
+        std::string raw((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+        for (char& c : raw) c ^= 0x5D;
+        std::sscanf(raw.c_str(), "%lld:%lld", &first_run, &high_water);
+    }
+
+    if (first_run == 0) {
+        first_run = now;
+        high_water = now;
+    }
+
+    // Anti-Rollback Check: if current time is BEFORE high-water mark, local clock was turned back!
+    if (now < high_water - 300) { // 5-minute tolerance for minor clock drift
+        out_clock_tampered = true;
+        out_days_left = 0;
+        return false; // Tampered — block usage
+    }
+
+    // Update high-water mark
+    if (now > high_water) high_water = now;
+
+    // Save updated trial state
+    std::ofstream out(trial_file, std::ios::binary);
+    if (out.is_open()) {
+        char buf[128];
+        int len = std::snprintf(buf, sizeof(buf), "%lld:%lld", (long long)first_run, (long long)high_water);
+        for (int i = 0; i < len; ++i) buf[i] ^= 0x5D;
+        out.write(buf, len);
+    }
+
+    // 30 days = 30 * 86400 = 2,592,000 seconds
+    const int64_t TRIAL_DURATION = 30 * 86400;
+    int64_t expires_at = first_run + TRIAL_DURATION;
+    int64_t remaining_sec = expires_at - now;
+
+    if (remaining_sec <= 0) {
+        out_days_left = 0;
+        return false; // Trial expired
+    }
+
+    out_days_left = static_cast<int>((remaining_sec + 86399) / 86400);
+    return true; // Trial valid
 }
 
 } // namespace hypersp

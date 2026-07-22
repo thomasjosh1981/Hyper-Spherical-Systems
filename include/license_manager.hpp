@@ -50,6 +50,14 @@ struct LicenseState {
     bool        community_splash_needed = false; // suppressed during alpha
     bool        is_lifetime        = false;    // true only for LIFETIME_UNLIMITED
     int         build_major        = 0;        // major version this binary was built as
+    
+    // Tamper-proof 30-day trial
+    int64_t     trial_first_run_ts = 0;
+    int64_t     trial_expires_ts   = 0;
+    int64_t     trial_high_water_ts= 0;
+    int         trial_days_left    = 30;
+    bool        trial_expired      = false;
+    bool        clock_tampered     = false;
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -67,6 +75,12 @@ class LicenseManager {
 public:
     static void init() {}
     static LicenseState get_state();
+
+    // Fetch verified network timestamp via HTTPS Date header (tamper-proof against PC clock changes)
+    static int64_t fetch_network_time();
+
+    // Check 30-day trial status with anti-clock rollback detection
+    static bool check_30day_trial(int& out_days_left, bool& out_clock_tampered);
 
     // Validate and activate a lifetime code entered by the user.
     // Returns true and updates persisted state if valid.

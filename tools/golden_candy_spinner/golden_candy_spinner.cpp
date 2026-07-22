@@ -16,12 +16,15 @@
 //
 // License: MIT
 
+#define _CRT_SECURE_NO_WARNINGS
 #include "candy_spinner.hpp"
+#include "gguf_reader.hpp"
 #include "universal_endpoint.hpp"
 #include "onboarding_wizard.hpp"
 #include "huggingface_client.hpp"
 
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <vector>
 #include <thread>
@@ -31,6 +34,8 @@
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
+
+using namespace hypersp;
 #include <filesystem>
 
 namespace fs = std::filesystem;

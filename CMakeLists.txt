@@ -139,7 +139,6 @@ set(SFS_PLUS_SOURCES
     src/orchestrator_bridge.cpp
     src/auto_embedder.cpp
     src/onboarding_wizard.cpp
-    src/sfs_launcher.cpp
     src/sissi_handshake.cpp
     src/session_cipher.cpp
 )
@@ -266,6 +265,7 @@ add_executable(pirate_bridge
     src/hypersphere.cpp
     src/recursive_updater.cpp
     src/sandbox_environment.cpp
+    src/crypto_engine.cpp
     src/huggingface_client.cpp
     ${ENTERPRISE_SOURCES}
     ${SFS_PLUS_SOURCES}
@@ -349,6 +349,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/python_bridge.cpp"
         src/telemetry_logger.cpp
         src/neuron_graph.cpp
         src/hypersphere.cpp
+        src/crypto_engine.cpp
         ${ENTERPRISE_SOURCES}
         ${SFS_PLUS_SOURCES}
 )

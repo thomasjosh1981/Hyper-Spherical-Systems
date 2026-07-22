@@ -2,30 +2,22 @@
 //
 // Hyper-Spherical Systems — CandySpinner (GGUF → HSCC/SFS/SFS+ decomposer)
 //
-// New in v2.0:
-//   - enable_native_vmoe()     Wire VMoE expert count into SFS header
-//   - enable_tool_calling()    Embed tool-manifest section
-//   - enable_multimodal()      Set vision/audio/video capability bits
-//   - set_compression_order()  Store SISSI/Homophonic pipeline order in header
-//   - enable_persistence()     Set persistence flag in SFS header
-//   - set_progress_callback()  Real-time animation / progress reporting
-//   - vmoe_size()              Query configured VMoE expert count
-//
 // License: MIT
 
 #pragma once
-#include "context_compressor.hpp"
 #include <string>
 #include <vector>
 #include <functional>
 #include <cstdint>
+#include <memory>
 
 namespace hypersp {
+
+class ContextCompressor;
 
 enum class SpinMode { HSCC_V2, SFS, SFS_PLUS };
 
 // ── On-disk chunk header (written at the top of every .sfs/.hscc file) ────────
-// MUST remain POD and layout-stable across versions.
 #pragma pack(push, 1)
 struct CandyChunkHeader {
     uint32_t magic{0x43435348};      // "HSCC"
@@ -52,46 +44,30 @@ struct CandyChunkHeader {
 };
 #pragma pack(pop)
 
-// Layout: 4+2+1+1+4+4+4+1+1+1+1+1+1+256+32 = 314 bytes (packed)
-// If you add fields: bump version to 3 and update both reader and writer.
-
 // ── Progress callback type ────────────────────────────────────────────────────
-// frame: animation frame index (0..N)
-// pct:   0-100 progress
-// status: human-readable status string
 using SpinProgressCallback = std::function<void(int frame, int pct, const std::string& status)>;
 
-// ── CandySpinner ──────────────────────────────────────────────────────────────
+// ── CandySpinner Class ────────────────────────────────────────────────────────
 class CandySpinner {
 public:
     CandySpinner();
     ~CandySpinner() = default;
 
-    // ── Core Spin ────────────────────────────────────────────────────────────
-    // Transforms a standard GGUF into HSCC/SFS format.
-    // Calls progress_cb_ at regular intervals during processing.
+    // Feature configuration
+    void set_recursive_brain(const std::string& brain_gguf_path);
+    void enable_native_vmoe(int expert_count = 8);
+    void enable_tool_calling(bool enabled = true);
+    void enable_multimodal(bool enabled = true);
+    void set_compression_order(const std::string& order);
+    void enable_persistence(bool enabled = true);
+    void set_progress_callback(SpinProgressCallback cb) { progress_cb_ = std::move(cb); }
+
+    // Core spin action
     bool spin(const std::string& input_gguf,
               const std::string& output_file,
-              SpinMode mode = SpinMode::HSCC_V2);
+              SpinMode mode = SpinMode::SFS_PLUS);
 
-    // ── Brain Model ──────────────────────────────────────────────────────────
-    // Embeds the brain model reference into the SFS header.
-    // Accepts a local path OR "hf://<repo-id>" for a HuggingFace brain.
-    void set_recursive_brain(const std::string& brain_gguf_path);
-
-    // ── SFS Capability Flags ─────────────────────────────────────────────────
-    void enable_native_vmoe(int expert_count);   // e.g. 8 virtual experts
-    void enable_tool_calling(bool enabled);
-    void enable_multimodal(bool enabled);         // sets vision + audio + video
-    void set_compression_order(const std::string& order); // "sissi,hom" or "hom,sissi"
-    void enable_persistence(bool enabled);
-
-    // ── Progress Animation ───────────────────────────────────────────────────
-    void set_progress_callback(SpinProgressCallback cb) {
-        progress_cb_ = std::move(cb);
-    }
-
-    // ── Queries ──────────────────────────────────────────────────────────────
+    // Queries
     int  vmoe_size()  const { return vmoe_size_; }
     bool has_vision() const { return has_vision_; }
     bool has_audio()  const { return has_audio_; }
@@ -99,10 +75,9 @@ public:
 private:
     float calculate_w_entropy(const std::vector<float>& vec) const;
 
-    ContextCompressor     compressor_;
-    SpinProgressCallback  progress_cb_;
+    std::unique_ptr<ContextCompressor> compressor_;
+    SpinProgressCallback progress_cb_;
 
-    // Feature flags written into the header
     std::string brain_model_ref_;
     int         vmoe_size_{0};
     bool        tool_calling_{false};
@@ -110,7 +85,7 @@ private:
     bool        has_audio_{false};
     bool        has_video_{false};
     bool        persistence_{false};
-    uint8_t     pipeline_order_{0}; // 0=SISSI-first, 1=HOM-first
+    uint8_t     pipeline_order_{0};
 };
 
 } // namespace hypersp
