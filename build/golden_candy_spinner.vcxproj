@@ -388,6 +388,13 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="I:\workspace\hyper_spherical\src\context_compressor.cpp" />
     <ClCompile Include="I:\workspace\hyper_spherical\src\static_dictionary.cpp" />
     <ClCompile Include="I:\workspace\hyper_spherical\src\dictionary_store.cpp" />
+    <ClCompile Include="I:\workspace\hyper_spherical\src\crypto_engine.cpp" />
+    <ClCompile Include="I:\workspace\hyper_spherical\src\homophonic_cipher.cpp" />
+    <ClCompile Include="I:\workspace\hyper_spherical\src\universal_endpoint.cpp" />
+    <ClCompile Include="I:\workspace\hyper_spherical\src\portable_conversation.cpp" />
+    <ClCompile Include="I:\workspace\hyper_spherical\src\multimodal_engine.cpp" />
+    <ClCompile Include="I:\workspace\hyper_spherical\src\orchestrator_bridge.cpp" />
+    <ClCompile Include="I:\workspace\hyper_spherical\src\auto_embedder.cpp" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

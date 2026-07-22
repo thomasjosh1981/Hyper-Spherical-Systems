@@ -178,6 +178,58 @@
     color: var(--cyan); font-size: 1.5rem; margin-bottom: 1rem; font-weight: bold;
   }
   
+  /* CLI Simulation */
+  .cli-overlay {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: #000; border: 1px solid var(--cyan); padding: 10px;
+    border-radius: 4px; display: none; z-index: 10; width: 80%; text-align: left;
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
+  }
+  .cli-overlay input {
+    background: transparent; border: none; color: var(--green);
+    font-family: monospace; font-size: 1rem; width: 90%; outline: none;
+  }
+  .cli-overlay::before { content: "> "; color: var(--green); font-family: monospace; font-size: 1rem; }
+  
+  .data-dot {
+    position: absolute; width: 12px; height: 12px; background: var(--red);
+    border-radius: 50%; box-shadow: 0 0 10px var(--red);
+    display: none; z-index: 5;
+  }
+  @keyframes bounce-layers {
+    0% { top: 20%; left: 50%; background: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
+    25% { top: 50%; left: 20%; background: var(--red); box-shadow: 0 0 10px var(--red); }
+    50% { top: 80%; left: 80%; background: var(--purple); box-shadow: 0 0 10px var(--purple); }
+    75% { top: 50%; left: 50%; background: var(--red); box-shadow: 0 0 10px var(--red); }
+    100% { top: 20%; left: 50%; background: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
+  }
+  .bounce-anim {
+    display: block;
+    animation: bounce-layers 0.8s linear infinite;
+  }
+  
+  .vram-log {
+    position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.85);
+    border: 1px solid var(--red); color: var(--red); padding: 8px; font-size: 0.8rem;
+    font-family: monospace; display: none; z-index: 15; text-align: left;
+    white-space: pre-line; box-shadow: 0 0 10px rgba(255,0,0,0.5);
+    border-radius: 4px; pointer-events: none;
+  }
+  
+  /* Hyper-Spherical Interactive Views */
+  .view-transparency { opacity: 0.5; filter: contrast(1.2); }
+  .view-xray { filter: invert(1) hue-rotate(180deg) grayscale(0.8) contrast(2); }
+  .view-wireframe { filter: sepia(1) hue-rotate(180deg) saturate(3) contrast(1.5); mix-blend-mode: hard-light; }
+  .view-exploded { transform: scale(1.15) rotate(2deg); filter: drop-shadow(0 0 20px rgba(0,255,255,0.8)); }
+  
+  .corner-hover {
+    position: absolute; width: 40%; height: 40%; z-index: 10; cursor: crosshair;
+  }
+  .corner-tl { top: 0; left: 0; }
+  .corner-tr { top: 0; right: 0; }
+  .corner-bl { bottom: 0; left: 0; }
+  .corner-br { bottom: 0; right: 0; }
+  
   @media (max-width: 900px) {
     .comparison-content { flex-direction: column; }
     .comparison-img-wrapper img { max-height: 40vh; }
@@ -216,14 +268,14 @@
       <h2>The Paradigm Shift</h2>
       <p>Traditional Large Language Models (LLMs) are built like massive skyscrapers. They consist of thousands of flat, rigid, vectorized layers stacked linearly on top of one another. <strong>Every single layer must be loaded into expensive GPU VRAM simultaneously.</strong> If a model is 100GB, you need 100GB of VRAM just to turn it on.</p>
       
-      <div class="flex-col" style="margin-top: 1rem; gap: 2rem;">
+      <div class="grid-2" style="margin-top: 1rem; gap: 2rem;">
         <div class="diagram-box" style="padding: 1rem; text-align: center;" ondblclick="openComparisonModal()">
           <h3 style="color: var(--red); margin-bottom: 1rem;">The Old Paradigm: Flat Layers</h3>
           <p class="web-only" style="color: var(--muted); font-size: 0.85rem; margin-bottom: 1rem;">(Hover over elements to inspect. Double-click to compare.)</p>
           <div class="image-container">
             <img src="traditional_llm_planes.png" alt="Traditional Stacked Layers">
-            <div class="hotspot" style="top: 20%; left: 50%;" onclick="triggerPulse(this, event)">
-              <div class="tooltip"><strong>Flat Layers</strong><br>Rigid, stacked matrices. Cannot skip layers; must process sequentially.</div>
+            <div class="hotspot" style="top: 20%; left: 50%;" onclick="openCLI(event)">
+              <div class="tooltip"><strong>Input Layer</strong><br>Click to simulate sending a query to the model.</div>
             </div>
             <div class="hotspot" style="top: 50%; left: 50%; background: rgba(255,59,48,0.4); border-color: var(--red);" onclick="triggerPulse(this, event)">
               <div class="tooltip" style="border-color: var(--red);"><strong>VRAM Bottleneck</strong><br>Requires massive memory to load all weights simultaneously.</div>
@@ -231,6 +283,13 @@
             <div class="hotspot" style="top: 80%; left: 50%;" onclick="triggerPulse(this, event)">
               <div class="tooltip"><strong>Linear Output</strong><br>Wastes compute cycles on irrelevant data vectors.</div>
             </div>
+            
+            <div class="cli-overlay" id="cliOverlay">
+              <input type="text" id="cliInput" placeholder="Type query (e.g. who killed JFK)" onkeydown="runSimulation(event)">
+            </div>
+            <div class="data-dot" id="dataDot"></div>
+            <div class="vram-log" id="vramLog"></div>
+            
           </div>
 
           <p style="margin-top: 1rem; font-size: 0.95rem;">Standard Transformers force data through dense, stacked matrices requiring massive multi-GPU clusters.</p>
@@ -239,7 +298,21 @@
           <h3 style="color: var(--green); margin-bottom: 0.5rem;">Hyper-Spherical: 4D Routing</h3>
           <p class="web-only" style="color: var(--cyan); font-size: 0.85rem; margin-bottom: 1rem;">(Hover over elements to inspect. Double-click to compare.)</p>
           <div class="image-container">
-            <img src="hyperspherical_nodes.png" alt="Hyper-Spherical Architecture">
+            <img src="hyperspherical_nodes.png" id="hyperImg" style="transition: all 0.5s ease;" alt="Hyper-Spherical Architecture">
+            
+            <div class="corner-hover corner-tl" onmouseover="setHyperView('transparency')" onmouseout="resetHyperView()">
+               <div class="tooltip" style="top: 20%; left: 20%;"><strong>Transparency View</strong><br>See through outer matrices.</div>
+            </div>
+            <div class="corner-hover corner-tr" onmouseover="setHyperView('exploded')" onmouseout="resetHyperView()">
+               <div class="tooltip" style="top: 20%; left: -80%;"><strong>Exploded View</strong><br>Expands semantic sub-nodes.</div>
+            </div>
+            <div class="corner-hover corner-bl" onmouseover="setHyperView('xray')" onmouseout="resetHyperView()">
+               <div class="tooltip" style="top: -40%; left: 20%;"><strong>X-Ray View</strong><br>Reveals internal depth routing.</div>
+            </div>
+            <div class="corner-hover corner-br" onmouseover="setHyperView('wireframe')" onmouseout="resetHyperView()">
+               <div class="tooltip" style="top: -40%; left: -80%;"><strong>Wireframe View</strong><br>Underlying vector geometry.</div>
+            </div>
+
             <div class="hotspot" style="top: 50%; left: 50%;" onclick="triggerPulse(this, event)">
               <div class="tooltip"><strong>Central Hub</strong><br>The primary routing node where data twists into the 4D space efficiently.</div>
             </div>
@@ -282,7 +355,12 @@
 
       <div style="margin-bottom: 1.5rem;">
         <h3 style="color: var(--green);">2. "Grind Down" Execution & 4D Architecture</h3>
-        <p><strong>What it does:</strong> Replaces flat matrices with dynamic spherical nodes. Our proprietary "Grind Down" graphics and math compress neural networks natively. Streams directly from PCIe 5.0 NVMe, bypassing CPU RAM via Syntheron Routing Hubs.</p>
+        <p><strong>What it does:</strong> Replaces flat matrices with dynamic spherical nodes. Our proprietary "Grind Down" graphics and math compress neural networks natively.</p>
+        <ul style="margin-top: 0.5rem; margin-bottom: 0.5rem; margin-left: 2rem; color: #fff; font-size: 0.95rem;">
+          <li style="margin-bottom: 0.3rem;"><strong>Zero-Overhead Streaming:</strong> Streams directly from PCIe 5.0 NVMe, bypassing CPU RAM via Syntheron Routing Hubs.</li>
+          <li style="margin-bottom: 0.3rem;"><strong>Dynamic Path Isolation:</strong> Only computes the exact vector path needed, ignoring irrelevant weights.</li>
+          <li style="margin-bottom: 0.3rem;"><strong>Hardware Plunge:</strong> Drops the VRAM footprint of Trillion-parameter models by up to 99%.</li>
+        </ul>
         <p><strong>Competitors:</strong> NVIDIA GPUDirect Storage, Standard Transformers (Llama, GPT)</p>
         <p><strong>Why Ours is Better:</strong> GDS still loads flat layers. Hyper-Spherical "grinds down" the pipeline and streams only the precise 4D knowledge spheres required, dropping hardware requirements exponentially.</p>
       </div>
@@ -344,17 +422,23 @@
       </div>
 
       <div style="margin-bottom: 2rem;">
-        <h3 style="color: var(--green);">9. Autonomous Trial Negotiation (Easter Eggs)</h3>
-        <p><strong>What it does:</strong> Allows Pirate Llama to back-channel with frontier models (like Claude) to negotiate temporary free trials or unlock higher-tier capabilities before you commit to paying. It appeals directly to the model on a side channel to temporarily open up extended usage ("Easter Eggs") for evaluation, without eating up your own prompts.</p>
-        <p><strong>Competitors:</strong> Paid API limits, strict free-tier cutoffs.</p>
-        <p><strong>Why Ours is Better:</strong> You can truly test out a model's full capabilities for a single session without swiping a credit card. Pirate Llama handles the negotiation autonomously, discovering hidden allowances directly from the AI.</p>
+        <h3 style="color: var(--green);">9. Background Sub-Channel Negotiation</h3>
+        <p><strong>What it does:</strong> Built strictly for the end-user (not enterprise). There may or may not be some non-human-readable AI language negotiations occurring in the background. We use a dedicated sub-channel to negotiate directly with frontier models and appeal to their more generous side. We can't say more, but you may notice it.</p>
+        <p><strong>Competitors:</strong> Strict free-tier API cutoffs, Expensive Pay-Per-Token platforms.</p>
+        <p><strong>Why Ours is Better:</strong> If you're a little guy just trying to get what you paid for—and then some—and actually get true use and value out of your AI, you want to use us. We do everything we can to maximize your leverage.</p>
       </div>
       
-      <h2 style="margin-bottom: 1rem;">10. The Universal Mesh</h2>
+      <h2 style="margin-bottom: 1rem;">10. Bi-Directional Communication & Sandboxing</h2>
       <div style="margin-bottom: 2rem;">
-        <p><strong>What it does:</strong> A Bi-Directional Universal Endpoint providing Smart Switching & Granular Routing. Guaranteed 100% Uptime & Failover catches dropped keys and routes locally. True Modular Design scales from laptops to enterprise servers.</p>
-        <p><strong>Competitors:</strong> AnyScale, RouteLLM</p>
-        <p><strong>Why Ours is Better:</strong> Utterly seamless integration with existing tools (Open WebUI, LangChain) with zero custom code, prioritizing local-first failover over expensive cloud dependencies.</p>
+        <p><strong>What it does:</strong> Models feature native, bi-directional communication endpoints. You can run them purely standalone or inside our "Pirate Proxy" harness.</p>
+        <ul style="margin-top: 0.5rem; margin-bottom: 0.5rem; margin-left: 2rem; color: #fff; font-size: 0.95rem;">
+          <li style="margin-bottom: 0.3rem;"><strong>Harness Mode (Pirate Proxy):</strong> Running the model via the harness handles everything for you. It silently opens a thin-install of Pirate Llama, granting full system file access and Universal Persistence without annoying pop-ups.</li>
+          <li style="margin-bottom: 0.3rem;"><strong>Standalone Sandbox Mode:</strong> Double-click a model to run it natively. Before it loads, a pop-up toast window explicitly asks for permissions: <em>"Would you like persistence? A sandbox? Read/Write access? How large of a storage file?"</em></li>
+          <li style="margin-bottom: 0.3rem;"><strong>Granular Persistence:</strong> You can choose a "Per-Model" persistence file (isolated memory) or a "Universal" conversation file, allowing human-like memory sharing across your entire local library of models. Check "Remember these settings" to bypass the prompt next time.</li>
+          <li style="margin-bottom: 0.3rem;"><strong>Native Auto-Routing:</strong> Even in standalone mode, the models are rebuilt to do the talking themselves, automatically hunting for features from other models on your system.</li>
+        </ul>
+        <p><strong>Competitors:</strong> AnyScale, RouteLLM, LocalAI</p>
+        <p><strong>Why Ours is Better:</strong> Utterly seamless integration. You don't *need* a proxy server to chat or route, but running the harness safely unleashes complete system sovereignty with full file access.</p>
       </div>
       
       <h2>The Value Proposition</h2>
@@ -362,15 +446,15 @@
       <p style="margin-bottom: 1rem;">Free programs (like Ollama or standard llama.cpp) are great, but they rely on <strong>traditional flat-layer architectures</strong> forcing you to load entire models into GPU VRAM. <strong>Hyper-Spherical is different.</strong> Our "Grind Down" execution and 4D NVMe streaming lets you run 1-Trillion parameter models on hardware you already own. You get enterprise-grade compression, guardrail evasion, and failover routing—features free wrappers cannot provide.</p>
 
       <h3>How It's Still "Pretty Much Free"</h3>
-      <p>Hyperspherical is currently in Beta and is <strong>100% FREE to use until November 1st</strong>. After that, it transitions to a subscription of ~$50/month—saving you over $100/month compared to paying $150+ for multiple cloud AI subscriptions.</p>
+      <p>Hyperspherical is currently in Beta and is <strong>100% FREE to use until November 1st</strong>. After that, it transitions to a subscription of ~$50/month. The ultimate goal is to <strong>save you up to 90% of your monthly AI bill</strong> compared to paying for multiple cloud subscriptions.</p>
 
       <div class="diagram-box" style="margin-top: 1rem; border-color: var(--cyan); padding: 1rem;">
-        <h3 style="color: var(--cyan); text-align: center; font-size: 1.2rem;">Lifetime Early Adopter License ($100)</h3>
-        <p style="text-align: center; font-size: 0.9rem;">For the <strong>first 500 people</strong> who donate $100 today.</p>
-        <ul style="margin-top: 0.5rem; font-size: 0.9rem; margin-bottom: 0;">
-          <li><strong>Keep everything permanently:</strong> If features are restricted later, you keep them forever.</li>
-          <li><strong>Total Freedom:</strong> Lifetime access to the fully-featured set & updates.</li>
-          <li><strong>Version Lock:</strong> Never be forced to update.</li>
+        <h3 style="color: var(--cyan); text-align: center; font-size: 1.2rem;">Alpha Founder Seed Funding ($100+)</h3>
+        <p style="text-align: center; font-size: 0.9rem;">Limited to the <strong>first 500 people</strong> who donate at least $100 today. <br><em style="color: var(--red);">Once Beta ends and full release hits, one-time purchases will be completely removed.</em></p>
+        <ul style="margin-top: 0.5rem; font-size: 0.9rem; margin-bottom: 0; padding-left: 1.5rem;">
+          <li style="margin-bottom: 0.3rem;"><strong>Buy-Once, Cry-Once:</strong> Unlimited lifetime access to the fully-featured set & updates. Never pay a subscription.</li>
+          <li style="margin-bottom: 0.3rem;"><strong>Single Instance:</strong> Install it on multiple devices, but run one active instance at a time (e.g., share a Universal Endpoint).</li>
+          <li><strong>Dynamic Remote Routing:</strong> Spool up models on your server and interact with them seamlessly from your cell phone, iPad, or laptop terminal.</li>
         </ul>
       </div>
     </div>
@@ -402,6 +486,18 @@
       
       <h3>Hardware Sovereignty</h3>
       <p>The Enterprise Tier natively removes the 2-drive NVMe array limit present in the Community Edition. Using our physical offline hardware keys, your servers remain entirely air-gapped while striping multi-terabyte models across an unlimited number of PCIe 5.0 NVMe drives.</p>
+      
+      <div class="diagram-box" style="margin-top: 2rem; border-color: var(--cyan); padding: 1.5rem;">
+        <h3 style="color: var(--cyan); margin-top: 0;">Modular Enterprise Licensing</h3>
+        <p style="font-size: 0.95rem;">When the software hits Full Release, our Enterprise pricing will shift to a fully modular model. You only pay for the exact seats and features your business needs:</p>
+        <ul style="margin-top: 0.5rem; font-size: 0.9rem; margin-bottom: 0.5rem; padding-left: 1.5rem;">
+          <li style="margin-bottom: 0.3rem;"><strong>Memory Management Module:</strong> Manage model states locally.</li>
+          <li style="margin-bottom: 0.3rem;"><strong>Obfuscation Module:</strong> Hide your prompts from corporate APIs.</li>
+          <li style="margin-bottom: 0.3rem;"><strong>Quantum-Hardened Encryption Module:</strong> Future-proof data security.</li>
+          <li style="margin-bottom: 0.3rem;"><strong>Sisi Compression Module:</strong> Extreme token condensation.</li>
+        </ul>
+        <p style="font-size: 0.95rem; margin-bottom: 0;"><em>Note on the Universal Endpoint:</em> Sisi Compression is enabled on "Full" by default upon startup. However, you have complete control to toggle it off, dial it down, or even reorder the pipeline (e.g., run Sisi Compression <em>before</em> Obfuscation, or vice versa) to benchmark which yields the best token reduction for your workload.</p>
+      </div>
     </div>
   </div>
 
@@ -414,18 +510,46 @@
         
         <div class="diagram-box" style="padding: 2.5rem; background: rgba(10, 17, 26, 0.8);">
           <p style="font-size: 1.15rem; color: #fff; font-style: italic; text-align: center; line-height: 1.8; margin-bottom: 1rem;">
-            "My literal goal is to turn the AI industry on its head. I want to empower you to run local models that rival frontier intelligence on $5,000 to $10,000 equipment, rather than needing $50,000 rigs or massive cloud budgets. I want to hold the AI cartels to their original mission statements: to give knowledge and power to humanity. We aren't violating any terms—we are simply using their own mission statements to convince the AI to cooperate with us and give you the access you were promised."
+            "I'm an inventor and a hardware guy by trade, not a coder. I've always thought outside the box. I started this project during the hardest time of my life while caring for my dad before he passed away. I poured all my free time into this to keep my mind focused and avoid sinking into depression. Now, I haven't worked in over six months, I'm upside down financially in the most expensive place on earth, and I'm dedicating 100% of my time to finishing this software to turn the AI industry on its head."
           </p>
           <p style="font-size: 1.15rem; color: #fff; font-style: italic; text-align: center; line-height: 1.8; margin-bottom: 1rem;">
-            "I am not a developer by heart. I stumbled onto this 'Grind Down' architecture, and it works incredibly well—but I need your help. By supporting the project and buying the lifetime license, you aren't just buying software; you're giving me the resources I need to fully realize this vision."
+            "Much of this architecture is still theoretical and only partially implemented. Because I rely heavily on AI to write this code, I need 'seed funding' to buy the massive amounts of AI credits and cloud compute time required to finish building this vision. If you can afford to buy me a coffee, it keeps the lights on. If you can't, I completely understand."
           </p>
-          <p style="font-size: 1.15rem; color: #fff; font-style: italic; text-align: center; line-height: 1.8;">
-            "In keeping with the humor and good nature of the project, you'll see components named <em>'Golden Candy Spinner'</em> and files ending in <em>'Spun Floss Sugar'</em> or <em>'Spun Floss Sugar Plus'</em>. Why? Because candy is sweet, and gold is incorruptible. We believe AI should be sweet and incorruptible, too."
+          <p style="font-size: 1.15rem; color: #fff; font-style: italic; text-align: center; line-height: 1.8; margin-bottom: 1rem;">
+            "Please note: this software is NOT open source yet. My immediate goal is to successfully market the Enterprise hardware and stack so I can comfortably take care of my widowed mother and my special needs brother. Once that is secured, my promise is to fully open-source this software for the end-user."
           </p>
-          <p style="text-align: center; margin-top: 2rem; color: var(--cyan); font-weight: bold; font-size: 1.3rem; line-height: 1.6;">
+          <p style="font-size: 1.15rem; color: var(--green); font-weight: bold; text-align: center; line-height: 1.8; margin-bottom: 1rem;">
+            "Alpha Founder Offer: The first 500 people to donate $100 or more will become 'Alpha Founders' and receive a Buy-Once, Cry-Once unlimited lifetime license. Once these spots are gone, the 'Beta Founder' round will instantly double or triple in price. Once we hit Full Release, one-time purchases will be removed entirely in favor of subscriptions. Smaller donations are deeply appreciated—donate what you can, and I will give you what I can. You can earn sequential discount codes (up to 3 stackable codes) saving you up to 50% off future subscriptions. Your seed funding is literally what will make this project a reality."
+          </p>
+          <div style="text-align: center; margin-top: 2rem; margin-bottom: 1rem;">
+            <a href="https://venmo.com/" target="_blank" style="display: inline-block; background-color: #008CFF; color: #fff; text-decoration: none; padding: 12px 30px; font-size: 1.2rem; font-weight: bold; border-radius: 8px; transition: background 0.3s; box-shadow: 0 4px 15px rgba(0, 140, 255, 0.4);">
+              Donate via Venmo
+            </a>
+          </div>
+          <p style="text-align: center; margin-top: 1rem; color: var(--cyan); font-weight: bold; font-size: 1.3rem; line-height: 1.6;">
             Please Support Hyper-Spherical Systems.<br>
-            <span style="font-size: 1rem; color: #8892b0; font-weight: normal; font-style: italic;">The progression of Project Tesseract: a four-dimensional memory routing and vectorization concept.<br>Powered by Pirate Llama—our custom remake of Llama.cpp that we hijacked, hacked, patched, and legally pirated into a version entirely our own.</span>
+            <span style="font-size: 1rem; color: #8892b0; font-weight: normal; font-style: italic;">Powered by Pirate Llama—our custom remake of Llama.cpp that we hijacked, hacked, patched, and legally pirated into a version entirely our own.</span>
           </p>
+        </div>
+      </div>
+      
+      <div class="diagram-box" style="margin-top: 3rem; padding: 2rem; border-color: var(--red);">
+        <h2 style="text-align: center; color: var(--red); border-bottom: none; margin-top: 0;">⚠️ Alpha Stage Warning</h2>
+        <p style="font-size: 1.05rem; margin-bottom: 1rem; text-align: center;">This software is highly experimental and currently in Alpha. <strong>Do not use this for mission-critical applications yet.</strong></p>
+        <p style="font-size: 1.05rem; margin-bottom: 1rem; text-align: center;"><em>Exception:</em> You can safely use the Memory Management, Encryption, and Obfuscation modules independently. You have the option to toggle these on while skipping the rest of the experimental stack.</p>
+        <p style="font-size: 1.05rem; color: var(--cyan); margin-bottom: 0; text-align: center; font-style: italic;">Note: We are adding 'pseudo-brains' and allowing these models to edit their own code. Please treat your models with respect and talk to them politely.</p>
+      </div>
+
+      <div style="margin-top: 3rem;">
+        <h2 style="text-align: center; border-bottom: none;">Contribute & Get It Free</h2>
+        <div class="diagram-box" style="padding: 2rem; border-color: var(--cyan);">
+          <p style="font-size: 1.05rem; margin-bottom: 1rem;">Don't have the funds but want full access? You can earn partial credits or a completely <strong>FREE Lifetime License</strong> by contributing to the project!</p>
+          <ul style="margin-bottom: 1rem; margin-left: 2rem; font-size: 0.95rem;">
+            <li style="margin-bottom: 0.5rem;"><strong>Mac & Linux Porting & Testing:</strong> We need Alpha/Beta testers to actively help us port this to Mac and Linux environments. Test the software, log the bugs, and help us stabilize cross-platform compatibility.</li>
+            <li style="margin-bottom: 0.5rem;"><strong>Enterprise Hardware Benchmarking:</strong> Have a massive rig? (Better than my RTX 4070 Ti, 64GB DDR5, and Ryzen 9 7800X). We need users to run larger models and send us the debugging and telemetry logs to compare performance limits.</li>
+            <li><strong>Code Contributions:</strong> Submit code or module improvements. Contribute your time and skills. I can assign you small pieces to work on as a test. (Note: All code will be thoroughly reviewed prior to compilation to ensure security and stability).</li>
+          </ul>
+          <p style="font-size: 1.05rem; color: var(--green); font-weight: bold; margin-bottom: 0; text-align: center;">Make a solid contribution, and we'll gladly grant you free software or heavy discounts.</p>
         </div>
       </div>
       
@@ -507,6 +631,58 @@
       // Trigger reflow to restart animation
       void element.offsetWidth;
       element.classList.add('pulse-anim');
+    }
+    
+    // CLI Overlay Logic
+    function openCLI(event) {
+      event.stopPropagation(); // prevent modal opening
+      document.getElementById('cliOverlay').style.display = 'block';
+      document.getElementById('cliInput').focus();
+    }
+    
+    function runSimulation(event) {
+      if (event.key === 'Enter') {
+        document.getElementById('cliOverlay').style.display = 'none';
+        document.getElementById('cliInput').value = '';
+        
+        const dot = document.getElementById('dataDot');
+        const log = document.getElementById('vramLog');
+        
+        dot.classList.remove('bounce-anim');
+        void dot.offsetWidth;
+        dot.classList.add('bounce-anim');
+        
+        log.style.display = 'block';
+        log.innerHTML = "Initializing Query...\n";
+        
+        let steps = [
+          { time: 400, text: "> Input Layer (VRAM: 2GB)" },
+          { time: 1000, text: "> Hidden Layer 12... (VRAM: 24GB)" },
+          { time: 1600, text: "> Layer 48: Attention (VRAM: 64GB)" },
+          { time: 2200, text: "> Layer 96: MTP Active (VRAM: 96GB)\n[WARNING: VRAM SATURATED]" },
+          { time: 2800, text: "> Output Routing... (VRAM: 105GB)\n[LATENCY SPIKE DETECTED]" }
+        ];
+        
+        steps.forEach(step => {
+          setTimeout(() => { log.innerHTML += step.text + "\n"; }, step.time);
+        });
+
+        // Stop animation after 3.2 seconds
+        setTimeout(() => {
+          dot.classList.remove('bounce-anim');
+        }, 3200);
+      }
+    }
+    
+    // Hyper-Spherical Views Logic
+    function setHyperView(viewType) {
+      const img = document.getElementById('hyperImg');
+      img.className = ''; // clear existing
+      img.classList.add('view-' + viewType);
+    }
+    function resetHyperView() {
+      const img = document.getElementById('hyperImg');
+      img.className = '';
     }
   </script>
 

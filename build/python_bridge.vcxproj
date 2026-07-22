@@ -444,6 +444,12 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="I:\workspace\hyper_spherical\src\telemetry_logger.cpp" />
     <ClCompile Include="I:\workspace\hyper_spherical\src\neuron_graph.cpp" />
     <ClCompile Include="I:\workspace\hyper_spherical\src\hypersphere.cpp" />
+    <ClCompile Include="I:\workspace\hyper_spherical\src\homophonic_cipher.cpp" />
+    <ClCompile Include="I:\workspace\hyper_spherical\src\universal_endpoint.cpp" />
+    <ClCompile Include="I:\workspace\hyper_spherical\src\portable_conversation.cpp" />
+    <ClCompile Include="I:\workspace\hyper_spherical\src\multimodal_engine.cpp" />
+    <ClCompile Include="I:\workspace\hyper_spherical\src\orchestrator_bridge.cpp" />
+    <ClCompile Include="I:\workspace\hyper_spherical\src\auto_embedder.cpp" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

@@ -131,6 +131,15 @@ target_include_directories(hypersphere_security INTERFACE
 target_compile_features(hypersphere_security INTERFACE cxx_std_20)
 endif()
 
+set(SFS_PLUS_SOURCES
+    src/homophonic_cipher.cpp
+    src/universal_endpoint.cpp
+    src/portable_conversation.cpp
+    src/multimodal_engine.cpp
+    src/orchestrator_bridge.cpp
+    src/auto_embedder.cpp
+)
+
 # ── Core engine executable (built from src/) ────────────────────────────
 add_executable(pirate_core
     src/main.cpp
@@ -156,6 +165,7 @@ add_executable(pirate_core
     src/sandbox_environment.cpp
     src/huggingface_client.cpp
     ${ENTERPRISE_SOURCES}
+    ${SFS_PLUS_SOURCES}
 )
 target_include_directories(pirate_core PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -191,6 +201,7 @@ add_executable(pirate_tests
     src/sandbox_environment.cpp
     src/huggingface_client.cpp
     ${ENTERPRISE_SOURCES}
+    ${SFS_PLUS_SOURCES}
 )
 target_include_directories(pirate_tests PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -253,6 +264,7 @@ add_executable(pirate_bridge
     src/sandbox_environment.cpp
     src/huggingface_client.cpp
     ${ENTERPRISE_SOURCES}
+    ${SFS_PLUS_SOURCES}
 )
 target_include_directories(pirate_bridge PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -273,6 +285,8 @@ add_executable(golden_candy_spinner
     src/context_compressor.cpp
     src/static_dictionary.cpp
     src/dictionary_store.cpp
+    src/crypto_engine.cpp
+    ${SFS_PLUS_SOURCES}
 )
 target_include_directories(golden_candy_spinner PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -301,6 +315,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/python_bridge.cpp"
         src/neuron_graph.cpp
         src/hypersphere.cpp
         ${ENTERPRISE_SOURCES}
+        ${SFS_PLUS_SOURCES}
 )
     target_include_directories(python_bridge PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
@@ -374,6 +389,7 @@ add_executable(pirate_llama
     src/session_heartbeat.cpp
     src/runtime_directives.cpp
     ${ENTERPRISE_SOURCES}
+    ${SFS_PLUS_SOURCES}
 )
 
 # Add Virtual Test simulation

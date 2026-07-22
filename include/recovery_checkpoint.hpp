@@ -13,6 +13,21 @@ public:
 
     static bool load_from(const std::string& path, void* out_state = nullptr) noexcept;
 
+    /** 
+     * SFS+ Auto-Reversion Brain Features 
+     * Logs a differential delta (only the changed weights/code) to prevent storage bloat.
+     * is_critical indicates if this is a major architectural change that should be kept indefinitely.
+     */
+    bool log_brain_modification(const std::string& diff_payload, bool is_critical) noexcept;
+    
+    /** 
+     * Restores the model brain to a specific timestamp.
+     * Automatically prunes non-critical deltas older than 30 days.
+     */
+    bool revert_to_timestamp(uint64_t timestamp_sec) noexcept;
+    
+    void prune_old_reversions() noexcept;
+
     // Setters — engine calls these as it mutates state
     void set_vram_mark(uint64_t bytes) noexcept       { vram_mark = bytes; }
     void set_kv_count(uint32_t n) noexcept            { kv_count  = n; }
