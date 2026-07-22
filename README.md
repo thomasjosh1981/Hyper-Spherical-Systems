@@ -38,6 +38,20 @@ This launches the backend server and automatically opens your browser to the int
 
 ---
 
+## 🧩 Modular Commercial Architecture & Licensing Options
+
+Hyper-Spherical Systems is engineered with a **fully modular commercial architecture**. Upon official commercial release, users and enterprise clients will have flexible purchasing options tailored to their exact requirements:
+
+1. **Modular A-la-Carte Purchase**: Buy only the specific modules you need (e.g. M2M Session Cipher Engine, Golden Candy Spinner Decomposer, High-Speed SFS Engine, VMoE Module).
+2. **Base Edition + Add-On Subscription**: Purchase the core engine base edition and add individual modules on a per-module subscription basis.
+3. **Enterprise Unlimited Tier**: Complete perpetual lifetime access to all modules and future major version releases.
+
+### 🌐 License Validation & Verification Roadmap
+- **Current Beta Phase**: License status and major release update checks are performed natively via GitHub API integration.
+- **Future Commercial Release**: License verification and key management will transition to our upcoming web platform (`https://license.hyper-spherical.com`), providing automated key registration, module add-on management, and account licensing tools.
+
+---
+
 ## 🔒 Security & License Notice
 This repository contains pre-compiled, optimized binary releases of Hyper-Spherical Systems v2.0-beta. The software operates under a 30-day evaluation trial with network-verified time checks. All donor lifetime key holders (`PL-XXXX-XXXX-...`) receive perpetual access.
 
