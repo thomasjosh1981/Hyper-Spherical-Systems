@@ -3,38 +3,48 @@
 .idea/
 *.swp
 *.swo
+.clangd/
 
-# Build outputs
+# Protect Raw Source Code from Public Repositories
+*.cpp
+*.hpp
+*.h
+*.c
+src/
+include/
+gui/*.py
+tools/*.py
+launch_hypes.py
+launch_ui.py
+installer/*.py
+
+# Build Outputs & Intermediate Files
 build/
-bin/
-obj/
-out/
-*.exe
-*.dll
-*.so
-*.dylib
-*.class
-
-# Archives (unless explicitly needed)
-*.zip
-*.tar.gz
-*.rar
-*.7z
-
-# Python
+build_installer/
+build_enterprise/
+build_test/
+CMakeFiles/
+CMakeCache.txt
+dist/
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-.Python
-env/
-venv/
-.env
+*.obj
+*.spec
 
-# OS generated files
+# Allow Releases, Installers, Docs, and Guides
+!HypeS_Setup.exe
+!README.md
+!blueprint.json
+!config.yaml
+!docs/
+!docs/**
+
+# OS & Environment
 .DS_Store
 Thumbs.db
+.env
+venv/
+env/
 
-# Enterprise Proprietary Components
-src/enterprise/
-include/enterprise/
