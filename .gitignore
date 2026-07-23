@@ -5,18 +5,23 @@
 *.swo
 .clangd/
 
-# Protect Raw Source Code from Public Repositories
+# Protect All Source Code and Internal Components
 *.cpp
 *.hpp
 *.h
 *.c
+*.py
 src/
 include/
-gui/*.py
-tools/*.py
-launch_hypes.py
-launch_ui.py
-installer/*.py
+gui/
+tools/
+installer/
+keygen_server/
+pirate_authenticator/
+imported_files/
+dotnet/
+tests/
+archive_iterations/
 
 # Build Outputs & Intermediate Files
 build/
@@ -32,14 +37,18 @@ __pycache__/
 *.pyd
 *.obj
 *.spec
+*.bat
+*.ps1
 
-# Allow Releases, Installers, Docs, and Guides
+# Allow ONLY Public Releases, Installers, PDF/HTML Docs, and Graphics
 !HypeS_Setup.exe
 !README.md
 !blueprint.json
 !config.yaml
 !docs/
 !docs/**
+docs/*.py
+docs/**/*.py
 
 # OS & Environment
 .DS_Store
@@ -47,4 +56,5 @@ Thumbs.db
 .env
 venv/
 env/
+
 
