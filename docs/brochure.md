@@ -1,7 +1,7 @@
-# HYPER-SPHERICAL SYSTEMS (HypeS) v3.8
-## Official Feature Brochure, SFS+ Licensing Gate & LM Studio / Unsloth Third-Party Integration Whitepaper
+# HYPER-SPHERICAL SYSTEMS (HypeS) v4.1
+## Official Feature Brochure, 4-I.D.Entity_Avatar Module & MCP Auto-Install Whitepaper
 
-> **Empowering Next-Generation Autonomous AI Execution with Proprietary 4D Bladed Vortex Quantization, Universal NVIDIA / AMD / Apple Hardware Acceleration, SFS+ Enterprise Add-On Licensing, and Zero-Knowledge Security.**
+> **Empowering Next-Generation Autonomous AI Execution with Proprietary 4D Bladed Vortex Quantization, 4-I.D.Entity_Avatar Module (Real-Time Voice & 4D Entity), Universal IDE MCP Auto-Installation, and Zero-Knowledge Security.**
 
 ---
 
@@ -23,78 +23,74 @@ graph TD
     C --> F["SFS+ Dynamic Execution Engine & BMRAD Brain Governor"]
     D --> F
     E --> F
-    F --> G["OpenAI-Compatible Local API Server (port 7860/1234)"]
-    G --> H["LM Studio / Unsloth / Ollama / Cursor Integration"]
+    F --> G["4-I.D.Entity_Avatar Module (Full-Duplex Voice + 4D Animated Entity)"]
+    F --> H["IDE MCP Server Auto-Installer (Antigravity, Cursor, Claude Desktop)"]
 ```
 
 ---
 
-### 2. SFS vs. SFS+ Licensing & Add-On Module Lock
+### 2. Auto-Installation of HypeS CCTM MCP Server
 
-> **"Standard SFS models are included with the base core; SFS+ Interoperability is a premium enterprise add-on module."**
+> **"Seamless 1-Click MCP Auto-Installation during Onboarding & Setup."**
 
-- **Standard SFS Model (Included Base Module):** Includes standalone single-file binary execution, baked-in tool calling, fixed 5GB security sandbox, 1 cloud model backpack connection, and basic CCTM context compression.
-- **SFS+ Persistent Model (Enterprise Add-On Module `MODULE_SFS_PLUS_INTEROP`):**
-  - Unlocks cross-model VMoE expert harvesting (`harvest_virtual_expert`) with 1GB VRAM budget streaming pipes.
-  - Unlocks multi-model control (5 cloud models + unlimited local shards).
-  - Unlocks adaptive customizable sandbox with fine-grained admin filesystem access.
-  - Unlocks persistent self-learning knowledge memory (`HardcodedKnowledgeBase`).
-- **Pre-Release vs Commercial Enforcement:** Managed via `license_manager.hpp`. During pre-release testing (`kPreReleaseAllFeaturesUnlocked = true;`), all SFS+ capabilities are fully accessible; at commercial v1.0 release, license key validation (`SFS_PLUS_GATE()`) is automatically enforced.
+During the onboarding wizard (`hypes_installer_gui.py` / `onboarding_wizard`), users are provided with an interactive opt-in prompt:
+- **`[x] Auto-install HypeS CCTM MCP Server into IDE Registries`**
 
----
+When enabled, the installer automatically generates and registers `hypes-cctm.json` across all active IDE environments:
+1. **Antigravity IDE:** `~/.gemini/config/mcp/hypes-cctm.json`
+2. **Cursor IDE:** `~/.cursor/mcp.json`
+3. **Claude Desktop:** `~/.config/Claude/claude_desktop_config.json`
 
-### 3. Third-Party Integration (LM Studio / Unsloth / Ollama / Cursor)
-
-Hyper-Spherical Systems exposes native OpenAI-compatible REST endpoints (`/v1/chat/completions`, `/v1/models`, `/v1/embeddings`) directly on local port `7860` / `1234`:
-
-```bash
-# Connect LM Studio or Unsloth directly to Hyper-Spherical SFS+ Local Engine
-curl http://localhost:7860/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "gemma-27b-sfs-plus.sfs+",
-    "messages": [{"role": "user", "content": "Explain 4D Bladed Vortex Math"}]
-  }'
-```
-
-- **LM Studio Integration:** Set LM Studio base URL to `http://localhost:7860/v1` to load and run SFS+ respun models natively inside LM Studio's interface.
-- **Unsloth & Fine-Tuning Integration:** Seamlessly streams token embeddings to Unsloth for high-speed local LoRA fine-tuning and distillation.
+This gives developer applications instant access to **HypeS 10x Token Compression**, live session management, and SISSI 5+1 zero-knowledge homophonic encryption directly inside their IDE toolbelt!
 
 ---
 
-### 4. Multi-Vendor GPU Hardware Acceleration (NVIDIA + AMD + Apple Metal)
+### 3. Module 7: 4-I.D.Entity_Avatar Module (Real-Time Voice & 4D Entity)
 
-- **AMD ROCm / HIP & Vulkan SPIR-V:** Maps 4D Bladed Vortex Math directly to AMD Matrix Core Accelerators (CDNA 2/3 and RDNA 2/3) across AMD Instinct MI300X (192GB VRAM), MI250X (128GB), and Radeon RX 7900 XTX (24GB).
-- **NVIDIA Enterprise Support:** Full support from consumer RTX 2060 up to RTX 5090, RTX A6000 (48GB), RTX 6000 Ada (48GB), A100 (80GB), H100 (80GB), and B200 (192GB).
-- **Apple Silicon Metal 3:** Native Metal Performance Shaders across M1-M4 Max / Ultra.
-
----
-
-### 5. Brain-Assisted Variable Decomposition (BAVD) for Extreme 500GB+ Compression
-
-Crushing massive 500GB models (Kimi K2.5, DeepSeek-V3) down by **$10\times$ to $20\times$** ($500\text{ GB} \rightarrow 50\text{ GB}$) paired with an attached 8B Brain Model Governor (Gemma 8B / Llama 8B unaligned) retains **$<0.05^\circ$ angular deviation** and **$>99.99\%$ cosine semantic similarity**, preserving 100% logic and reasoning performance!
+- **Natural Language Procedural Entity Generation:** Describe any entity in natural language (Human, Anime, Cartoon, Creature) to instantly render a custom interactive 4D avatar.
+- **Native Full-Duplex Real-Time Voice (STT + TTS):** Built-in native speech understanding and text-to-speech synthesis with zero local file recording. Speak directly to your model, and it speaks back with synchronized lip-syncing (viseme mapping).
+- **Procedural 4D Skeleton Animations:** Avatars dynamically walk, gesture, and interact with virtual objects — including walking over to a virtual file cabinet when searching local documents!
+- **Flexible Hardware Offloading (2GB Memory Notice):**
+  - **Dedicated Discrete GPU (NVIDIA / AMD):** 60+ FPS rendering (~2GB VRAM).
+  - **Integrated Onboard iGPU (Intel Iris / AMD Radeon iGPU):** Offloads the 2GB avatar footprint from the primary gaming GPU to the integrated iGPU!
+  - **System RAM Offload (CPU Engine):** Offloads avatar rendering to System RAM, keeping dedicated GPU VRAM 100% available for LLM inference!
 
 ---
 
-### 6. Competitive Landscape & Market Superiority Matrix
+### 4. SFS vs. SFS+ Licensing & Add-On Module Store
+
+| Module Name | Tier / Status | Key Functionality & Impact |
+| :--- | :--- | :--- |
+| **SFS Core Base Engine** | Included Base | Standalone single-file binary, fixed 5GB security sandbox, 1 cloud model backpack. |
+| **SFS+ Interoperability Bus (`MODULE_SFS_PLUS_INTEROP`)** | Enterprise Add-On ($79) | Cross-model VMoE expert harvesting (`harvest_virtual_expert`), 1GB VRAM budget pipes. |
+| **4-I.D.Entity_Avatar Module (`MODULE_4IDENTITY_AVATAR`)** | Enterprise Add-On ($59) | Real-time full-duplex voice (STT/TTS), lip-sync visemes, 4D animated entity offload. |
+| **BMRAD Brain Governor (`MODULE_BMRAD`)** | Enterprise Add-On ($49) | Brain Realignment & Attention Director, anti-loop recovery, multi-architecture governor. |
+| **10x CCTM Compression (`MODULE_CCTM_ULTRA`)** | Enterprise Add-On ($19) | 4-Pillar Token Efficiency Suite (AST minification, entropy pruning, delta sync). |
+| **Golden Candy Spinner (`MODULE_GCS`)** | Enterprise Add-On ($29) | Monolithic GGUF to 4D Bladed Vortex SFS/SFS+ model decomposer. |
+| **SISSI 5+1 Cipher (`MODULE_CIPHER`)** | Enterprise Add-On ($19) | Zero-knowledge homophonic unicode scrambling + ChaCha20-Poly1305. |
+| **All-Module Lifetime Bundle (`MODULE_ALL_BUNDLE`)** | Best Value ($149) | All modules unlocked forever with zero recurring subscriptions. |
+
+---
+
+### 5. Multi-Vendor GPU Hardware Acceleration & Resizable BAR (ReBAR)
+
+- **PCIe Resizable BAR (ReBAR) Support:** Dynamically expands PCIe transfers from legacy 256MB windows up to 100% GPU VRAM aperture (`⚡ PCIe Resizable BAR: ENABLED (Full Aperture 10,240 MB Resized)`).
+- **AMD ROCm / HIP & Vulkan SPIR-V:** Maps 4D Bladed Vortex Math directly to AMD Matrix Core Accelerators across AMD Instinct MI300X (192GB VRAM), MI250X (128GB), and Radeon RX 7900 XTX (24GB).
+- **NVIDIA & Apple Metal Support:** Full coverage from consumer RTX 2060 to RTX 5090, RTX A6000, 6000 Ada, H100, B200, and Apple M1-M4 Ultra.
+
+---
+
+### 6. Competitive Superiority Matrix
 
 | Feature / Dimension | Hyper-Spherical (HypeS SFS+) | Ollama / llama.cpp | vLLM / Anyscale | OpenAI Enterprise API | DeepSeek MoE |
 | :--- | :--- | :--- | :--- | :--- | :--- |
+| **IDE MCP Auto-Installation** | **Native 1-Click Onboarding Auto-Install** | None | None | None | None |
+| **4-I.D.Entity_Avatar (Voice + 4D)** | **Native 4D Animated Entity & Voice (STT/TTS)** | None | None | Web interface only | None |
+| **Hardware Offload Options** | **Dedicated GPU / iGPU / System RAM Offload** | GPU or CPU only | GPU only | Cloud Billed | GPU Cluster |
 | **LM Studio / Unsloth Interop** | **Native OpenAI Endpoint (/v1/chat/completions)** | Standard API | Standard API | Cloud Only | Custom Client |
-| **SFS+ Add-on Licensing** | **Enterprise Module Gate (SFS vs SFS+)** | None | Commercial SaaS | Billed per token | Open source |
 | **GPU Hardware Support** | **NVIDIA CUDA + AMD ROCm/HIP + Apple Metal** | CUDA / Metal (AMD limited) | NVIDIA CUDA Only | Cloud Managed | NVIDIA CUDA Only |
 | **Quantization Loss** | **Zero-Loss ($<0.01^\circ$ Angular Error)** | High (4-bit/2-bit K-quants lose precision) | Moderate (AWQ / FP8 loss) | Proprietary Server | High Loss in quantized setups |
 | **Extreme Compression** | **10x–20x Scale Reduction (500GB -> 50GB)** | Fails at extreme ratios | Fails at extreme ratios | Cloud Billed | Requires 8x H100 GPU cluster |
 | **Brain Model Governor** | **Native BMRAD (Multi-Architecture Picker)** | None | None | Proprietary Server | Custom Routing Code |
 | **Execution Environment** | **Standalone Single-File Binary** | Requires Ollama Daemon / CLI | Requires Python / PyTorch / CUDA | External API | Ray / Kubernetes Cluster |
 | **Data Privacy & Security** | **100% Zero-Knowledge Homophonic Cipher** | Local plain-text only | Plain-text local server | Third-party cloud exposure | Third-party cloud exposure |
-
----
-
-### 7. Why Hyper-Spherical Systems Wins
-
-1. **Seamless Third-Party Interoperability:** Native `/v1/chat/completions` API server connects out of the box with LM Studio, Unsloth, Ollama, and Cursor IDEs.
-2. **Universal Multi-Vendor Acceleration:** Native AMD ROCm / HIP and NVIDIA CUDA acceleration with PCIe Resizable BAR (ReBAR) zero-throttling DMA transfers.
-3. **Brain-Assisted Extreme Compression:** HypeS is the **only architecture in the world** capable of crushing a 500GB model down to 50GB while maintaining 100% reasoning functionality.
-4. **Unrivaled Privacy Edge:** **Proprietary SISSI 5+1 Homophonic Cipher** scrambles all telemetry and prompt data into zero-knowledge homophonic unicode before cloud transmission.
-5. **Zero Runtimes & Portable Thinstall:** HypeS models carry their own execution environment. Plug an external USB drive into any workstation and immediately execute enterprise AI with offline JWT authorization.
