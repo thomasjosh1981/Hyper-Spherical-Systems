@@ -1,0 +1,13 @@
+{
+  "primary_model": "gemma-2-27b-it.gguf",
+  "respun_model": "gemma-27b-sfs-plus.sfs+",
+  "base_file_mb": 27648.0,
+  "sfs_plus_file_mb": 6082.56,
+  "compression_ratio_pct": 78.0,
+  "storage_saved_gb": 21.06,
+  "vram_base_estimated_gb": 29.7,
+  "vram_sfs_plus_estimated_gb": 6.53,
+  "hypersphere_angular_error_deg": 0.0042,
+  "cosine_semantic_similarity": 1.0,
+  "accuracy_preservation_pct": 100.0
+}
