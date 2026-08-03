@@ -1,0 +1,31 @@
+[project_meta]
+name = "Project Tesseract"
+architecture = "4D Hyperspherical Tensor Cache & Async Staging"
+status = "Timing Protocols Integrated"
+
+[memory_management]
+vram_streaming = true
+offload_target = "NVMe"
+predictive_sub_process = true
+
+[orchestrator_timings]
+pre_fetch_lead_time_ms = 285
+context_switch_vram_ms = 12
+hysteresis_cooldown_ms = 1500
+
+[storage_matrix]
+file_count = 6
+split_type = "Asynchronous Staging Buffer"
+rotation_logic = "Modulo Shifting Parity Key"
+decoy_generation = "High-Entropy PRNG"
+
+[geometric_cache_trigger]
+dimensions = 4
+axes = ["x", "y", "z", "w"]
+distance_formula = "sqrt(dx^2 + dy^2 + dz^2 + dw^2)"
+load_in_radius = 0.75       
+stay_in_buffer = 0.20       
+
+[dashboard_wireframe]
+layout = "Grid-3-Column"
+theme = "Matrix-Dark"
