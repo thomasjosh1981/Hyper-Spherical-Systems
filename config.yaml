@@ -5,9 +5,9 @@ nvme_io_optimal_chunks:
   optimal_read_chunk: 262144    # 256 KB for NVMe (run nvme_benchmark to calibrate)
   optimal_write_chunk: 524288   # 512 KB for HDD
 
-# Context Compression — explicitly disabled per user directive.
+# Context Compression — ENABLED for maximum token savings.
 tesseract_context:
-  compession_enabled: false      # Disabled — never compress context
+  compression_enabled: true      # Enabled — full CCTM pipeline active
   min_comp_phrase_len: 2         # Only used when compession is enabled
   max_dict_entries: 65536        # Keep dictionary small for fast lookup
   max_active_tokens: 260000      # Hard floor — never compress below this threshold
@@ -20,3 +20,12 @@ ram_total_bytes: 17179869184     # 16 GB default
 # Predictive Prefetch Settings
 prediction_window: 16             # How many layers back to watch
 prefetch_confidence_min: 0.75    # Only preload if confidence above this threshold
+
+# Auto-Backup Subsystem
+auto_backup:
+  enabled: true                  # Auto-backup active
+  destination: "I:\\workspace\\hyper_spherical\\backups" # Storage target
+  interval_minutes: 60           # Backup frequency (15, 60, 360, 1440)
+  max_snapshots: 10              # Keep last 10 snapshots
+
+

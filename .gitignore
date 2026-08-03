@@ -16,8 +16,13 @@ include/
 gui/
 tools/
 installer/
+installer/hypes_admin_keygen.py
 keygen_server/
 pirate_authenticator/
+release_keys/
+HypeS_Crypt_Key
+.hypes/
+.admin_backup/
 imported_files/
 dotnet/
 tests/
