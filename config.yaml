@@ -1,6 +1,6 @@
 # Project Pirate Llama Configuration  
-# Set by user directive — context compression disabled
-  
+version: "0.9.8-alpha"
+stage: "ALPHA"
 nvme_io_optimal_chunks:
   optimal_read_chunk: 262144    # 256 KB for NVMe (run nvme_benchmark to calibrate)
   optimal_write_chunk: 524288   # 512 KB for HDD
