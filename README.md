@@ -1,55 +1,169 @@
 <div align="center">
-  <h1>🌌 Hyperspherical</h1>
-  <p><b>Next-Generation Local AI Engine with "Grind Down" Execution</b></p>
+
+<img src="docs/hypersphere_health_report.md" alt="" width="0"/>
+
+# 🌌 Hyper-Spherical Systems — HypeS
+### *Next-Generation Local AI Engine*
+
+[![Release](https://img.shields.io/badge/release-v0.9.8--alpha-cyan?style=flat-square)](https://github.com/thomasjosh1981/Hyper-Spherical-Systems/releases)
+[![License](https://img.shields.io/badge/license-MIT%20%2B%20Enterprise-purple?style=flat-square)](#-license)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-blue?style=flat-square)](#-system-requirements)
+
+> **Run frontier-class AI on your own hardware — privately, permanently, and at 10× the token efficiency of any cloud subscription.**
+
 </div>
 
 ---
 
-## 🚀 Welcome to HypeS — Hyper-Spherical Systems (v2.0 Beta)
+## 📖 About HypeS
 
-**HypeS** (Hyper-Spherical Systems) is an enterprise-grade AI execution suite featuring:
-- **10x Context Compression & 1:1 Frontier Tokenizer Re-Mapping**
-- **SFS+ Multi-Model Cross-Communication & Swarm Intelligence** (12B / 21B / 27B)
-- **Endless Master Conversation Engine & Syntron Auto-Branching**
-- **4D Vector Spatial Geometry & Dual-Bladed Vortex UI**
-- **Intellectual Property Security** (Control Flow Guard, ASLR, DEP, Anti-Debugging)
+**HypeS** (Hyper-Spherical Systems) is a complete local AI execution suite that combines an advanced memory engine, a compression layer, a multi-model orchestrator, and an autonomous self-improvement director — all in a single, self-contained binary.
 
----
+It works with **any GGUF, SFS, or SFS+** model and connects to **any OpenAI-compatible backend** (Ollama, LM Studio, native llama.cpp). There is nothing to install except the binary itself.
 
-### 🖥️ Target Operating Systems
-
-* **Windows**: **Windows 11 (22H2 / 23H2 / 24H2) & Windows 10 64-bit (21H2+)** *(Legacy Windows 7/8 and 32-bit systems are explicitly blocked for security compliance)*.
-* **Linux**: **Linux x86_64** (Ubuntu 22.04+, Debian 12+, Arch) via [`release/launch_hypes_linux.sh`](file:///i:/workspace/hyper_spherical/release/launch_hypes_linux.sh).
-* **macOS**: **macOS 13+ (Ventura, Sonoma, Sequoia)** Apple Silicon & Intel via [`release/launch_hypes_mac.sh`](file:///i:/workspace/hyper_spherical/release/launch_hypes_mac.sh).
+| What HypeS does | How |
+|---|---|
+| Runs 70B+ models on 12 GB VRAM | VRAM/RAM/NVMe 3-tier virtual VRAM illusion |
+| Saves up to 10× cloud API tokens | SISSI + Homophonic + CCTM Ultra compression |
+| Lets models learn and grow permanently | BMRAD Brain Director + HardcodedKnowledgeBase |
+| Protects your conversations end-to-end | AES-256 + 5+1 Homophonic ephemeral session cipher |
+| Enables models to teach each other | SFS+ InteropBus GROW_FROM / GROW_WITH |
+| Gives your AI a voice and a face | 4ID Avatar — real-time STT/TTS + 4D animated entity |
 
 ---
 
-### 🚀 Quick Start (Windows 11 / 10)
+## 🚀 Quick Start
 
-1. Double-click **`HypeS_Setup.exe`** on your Desktop or run `python launch_hypes.py`.
-2. The **HypeS Universal Launcher** boots the Flask API Server, HTML5 Canvas Dashboard, and PySide6 Cyber GUI simultaneously.
+### Windows (Installer)
 
+1. Download **`HyperSpherical_Installer.exe`** from the [Releases page](https://github.com/thomasjosh1981/Hyper-Spherical-Systems/releases).
+2. Run the installer — it will:
+   - Detect your hardware (VRAM, RAM, NVMe)
+   - Install binaries to `C:\Program Files\HyperSpherical\`
+   - Create Desktop + Start Menu shortcuts
+   - Register an uninstaller in *Add/Remove Programs*
+3. Launch **HypeS** from your Desktop shortcut or Start Menu.
+4. Complete the **First-Run Onboarding Wizard** (drive selection, HuggingFace token, baseline benchmark).
+5. Point HypeS at your model file and start chatting.
 
-### 🧠 What It Does
-Hyperspherical utilizes advanced tensor quantization and mathematical context reduction techniques to compress neural networks into a fraction of their original size, preserving their full semantic fidelity. 
+> See **[HOWTO.md](docs/HOWTO.md)** for the full step-by-step guide with screenshots.
 
-Instead of forcing your hardware to crunch through gigantic blocks of raw data, Hyperspherical seamlessly streamlines the data pipeline so that it flows optimally from your hard drive straight to your GPU's CUDA cores. The result? Unprecedented inference speeds on hardware you already own.
+### Windows (Portable / No Install)
 
-### 💰 Pricing & Availability
+```
+HypeS_Setup.exe
+```
 
-Hyperspherical is currently in Beta and is **100% FREE to use until November 1st.** 
+Double-click `HypeS_Setup.exe` from the root. No admin rights required.
 
-After November 1st, we will transition to a subscription model. Running local AI with Hyperspherical will cost you roughly **$50/month**, saving you over **$100/month** compared to spending $150+ on expensive, privacy-invading cloud AI subscriptions.
+### Linux / macOS
 
-#### 💎 Lifetime Early Adopter License ($100)
-For the **first 500 people** who choose to donate **$100** to our developers today, you will receive a **Lifetime Access License**. 
-- **Keep everything permanently:** If we ever decide to remove or restrict features in the future, your Lifetime License guarantees you get to keep them forever.
-- **Total Freedom:** You will have lifetime access to the fully-featured set, including all future updates.
-- **Version Lock:** You are never forced to update. Run whichever version you prefer, for as long as you want.
-
-*Note: Major engine updates require a mandatory online re-verification to validate your license and protect against piracy.*
+```bash
+chmod +x release/launch_hypes_linux.sh
+./release/launch_hypes_linux.sh
+```
 
 ---
+
+## 🧠 Core Modules
+
+| Module | Binary | Description |
+|---|---|---|
+| **Tesseract Memory Engine** | `pirate_core.exe` | Virtual VRAM illusion — 3-tier layer streaming (VRAM → RAM → NVMe) |
+| **BMRAD Brain Director** | `pirate_core.exe` | Autonomous attention pruner, loop detector, recursive self-improvement |
+| **SISSI Compression** | `pirate_core.exe` | Phrase-code substitution — reduces prompts by up to 10× tokens |
+| **CCTM Ultra** | `pirate_core.exe` | Cloud Token Compression Module — semantic deduplication + AES-256 |
+| **SFS+ Interop Bus** | `pirate_core.exe` | Cross-model skill borrowing, GROW_FROM, GROW_WITH |
+| **Pirate Llama Proxy** | `pirate_llama.exe` | OpenAI-compatible HTTP proxy with live SISSI compression |
+| **Golden Candy Spinner** | `golden_candy_spinner.exe` | `.hscc` 4D vortex model packager |
+| **NVMe Benchmark** | `nvme_benchmark.exe` | Drive throughput characterization (GB/s, IOPS) |
+| **4ID Avatar** | embedded | Real-time voice STT/TTS + procedural 4D animated entity |
+| **Python Bridge** | `python_bridge.dll` | C ABI ctypes bridge for Python integration |
+
+---
+
+## 💻 System Requirements
+
+| Tier | GPU VRAM | RAM | Storage | Models |
+|---|---|---|---|---|
+| **Minimum** | 4 GB | 16 GB | 500 GB NVMe | Up to 13B |
+| **Recommended** | 12 GB | 32 GB | 1 TB NVMe | Up to 34B |
+| **Optimal** | 24 GB+ | 64 GB | 2 TB NVMe | 70B+ |
+
+**Operating Systems:**
+- Windows 11 (22H2 / 23H2 / 24H2) and Windows 10 64-bit (21H2+)
+- Linux x86_64: Ubuntu 22.04+, Debian 12+, Arch
+- macOS 13+ (Ventura / Sonoma / Sequoia) — Apple Silicon & Intel
+
+---
+
+## 💰 Pricing & Availability
+
+HypeS is currently in **Alpha/Beta** and **100% free** to use until v1.0 release.
+
+| Tier | Price | What You Get |
+|---|---|---|
+| **Alpha/Beta** | Free | All features, no expiry — you are here |
+| **Community** | Free post-v1.0 | Base engine, 1 cloud backpack, 5 GB sandbox |
+| **Lifetime Unlimited** | $100 – $250* | All modules forever, all future updates, version lock |
+| **Module Bundle** | $149 | All 9 premium modules (SFS+, BMRAD, 4ID Avatar, CCTM, Cipher…) |
+| **Per-Module** | $19 – $79 | Buy only what you need |
+| **Enterprise** | Custom | Hardware-token build, priority support |
+
+\* *Lifetime codes: first 100 at $100, then $150, $200, $250 — only 400 codes total.*
+
+---
+
+## 📂 Release Contents
+
+```
+release/
+├── HyperSpherical_Installer/
+│   └── HyperSpherical_Installer.exe   ← Full installer (recommended)
+├── pirate_core.exe                     ← Core AI engine
+├── pirate_llama.exe                    ← OpenAI-compatible proxy
+├── pirate_bridge.exe                   ← Bridge / relay binary
+├── golden_candy_spinner.exe            ← .hscc model packager
+├── nvme_benchmark.exe                  ← NVMe benchmark tool
+├── python_bridge.dll                   ← Python ctypes bridge
+├── pirate_tests.exe                    ← Test suite (150 tests)
+├── launch_hypes_linux.sh               ← Linux launcher
+└── launch_hypes_mac.sh                 ← macOS launcher
+```
+
+---
+
+## 📚 Documentation
+
+| Document | Description |
+|---|---|
+| [HOWTO.md](docs/HOWTO.md) | Step-by-step installation & usage guide |
+| [WALKTHROUGH.md](docs/WALKTHROUGH.md) | Feature walkthrough by module |
+| [ABOUT.md](docs/ABOUT.md) | Architecture & design philosophy |
+| [brochure.html](docs/brochure.html) | Full visual product brochure |
+| [Hyper_Spherical_Brochure.pdf](docs/Hyper_Spherical_Brochure.pdf) | PDF version of brochure |
+
+---
+
+## 🔒 Security & Privacy
+
+- **No telemetry by default.** All data stays on your machine.
+- **AES-256 + ephemeral session cipher.** Cloud models never see uncompressed plaintext.
+- **Session teardown zeroes all key material.** Cloud cannot decode past sessions.
+- **Source code is proprietary and not distributed.** Only compiled binaries and docs are public.
+- **Control Flow Guard, ASLR, DEP, Anti-Debugging** on all Windows binaries.
+
+---
+
+## 📜 License
+
+The **HypeS core engine binaries** are distributed as proprietary freeware for the Alpha/Beta phase.  
+The **installer**, **launcher scripts**, **documentation**, and **brochure** are released under the **MIT License**.  
+Enterprise builds require a separate commercial agreement.
+
+---
+
 <div align="center">
-  <i>Experience the future of local AI inference. Grind down the limits.</i>
+  <i>Experience the future of local AI inference. Grind down the limits.</i><br><br>
+  <b>Hyper-Spherical Systems © 2026</b>
 </div>
