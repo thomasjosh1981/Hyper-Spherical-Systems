@@ -165,5 +165,6 @@ Enterprise builds require a separate commercial agreement.
 
 <div align="center">
   <i>Experience the future of local AI inference. Grind down the limits.</i><br><br>
-  <b>Hyper-Spherical Systems © 2026</b>
+  <b>Developed by twiztedsocal — Hyper-Spherical Systems © 2026</b>
 </div>
+
