@@ -12,6 +12,8 @@ mcp_server/
 scratch/
 
 # Protect All Source Code and Internal Components
+*Master*
+*master*
 *.cpp
 *.hpp
 *.h
