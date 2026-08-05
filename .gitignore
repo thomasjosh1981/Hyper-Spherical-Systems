@@ -4,6 +4,12 @@
 *.swp
 *.swo
 .clangd/
+.clangd
+CMakeLists.txt
+project_tesseract.toml
+config_gui.yaml
+mcp_server/
+scratch/
 
 # Protect All Source Code and Internal Components
 *.cpp
@@ -61,5 +67,3 @@ Thumbs.db
 .env
 venv/
 env/
-
-
