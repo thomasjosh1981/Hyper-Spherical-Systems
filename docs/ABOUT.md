@@ -124,11 +124,13 @@ The *Brain Model Realignment & Attention Director (BMRAD)* is injected into ever
 
 ---
 
-## Team & Contact
+## Developer & Contact
 
-**Hyper-Spherical Systems**  
-GitHub: [github.com/thomasjosh1981/Hyper-Spherical-Systems](https://github.com/thomasjosh1981/Hyper-Spherical-Systems)
+**Developer:** twiztedsocal  
+**Project:** Hyper-Spherical Systems  
+**GitHub:** [github.com/thomasjosh1981/Hyper-Spherical-Systems](https://github.com/thomasjosh1981/Hyper-Spherical-Systems)
 
 ---
 
-*Hyper-Spherical Systems © 2026. All rights reserved. Source code is proprietary and not publicly distributed.*
+*Hyper-Spherical Systems © 2026. Developed by twiztedsocal. Source code is proprietary and not publicly distributed.*
+
