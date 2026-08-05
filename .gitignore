@@ -53,6 +53,7 @@ __pycache__/
 
 # Allow ONLY Public Releases, Installers, PDF/HTML Docs, and Graphics
 !HypeS_Setup.exe
+!release/HypeS_Setup.exe
 !README.md
 !blueprint.json
 !config.yaml
