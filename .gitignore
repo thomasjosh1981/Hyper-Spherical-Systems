@@ -53,7 +53,7 @@ __pycache__/
 *.bat
 *.ps1
 
-# Allow ONLY Public Releases, Installers, PDF/HTML Docs, and Graphics
+# Allow ONLY Public Releases, Installers, PDF/HTML Docs, Open-Source MitM & Universal Endpoint
 !HypeS_Setup.exe
 !release/HypeS_Setup.exe
 !README.md
@@ -63,6 +63,15 @@ __pycache__/
 !docs/**
 docs/*.py
 docs/**/*.py
+!src/universal_endpoint.cpp
+!include/universal_endpoint.hpp
+!gui/pirate_intercept.py
+!gui/server.py
+!gui/pirate_gui/dashboard.py
+!gui/session_engine.py
+!gui/pirate_gui/hype_s.ico
+!gui/pirate_gui/pirate_llama_mascot.png
+!gui/pirate_gui/index.html
 
 # OS & Environment
 .DS_Store
