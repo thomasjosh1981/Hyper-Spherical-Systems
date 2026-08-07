@@ -6,7 +6,7 @@
 
 VRAM too small? HypeS streams model layers from NVMe through system RAM into GPU memory on demand — the model never knows the difference.
 
-Cloud API costs too high? HypeS compresses your prompts by up to 10× before they leave your machine, cutting token bills dramatically.
+Cloud API costs too high? HypeS guarantees a **minimum** of 10× token compression before prompts leave your machine (often reaching 200–300:1 via substitution dictionaries), cutting token bills dramatically.
 
 Models get repetitive or confused? HypeS monitors generation entropy in real time and autonomously applies a 5-step escalating recovery protocol.
 
@@ -18,21 +18,24 @@ Models get repetitive or confused? HypeS monitors generation entropy in real tim
 Every HypeS binary is a complete, standalone executable. There is no runtime to install, no Python environment to configure, no Docker container to manage. Drop the binary on any machine and run it.
 
 ### 2. Hardware-First
-HypeS treats your hardware as a multi-tier memory hierarchy:
+HypeS treats your hardware as a 4-tier memory hierarchy:
 ```
-GPU VRAM (hot)  →  System RAM (warm)  →  NVMe SSD (cold)
+GPU VRAM (Hot) ← System RAM (Warm) ← NVMe SSD (Loaded / Ready-to-Fire) ← SATA HDD (Cold / Staging)
 ```
-The *LayerIllusionist* engine ensures the model always sees a valid GPU pointer. Actual bytes are fetched asynchronously from whatever tier they currently live in — before llama.cpp's next call.
+- **SATA HDD (Cold / Pre-flight)**: Serves as the long-term storage and staging house for all models and intents.
+- **NVMe SSD (Loaded / Hot)**: Models are moved here and stacked in a non-Euclidean geometry to make them highly predictable and easy to stream. Crucially, a model is only written to the NVMe **once**. It stays there until the session is closed, the system powers down, or space runs out (requiring replacement).
+- **System RAM (Warm / Overflow)**: Acts as a temporary overflow buffer. Data fires directly from the NVMe to the GPU VRAM, but if there is too much data attempting to load at once, it overflows into System RAM temporarily before piping right back into the VRAM (preventing VRAM thrashing).
+- **GPU VRAM (Hot)**: The ultimate destination for active model execution.
 
-A *Markov-chain pattern predictor* watches which layers activate in sequence and prefetches the next predicted set, hiding nearly all NVMe latency behind the current forward pass.
+The *LayerIllusionist* engine ensures the model always sees a valid GPU pointer, while the *Markov-chain pattern predictor* watches which layers activate in sequence to prefetch data from NVMe/RAM precisely when needed, completely hiding latency.
 
 ### 3. Compression-Everywhere
-Three independent compression layers work in parallel:
+Three independent compression layers work in parallel, featuring **sub-millisecond hardware-maintained compression and decompression**. This enables near-instantaneous processing with little to no code overhead doing the work:
 
 | Layer | What it compresses | Ratio |
 |---|---|---|
 | **SISSI** | Common LLM boilerplate phrases → §codes | 2–4× tokens |
-| **CCTM Ultra** | Semantic deduplication + differential encoding | Up to 10× tokens |
+| **CCTM Ultra** | Semantic deduplication + differential encoding | 10× Minimum (Often 200–300:1) |
 | **5+1 Homophonic Cipher** | Character-level scramble using session-unique Unicode pool | Confidentiality |
 
 All three layers stack. The cloud model receives only the compressed + encrypted payload. Session key material is zeroed at teardown — the cloud cannot decode past sessions.
