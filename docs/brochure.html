@@ -408,6 +408,52 @@ td.no  { color:var(--muted); }
   </div>
 </section>
 
+<!-- ════════════════════════════════════════ INTERACTIVE VISUALIZER -->
+<section style="background:var(--surf2); min-height:11in;">
+  <h4>Interactive Visualizer</h4>
+  <h2 style="margin:.5rem 0 2rem;">Planar Stack vs. Fractal Hyper-Sphere</h2>
+  <p style="margin-bottom:2rem; max-width:800px; color:var(--muted);">Compare the rigid, flat planar structure of traditional LLMs to the infinite fractal compression of Hyper-Spherical models. Interact with the models below to see how they navigate dimensions.</p>
+  
+  <div class="cols-2" style="gap:2rem; margin-bottom:2rem;">
+    
+    <!-- Traditional LLM Planes -->
+    <div class="card" style="min-height: 480px; display: flex; flex-direction: column; overflow: visible; background:var(--bg);">
+      <h4>Typical LLM Architecture</h4>
+      <p style="font-size: 0.8rem; margin-bottom:1rem; color:var(--muted);">Linear, flat planes stacked sequentially (e.g. 2000-3000 tall). Mouse over a plane to inspect.</p>
+      
+      <div id="planar-container" style="position:relative; flex:1; perspective:1200px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding: 2rem; min-height: 300px;">
+        <!-- JS will populate planes here -->
+      </div>
+      
+      <!-- Tooltip / Output -->
+      <div id="planar-tooltip" style="margin-top:auto; padding: 1.25rem; background: var(--surf); border: 1px solid var(--border); border-radius: 8px; font-size: 0.85rem; opacity: 0; transition: opacity 0.2s; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+        <div id="planar-info" style="font-size: 1.1rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--cyan);">Dimension X</div>
+        <div style="margin-bottom: 0.75rem; color: var(--muted); font-size: 0.8rem;">Data: Flattened Query Matrix, Linear Embeddings</div>
+        <a href="#" id="planar-next-btn" style="color: var(--purple2); text-decoration: none; font-weight: bold; padding: 0.5rem 1rem; background: rgba(124,58,237,0.1); border-radius: 4px; display: inline-block; transition: background 0.2s;">Go to next dimension →</a>
+      </div>
+    </div>
+
+    <!-- Hyper-Spherical Fractal Clusters -->
+    <div class="card" style="min-height: 480px; display: flex; flex-direction: column; background:var(--bg);">
+      <h4>Hyper-Spherical Architecture</h4>
+      <p style="font-size: 0.8rem; margin-bottom:1rem; color:var(--muted);">Fractal "lollipop clusters". Hover or click a cluster to zoom deeper without limit.</p>
+      
+      <div id="fractal-container" style="position:relative; flex:1; overflow:hidden; border-radius: 8px; background: radial-gradient(circle at center, var(--surf3), var(--surf)); min-height: 300px; border: 1px solid var(--border);">
+        <!-- SVG canvas for fractal -->
+        <svg id="fractal-svg" width="100%" height="100%" viewBox="-500 -500 1000 1000" preserveAspectRatio="xMidYMid slice" style="cursor: zoom-in;">
+           <g id="fractal-group" style="transform-origin: 0 0; transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);"></g>
+        </svg>
+      </div>
+      
+      <!-- Depth counter -->
+      <div style="margin-top:auto; padding: 1.25rem; background: var(--surf); border: 1px solid var(--border); border-radius: 8px; font-size: 0.85rem;">
+        <div>Compression Depth: <span id="fractal-depth" style="font-weight:900; font-size:1.1rem; color:var(--green); margin-left:0.5rem;">Level 1</span></div>
+        <div style="color: var(--muted); font-size: 0.75rem; margin-top: 0.5rem;">Infinite compression scaling. Every cluster contains a universe of sub-clusters.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ═══════════════════════════════════════════════════════ PAGE 3: MODULES -->
 <section style="min-height:11in; background:var(--bg);">
   <h4>Module Reference</h4>
@@ -695,5 +741,138 @@ td.no  { color:var(--muted); }
 </div>
 
 </div><!-- .page -->
+<script>
+// --- Planar Stack Logic ---
+document.addEventListener("DOMContentLoaded", () => {
+  const planarContainer = document.getElementById('planar-container');
+  const planarTooltip = document.getElementById('planar-tooltip');
+  const planarInfo = document.getElementById('planar-info');
+  const planarNextBtn = document.getElementById('planar-next-btn');
+  let currentPlaneIndex = -1;
+  const colors = ['#00d4ff', '#10b981', '#7c3aed', '#f59e0b', '#ef4444', '#ec4899', '#3b82f6'];
+  const totalPlanes = 25;
+
+  for(let i=0; i<totalPlanes; i++) {
+    const plane = document.createElement('div');
+    plane.style.width = '140px';
+    plane.style.height = '140px';
+    plane.style.background = 'rgba(255,255,255,0.03)';
+    plane.style.border = '1px solid rgba(0,212,255,0.2)';
+    plane.style.transform = `rotateX(65deg) rotateZ(-45deg) translateZ(${i * 12 - 150}px)`;
+    plane.style.position = 'absolute';
+    plane.style.transition = 'all 0.3s ease';
+    plane.style.cursor = 'pointer';
+    plane.dataset.index = i;
+    
+    plane.addEventListener('mouseenter', () => activatePlane(i));
+    planarContainer.appendChild(plane);
+  }
+
+  function activatePlane(index) {
+    if (index >= totalPlanes) index = 0;
+    currentPlaneIndex = index;
+    const planes = planarContainer.children;
+    const color = colors[index % colors.length];
+    const nextColor = colors[(index + 1) % colors.length];
+    
+    for(let i=0; i<planes.length; i++) {
+      if(i === index) {
+        planes[i].style.background = color + '40'; // semi-transparent
+        planes[i].style.borderColor = color;
+        planes[i].style.boxShadow = `0 0 25px ${color}`;
+        planes[i].style.zIndex = 100;
+        planes[i].style.transform = `rotateX(65deg) rotateZ(-45deg) translateZ(${i * 12 - 150}px) scale(1.15)`;
+      } else {
+        planes[i].style.background = 'rgba(255,255,255,0.02)';
+        planes[i].style.borderColor = 'rgba(0,212,255,0.15)';
+        planes[i].style.boxShadow = 'none';
+        planes[i].style.zIndex = i;
+        planes[i].style.transform = `rotateX(65deg) rotateZ(-45deg) translateZ(${i * 12 - 150}px) scale(1)`;
+      }
+    }
+    
+    planarTooltip.style.opacity = '1';
+    planarInfo.textContent = `Dimension ${2000 + index}`;
+    planarInfo.style.color = color;
+    
+    planarNextBtn.textContent = `Go to Dimension ${2000 + index + 1} →`;
+    planarNextBtn.style.color = nextColor;
+    planarNextBtn.style.backgroundColor = nextColor + '20';
+  }
+
+  planarNextBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    activatePlane(currentPlaneIndex + 1);
+  });
+
+  // --- Fractal Lollipop Logic ---
+  const fractalGroup = document.getElementById('fractal-group');
+  const fractalDepth = document.getElementById('fractal-depth');
+  let currentDepth = 1;
+
+  function createLollipop(x, y, radius, depthLevel) {
+    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    circle.setAttribute("cx", x);
+    circle.setAttribute("cy", y);
+    circle.setAttribute("r", radius);
+    circle.setAttribute("fill", "rgba(124,58,237,0.3)");
+    circle.setAttribute("stroke", "#00d4ff");
+    circle.setAttribute("stroke-width", radius/10);
+    circle.style.cursor = 'zoom-in';
+    circle.style.transition = 'all 0.3s';
+    
+    circle.addEventListener('mouseenter', () => {
+      circle.setAttribute("fill", "rgba(0,212,255,0.6)");
+      circle.setAttribute("stroke", "#fff");
+    });
+    circle.addEventListener('mouseleave', () => {
+      circle.setAttribute("fill", "rgba(124,58,237,0.3)");
+      circle.setAttribute("stroke", "#00d4ff");
+    });
+    
+    circle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      currentDepth++;
+      fractalDepth.textContent = `Level ${currentDepth}`;
+      fractalDepth.style.color = colors[currentDepth % colors.length];
+      
+      const scale = Math.pow(2.2, currentDepth - 1);
+      const tx = -x * scale;
+      const ty = -y * scale;
+      fractalGroup.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+      
+      spawnChildren(x, y, radius, currentDepth);
+    });
+    
+    fractalGroup.appendChild(circle);
+  }
+
+  function spawnChildren(cx, cy, r, depthLevel) {
+      const numChildren = 6;
+      const childR = r * 0.4;
+      const dist = r * 2.8;
+      
+      for(let i=0; i<numChildren; i++) {
+          const angle = (Math.PI * 2 * i) / numChildren + (depthLevel * 0.5);
+          const childX = cx + Math.cos(angle) * dist;
+          const childY = cy + Math.sin(angle) * dist;
+          
+          const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          line.setAttribute("x1", cx);
+          line.setAttribute("y1", cy);
+          line.setAttribute("x2", childX);
+          line.setAttribute("y2", childY);
+          line.setAttribute("stroke", "rgba(124,58,237,0.5)");
+          line.setAttribute("stroke-width", r/12);
+          fractalGroup.insertBefore(line, fractalGroup.firstChild);
+          
+          createLollipop(childX, childY, childR, depthLevel+1);
+      }
+  }
+
+  createLollipop(0, 0, 90, 1);
+  spawnChildren(0, 0, 90, 1);
+});
+</script>
 </body>
 </html>

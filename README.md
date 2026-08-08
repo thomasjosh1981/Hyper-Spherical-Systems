@@ -23,9 +23,10 @@ It works with **any GGUF, SFS, or SFS+** model and connects to **any OpenAI-comp
 
 | What HypeS does | How |
 |---|---|
-| Runs 70B+ models on 12 GB VRAM | VRAM/RAM/NVMe 3-tier virtual VRAM illusion |
+| Runs 70B+ models on 12 GB VRAM | VRAM/RAM/NVMe 3-tier virtual VRAM illusion with Dual-NVMe Striping |
 | Saves up to 10× cloud API tokens | SISSI + Homophonic + CCTM Ultra compression |
 | Lets models learn and grow permanently | BMRAD Brain Director + HardcodedKnowledgeBase |
+| Protects your key & offline data | Zero-cloud recovery + Local HypeS Security CHIP (`.chip`) File Export |
 | Protects your conversations end-to-end | AES-256 + 5+1 Homophonic ephemeral session cipher |
 | Enables models to teach each other | SFS+ InteropBus GROW_FROM / GROW_WITH |
 | Gives your AI a voice and a face | 4ID Avatar — real-time STT/TTS + 4D animated entity |
@@ -34,17 +35,18 @@ It works with **any GGUF, SFS, or SFS+** model and connects to **any OpenAI-comp
 
 ## 🚀 Quick Start
 
-### Windows (Installer)
+### Windows (Installer & Setup)
 
-1. Download **`HyperSpherical_Installer.exe`** from the [Releases page](https://github.com/thomasjosh1981/Hyper-Spherical-Systems/releases).
-2. Run the installer — it will:
-   - Detect your hardware (VRAM, RAM, NVMe)
-   - Install binaries to `C:\Program Files\HyperSpherical\`
-   - Create Desktop + Start Menu shortcuts
+1. Download **`HypeS_Setup.exe`** from the [Releases page](https://github.com/thomasjosh1981/Hyper-Spherical-Systems/releases).
+2. Run the installer (requires Administrator elevation) — it will:
+   - Auto-detect Windows logged-in user credentials and hardware topology
+   - Prompt for custom **Installation Directory** & **SFS/SFS+ Model Archive Drive**
+   - Configure **Primary NVMe** and optional **Secondary Stripe NVMe** for ultra-fast VRAM streaming
+   - Allow exporting/backing up your **HypeS Security CHIP File (`.chip`)**
+   - Install binaries to your configured directory
+   - Create Desktop folder (`Hyper-Spherical Systems Suite`) with 6 direct-module shortcut icons
    - Register an uninstaller in *Add/Remove Programs*
-3. Launch **HypeS** from your Desktop shortcut or Start Menu.
-4. Complete the **First-Run Onboarding Wizard** (drive selection, HuggingFace token, baseline benchmark).
-5. Point HypeS at your model file and start chatting.
+3. Double-click any shortcut (e.g. **HypeS Control Center**, **Pirate Proxy**, **Golden Candy Spinner**) to open that module directly.
 
 > See **[HOWTO.md](docs/HOWTO.md)** for the full step-by-step guide with screenshots.
 
