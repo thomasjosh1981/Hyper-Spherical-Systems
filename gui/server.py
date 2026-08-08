@@ -846,13 +846,210 @@ def create_flask_app():
         return jsonify({
             "ok": True,
             "api_key": new_key,
-            "base_url": f"http://127.0.0.1:{args.port}/v1",
+            "base_url": f"http://127.0.0.1:{PORT}/v1",
             "proxy_url": "http://127.0.0.1:11435/v1",
             "instructions": {
-                "hermes_agent": f"Set OPENAI_BASE_URL=http://127.0.0.1:{args.port}/v1 and OPENAI_API_KEY={new_key}",
-                "openrouter_drop_in": f"Replace https://openrouter.ai/api/v1 with http://127.0.0.1:{args.port}/v1 and use key {new_key}"
+                "hermes_agent": f"Set OPENAI_BASE_URL=http://127.0.0.1:{PORT}/v1 and OPENAI_API_KEY={new_key}",
+                "openrouter_drop_in": f"Replace https://openrouter.ai/api/v1 with http://127.0.0.1:{PORT}/v1 and use key {new_key}"
             }
         })
+
+    # ── Universal Endpoint Mode Routes ────────────────────────────────────────────────
+    @app.route("/api/endpoint/mode")
+    def api_endpoint_mode():
+        """Returns the active endpoint mode configuration."""
+        try:
+            from endpoint_mode import get_active_mode, ENV_FILE
+            mode = get_active_mode()
+            return jsonify({
+                "ok": True,
+                "mode": mode["id"],
+                "name": mode["name"],
+                "base_url": mode["base_url"],
+                "api_key": mode["api_key"],
+                "tagline": mode["tagline"],
+                "env_file": str(ENV_FILE),
+                "env_vars": mode.get("env_vars", {}),
+            })
+        except Exception as e:
+            return jsonify({"ok": False, "error": str(e)}), 500
+
+    @app.route("/api/endpoint/modes")
+    def api_endpoint_modes():
+        """Returns all available endpoint modes."""
+        try:
+            from endpoint_mode import MODES
+            return jsonify({
+                "ok": True,
+                "modes": [
+                    {
+                        "id":      m["id"],
+                        "name":    m["name"],
+                        "tagline": m["tagline"],
+                        "base_url": m["base_url"],
+                        "badge":   m.get("badge", ""),
+                        "icon":    m["icon"],
+                    }
+                    for m in MODES.values()
+                ]
+            })
+        except Exception as e:
+            return jsonify({"ok": False, "error": str(e)}), 500
+
+    @app.route("/api/endpoint/mode/set", methods=["POST"])
+    def api_endpoint_mode_set():
+        """Change the active endpoint mode."""
+        data = request.get_json(force=True) or {}
+        mode_id = data.get("mode", "native")
+        try:
+            from endpoint_mode import save_mode, MODES
+            if mode_id not in MODES:
+                return jsonify({"ok": False, "error": f"Unknown mode: {mode_id}"}), 400
+            mode = save_mode(mode_id)
+            return jsonify({"ok": True, "mode": mode["id"], "name": mode["name"], "base_url": mode["base_url"]})
+        except Exception as e:
+            return jsonify({"ok": False, "error": str(e)}), 500
+
+    @app.route("/api/endpoint/mode/reset", methods=["POST"])
+    def api_endpoint_mode_reset():
+        """Reset mode so the selector dialog shows again on next start."""
+        try:
+            from endpoint_mode import reset_mode
+            reset_mode()
+            return jsonify({"ok": True, "message": "Mode reset. Selector will show on next server start."})
+        except Exception as e:
+            return jsonify({"ok": False, "error": str(e)}), 500
+
+    # ── AI Traffic Optimizer (Intercept Engine) Routes ─────────────────────────────
+    @app.route("/api/intercept/status")
+    def api_intercept_status():
+        """Live status of the AI traffic optimizer engine."""
+        try:
+            from pirate_intercept import get_stats, is_active, get_port_map
+            stats = get_stats()
+            port_map = get_port_map()
+            return jsonify({
+                "ok": True,
+                "active": is_active(),
+                "stats": stats,
+                "port_map": {
+                    str(port): {"host": h, "port": p}
+                    for port, (h, p) in port_map.items()
+                },
+            })
+        except Exception as e:
+            return jsonify({"ok": False, "active": False, "error": str(e)})
+
+    @app.route("/api/intercept/start", methods=["POST"])
+    def api_intercept_start():
+        """Start the AI traffic optimizer engine (full auto-discover)."""
+        data = request.get_json(force=True) or {}
+        run_scanner = data.get("scan", True)
+        try:
+            from pirate_intercept import auto_discover_and_hook, get_consent_state, CONSENT_ALLOWED
+            if get_consent_state() != CONSENT_ALLOWED:
+                return jsonify({
+                    "ok": False,
+                    "error": "User consent required. Show the consent dialog first.",
+                    "consent_required": True,
+                }), 403
+            stats = auto_discover_and_hook(run_scanner=run_scanner)
+            return jsonify({"ok": True, "stats": stats})
+        except Exception as e:
+            return jsonify({"ok": False, "error": str(e)}), 500
+
+    @app.route("/api/intercept/stop", methods=["POST"])
+    def api_intercept_stop():
+        """Stop the AI traffic optimizer engine and release all ports."""
+        try:
+            from pirate_intercept import stop
+            stop()
+            return jsonify({"ok": True, "message": "Traffic optimizer stopped. All ports released."})
+        except Exception as e:
+            return jsonify({"ok": False, "error": str(e)}), 500
+
+    @app.route("/api/intercept/ports")
+    def api_intercept_ports():
+        """Returns the discovered port map with backend names."""
+        try:
+            from pirate_intercept import get_port_map, KNOWN_AI_PORTS, get_stats
+            port_map = get_port_map()
+            stats = get_stats()
+            result = []
+            for port, info in KNOWN_AI_PORTS.items():
+                result.append({
+                    "port":        port,
+                    "name":        info["name"],
+                    "type":        info["type"],
+                    "active":      port in stats.get("active_ports", []),
+                    "has_backend": port in port_map,
+                    "backend_port": port_map.get(port, (None, None))[1],
+                    "displaced_to": stats.get("displaced_backends", {}).get(port),
+                })
+            # Add any dynamically discovered unknown ports
+            for port in stats.get("discovered_ports", []):
+                if port not in KNOWN_AI_PORTS:
+                    result.append({
+                        "port": port, "name": f"Unknown AI Server (:{port})",
+                        "type": "unknown", "active": True, "has_backend": port in port_map,
+                    })
+            return jsonify({"ok": True, "ports": result})
+        except Exception as e:
+            return jsonify({"ok": False, "error": str(e)}), 500
+
+    @app.route("/api/intercept/app-consent")
+    def api_intercept_app_consent():
+        """Returns all per-app consent decisions."""
+        try:
+            from pirate_intercept import _load_app_consent, get_stats
+            decisions = _load_app_consent()
+            stats = get_stats()
+            return jsonify({
+                "ok": True,
+                "decisions": decisions,
+                "apps_seen": stats.get("apps_seen", {}),
+            })
+        except Exception as e:
+            return jsonify({"ok": False, "error": str(e)}), 500
+
+    @app.route("/api/intercept/app-consent/reset", methods=["POST"])
+    def api_intercept_app_consent_reset():
+        """Reset consent for a specific app (or all apps) so the dialog shows again."""
+        data = request.get_json(force=True) or {}
+        app_name = data.get("app")  # None = reset all
+        try:
+            from pirate_intercept import _load_app_consent, _save_app_consent, _app_consent_cache, _app_consent_lock
+            decisions = _load_app_consent()
+            if app_name:
+                decisions.pop(app_name, None)
+                with _app_consent_lock:
+                    _app_consent_cache.pop(app_name, None)
+                msg = f"Consent reset for '{app_name}'. Dialog will show on next request."
+            else:
+                decisions = {}
+                with _app_consent_lock:
+                    _app_consent_cache.clear()
+                msg = "All app consent decisions reset."
+            _save_app_consent(decisions)
+            return jsonify({"ok": True, "message": msg})
+        except Exception as e:
+            return jsonify({"ok": False, "error": str(e)}), 500
+
+    @app.route("/api/intercept/app-consent/set", methods=["POST"])
+    def api_intercept_app_consent_set():
+        """Manually allow or deny optimization for a specific app from the dashboard."""
+        data = request.get_json(force=True) or {}
+        app_name = data.get("app", "")
+        decision  = data.get("decision", "allowed")  # "allowed" | "denied"
+        if not app_name or decision not in ("allowed", "denied"):
+            return jsonify({"ok": False, "error": "Provide 'app' and 'decision' (allowed|denied)"}), 400
+        try:
+            from pirate_intercept import _set_app_consent
+            _set_app_consent(app_name, decision)
+            return jsonify({"ok": True, "app": app_name, "decision": decision})
+        except Exception as e:
+            return jsonify({"ok": False, "error": str(e)}), 500
+
 
     @app.route("/v1/models", methods=["GET"])
     def api_v1_models():

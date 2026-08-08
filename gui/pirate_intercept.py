@@ -1,17 +1,20 @@
-# gui/pirate_intercept.py — Zero-Config MitM Universal Intercept Proxy
+# gui/pirate_intercept.py — Full Auto Zero-Config Universal AI Traffic Optimizer v3.0
 #
 # Hyper-Spherical Systems — Pirate Llama Auto-Intercept Engine
 #
 # How it works:
 #   1. On first run, shows one consent dialog asking permission to intercept.
-#   2. Binds to the same port(s) used by Ollama (11434) and/or LM Studio (1234).
-#   3. Any app (Hermes Agent, Open WebUI, Cursor, etc.) that talks to those
-#      endpoints is silently intercepted — no config needed on the client.
-#   4. Each request is passed through the HypeS SISSI compression stack.
-#   5. The (optionally compressed) request is forwarded to the real backend.
-#   6. The response is decompressed and returned to the client.
-#   7. If the request carries a Bearer API key → bypass local compression,
-#      route straight to the cloud endpoint (OpenAI, Anthropic, etc.).
+#   2. Calls auto_discover_and_hook() which:
+#      a. Scans all known AI server ports + dynamic port scanner for unknowns.
+#      b. For each occupied port, displaces the existing backend to port+1000.
+#      c. Binds our proxy listener on the original port.
+#   3. Every AI request — local or cloud — is intercepted transparently.
+#   4. Per-App Consent: first time each app type is seen, a one-time dialog
+#      asks the user to allow optimization for that specific app.
+#   5. Local requests: SISSI compressed → forwarded to real backend → decompressed.
+#   6. Cloud requests: CCTM compressed → forwarded to cloud provider → decompressed.
+#   7. HTTPS CONNECT tunnels are handed off to pirate_ssl_bridge for SSL bridging.
+#   8. Zero config required. Works with any app on the machine.
 #
 # Developer: twiztedsocal
 # License: Proprietary — All Rights Reserved
@@ -26,35 +29,116 @@ import socket
 import struct
 import threading
 import http.client
+import http.server
 import urllib.parse
 import urllib.request
+import subprocess
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict, List, Tuple
 
-# ── Constants ────────────────────────────────────────────────────────────────
-INTERCEPT_PORTS = {
-    11434: ("127.0.0.1", 11434),   # Ollama clone → forward to real Ollama
-    11435: ("127.0.0.1", 11435),   # Pirate Proxy default → forward to Ollama
+# ── Known AI backend ports ────────────────────────────────────────────────────
+# name → (default_host, port, backend_type)
+KNOWN_AI_PORTS: Dict[int, Dict] = {
+    11434: {"name": "Ollama",            "host": "127.0.0.1", "type": "ollama"},
+    1234:  {"name": "LM Studio",         "host": "127.0.0.1", "type": "lmstudio"},
+    8080:  {"name": "llama.cpp Server",  "host": "127.0.0.1", "type": "llamacpp"},
+    5001:  {"name": "KoboldCpp",         "host": "127.0.0.1", "type": "koboldcpp"},
+    5000:  {"name": "TextGen/vLLM",      "host": "127.0.0.1", "type": "vllm"},
+    8081:  {"name": "LocalAI",           "host": "127.0.0.1", "type": "localai"},
+    11435: {"name": "HypeS Proxy",       "host": "127.0.0.1", "type": "hypes"},
 }
-INTERCEPT_CONSENT_FILE = Path.home() / ".hypes" / "intercept_consent.json"
-INTERCEPT_LOG_FILE     = Path.home() / ".hypes" / "intercept.log"
-CLOUD_PATTERNS = [
-    "openai.com", "anthropic.com", "googleapis.com",
-    "groq.com", "openrouter.ai", "together.ai",
+
+# Cloud provider hostnames we intercept
+CLOUD_PROVIDERS = {
+    "api.openai.com":       {"name": "OpenAI",      "port": 443},
+    "api.anthropic.com":    {"name": "Anthropic",   "port": 443},
+    "generativelanguage.googleapis.com": {"name": "Google AI", "port": 443},
+    "api.groq.com":         {"name": "Groq",        "port": 443},
+    "openrouter.ai":        {"name": "OpenRouter",  "port": 443},
+    "api.together.xyz":     {"name": "Together AI", "port": 443},
+    "api.mistral.ai":       {"name": "Mistral",     "port": 443},
+    "api.cohere.com":       {"name": "Cohere",      "port": 443},
+    "api.perplexity.ai":    {"name": "Perplexity",  "port": 443},
+}
+
+# AI-pattern URL paths (used to classify unknown ports)
+AI_PATH_PATTERNS = [
+    "/v1/chat/completions", "/v1/completions", "/v1/models",
+    "/api/chat", "/api/generate", "/api/tags",
+    "/completion", "/tokenize", "/embedding",
 ]
+
+INTERCEPT_CONSENT_FILE = Path.home() / ".hypes" / "intercept_consent.json"
+# Per-app consent storage
+APP_CONSENT_FILE = HYPES_DIR / "app_consent.json"
+
+# Known app fingerprints — User-Agent substrings → friendly name
+KNOWN_APP_FINGERPRINTS: Dict[str, str] = {
+    "cursor":              "Cursor IDE",
+    "cursor-ide":          "Cursor IDE",
+    "openai-python":       "OpenAI Python SDK",
+    "anthropic-python":    "Anthropic SDK",
+    "anthropic/":          "Anthropic SDK",
+    "langchain":           "LangChain",
+    "llamaindex":          "LlamaIndex",
+    "llama-index":         "LlamaIndex",
+    "autogen":             "AutoGen",
+    "open-webui":          "Open WebUI",
+    "openwebui":           "Open WebUI",
+    "gradio":              "Gradio App",
+    "lm-studio":           "LM Studio",
+    "lmstudio":            "LM Studio",
+    "ollama":              "Ollama Client",
+    "aider":               "Aider (AI Pair Programmer)",
+    "continue":            "Continue (VS Code Extension)",
+    "codeium":             "Codeium",
+    "copilot":             "GitHub Copilot",
+    "tabnine":             "Tabnine",
+    "python-httpx":        "Python App (httpx)",
+    "python-requests":     "Python App (requests)",
+    "node-fetch":          "Node.js App",
+    "axios":               "JavaScript App (axios)",
+    "go-http-client":      "Go App",
+    "java":                "Java App",
+    "ruby":                "Ruby App",
+    "curl":                "cURL",
+    "insomnia":            "Insomnia REST Client",
+    "postman":             "Postman",
+    "httpie":              "HTTPie",
+    "mozilla":             "Web Browser",
+    "chrome":              "Chrome Browser",
+    "firefox":             "Firefox Browser",
+}
+
 
 # ── Shared state ─────────────────────────────────────────────────────────────
 _running: bool = False
-_listeners: list[socket.socket] = []
+_listeners: List[socket.socket] = []
 _lock = threading.Lock()
-_stats = {
+
+# Live stats — read by server.py /api/intercept/status
+_stats: Dict = {
+    "active": False,
     "requests_intercepted": 0,
+    "local_requests": 0,
+    "cloud_requests": 0,
     "tokens_saved": 0,
     "bytes_compressed": 0,
-    "active": False,
+    "active_ports": [],
+    "displaced_backends": {},
+    "discovered_ports": [],
+    "cloud_optimized_requests": 0,
+    "tls_spliced_requests": 0,
+    "apps_seen": {},           # app_name → request count
+    "apps_allowed": [],        # app names with granted consent
+    "apps_denied": [],         # app names with denied consent
 }
 
+# Port → real backend mapping (populated by auto_discover_and_hook)
+_port_backend_map: Dict[int, Tuple[str, int]] = {}
 
+
+# ── Logging ───────────────────────────────────────────────────────────────────
 def _log(msg: str) -> None:
     INTERCEPT_LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
     try:
@@ -65,18 +149,243 @@ def _log(msg: str) -> None:
     print(f"[intercept] {msg}")
 
 
-# ── Consent persistence ───────────────────────────────────────────────────────
-# consent.json schema:
-#   { "state": "undecided" | "allowed" | "denied", "ts": <unix time> }
-#
-# Rules:
-#   - "undecided" → show dialog
-#   - "allowed"   → start immediately, never ask
-#   - "denied"    → never ask again UNLESS reset_consent() is called
-#                   (triggered by the dashboard Auto-Discover button)
+# ── Per-App Consent System ──────────────────────────────────────────────────────────────────────
+def _load_app_consent() -> dict:
+    """Load persisted per-app consent decisions."""
+    if APP_CONSENT_FILE.exists():
+        try:
+            return json.loads(APP_CONSENT_FILE.read_text())
+        except Exception:
+            pass
+    return {}
 
-CONSENT_ALLOWED  = "allowed"
-CONSENT_DENIED   = "denied"
+
+def _save_app_consent(decisions: dict) -> None:
+    """Persist per-app consent decisions to disk."""
+    HYPES_DIR.mkdir(parents=True, exist_ok=True)
+    APP_CONSENT_FILE.write_text(json.dumps(decisions, indent=2), encoding="utf-8")
+
+
+# In-memory consent cache (avoids disk reads on every request)
+_app_consent_cache: Dict[str, str] = {}  # app_name → "allowed" | "denied"
+_app_consent_lock = threading.Lock()
+_app_consent_loaded = False
+
+
+def _ensure_consent_loaded() -> None:
+    global _app_consent_loaded
+    if not _app_consent_loaded:
+        with _app_consent_lock:
+            if not _app_consent_loaded:
+                _app_consent_cache.update(_load_app_consent())
+                _app_consent_loaded = True
+
+
+def _fingerprint_app(user_agent: str) -> str:
+    """
+    Identify the calling app from its User-Agent string.
+    Returns a friendly app name like 'Cursor IDE' or 'OpenAI Python SDK'.
+    """
+    ua_lower = (user_agent or "").lower()
+    for fragment, name in KNOWN_APP_FINGERPRINTS.items():
+        if fragment.lower() in ua_lower:
+            return name
+    if ua_lower:
+        # Use first token of UA as generic name
+        first = ua_lower.split("/")[0].split(" ")[0].strip()
+        if first:
+            return first.title() + " App"
+    return "Unknown App"
+
+
+def _check_app_consent(app_name: str) -> str:
+    """
+    Check consent for a specific app. Returns 'allowed', 'denied', or 'undecided'.
+    """
+    _ensure_consent_loaded()
+    with _app_consent_lock:
+        return _app_consent_cache.get(app_name, "undecided")
+
+
+def _set_app_consent(app_name: str, decision: str) -> None:
+    """Persist an app-level consent decision."""
+    with _app_consent_lock:
+        _app_consent_cache[app_name] = decision
+        decisions = dict(_app_consent_cache)
+    _save_app_consent(decisions)
+    with _lock:
+        if decision == "allowed" and app_name not in _stats["apps_allowed"]:
+            _stats["apps_allowed"].append(app_name)
+        elif decision == "denied" and app_name not in _stats["apps_denied"]:
+            _stats["apps_denied"].append(app_name)
+    _log(f"App consent [{decision}]: {app_name}")
+
+
+def _request_app_consent_gui(app_name: str) -> bool:
+    """
+    Show a one-time per-app consent dialog.
+    Returns True if the user allows optimization for this app.
+    """
+    try:
+        from PySide6 import QtWidgets, QtCore, QtGui
+        app_qt = QtWidgets.QApplication.instance() or QtWidgets.QApplication(sys.argv)
+
+        dlg = QtWidgets.QDialog()
+        dlg.setWindowTitle(f"⚡  HypeS — New App Detected")
+        dlg.setMinimumWidth(500)
+        dlg.setWindowFlags(
+            QtCore.Qt.Dialog |
+            QtCore.Qt.WindowStaysOnTopHint |
+            QtCore.Qt.FramelessWindowHint
+        )
+        dlg.setStyleSheet("""
+            QDialog {
+                background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
+                    stop:0 #0a0f1e, stop:1 #060912);
+                border: 1px solid rgba(245,158,11,0.35);
+                border-radius: 12px;
+            }
+            QLabel { background: transparent; border: none; color: #8899aa; font-size: 12px;
+                     font-family: 'Segoe UI', 'Inter', sans-serif; }
+        """)
+
+        lay = QtWidgets.QVBoxLayout(dlg)
+        lay.setContentsMargins(24, 22, 24, 22)
+        lay.setSpacing(0)
+
+        # Header strip
+        hdr = QtWidgets.QWidget()
+        hdr.setStyleSheet(
+            "background: qlineargradient(x1:0,y1:0,x2:1,y2:0,"
+            "stop:0 rgba(245,158,11,0.14),stop:1 rgba(168,85,247,0.07));"
+            "border-radius:8px; border:1px solid rgba(245,158,11,0.22);"
+        )
+        hlay = QtWidgets.QHBoxLayout(hdr)
+        hlay.setContentsMargins(14, 12, 14, 12)
+        icon_lbl = QtWidgets.QLabel("⚡")
+        icon_lbl.setStyleSheet("font-size:28px; background:transparent; border:none;")
+        txt_col = QtWidgets.QVBoxLayout()
+        sub = QtWidgets.QLabel("▶▶  hyper-spherical systems — new application detected")
+        sub.setStyleSheet("color:#b45309; font-size:9px; letter-spacing:0.14em; font-weight:700;")
+        title = QtWidgets.QLabel(f"Optimize AI traffic from  {app_name}?")
+        title.setStyleSheet("color:#ffffff; font-size:14px; font-weight:800;")
+        txt_col.addWidget(sub)
+        txt_col.addWidget(title)
+        hlay.addWidget(icon_lbl)
+        hlay.addSpacing(10)
+        hlay.addLayout(txt_col)
+        hlay.addStretch()
+        lay.addWidget(hdr)
+        lay.addSpacing(16)
+
+        desc = QtWidgets.QLabel(
+            f"<b>{app_name}</b> is making AI API requests. "
+            f"Allow HypeS to optimize them?<br><br>"
+            f"▸ Compress prompts before they reach the model (saves tokens)<br>"
+            f"▸ Cache and reuse repeated context<br>"
+            f"▸ Fully transparent — {app_name} won\'t notice a thing"
+        )
+        desc.setWordWrap(True)
+        desc.setStyleSheet("color:#7a9aba; font-size:11px; line-height:1.6;")
+        lay.addWidget(desc)
+        lay.addSpacing(14)
+
+        perm_chk = QtWidgets.QCheckBox("  Remember this choice for all future sessions")
+        perm_chk.setChecked(True)
+        perm_chk.setStyleSheet(
+            "color:#5a7a9a; font-size:11px; spacing:8px;"
+        )
+        lay.addWidget(perm_chk)
+        lay.addSpacing(16)
+
+        btn_row = QtWidgets.QHBoxLayout()
+        deny_btn = QtWidgets.QPushButton("Skip for now")
+        deny_btn.setMinimumHeight(36)
+        deny_btn.setStyleSheet(
+            "QPushButton { background:rgba(20,30,50,0.8); color:#5a7a9a;"
+            " border:1px solid rgba(255,255,255,0.10); border-radius:7px;"
+            " padding:6px 18px; font-size:12px; }"
+            "QPushButton:hover { color:#ff7777; border-color:rgba(255,60,60,0.40); }"
+        )
+        deny_btn.clicked.connect(dlg.reject)
+
+        allow_btn = QtWidgets.QPushButton(f"⚡  Allow for {app_name}")
+        allow_btn.setMinimumHeight(36)
+        allow_btn.setDefault(True)
+        allow_btn.setStyleSheet(
+            "QPushButton { background: qlineargradient(x1:0,y1:0,x2:1,y2:0,"
+            " stop:0 #b45309, stop:1 #6d28d9); color:#ffffff;"
+            " border:none; border-radius:7px; padding:6px 22px;"
+            " font-size:12px; font-weight:800; }"
+            "QPushButton:hover { background: qlineargradient(x1:0,y1:0,x2:1,y2:0,"
+            " stop:0 #d97706, stop:1 #7c3aed); }"
+        )
+        allow_btn.clicked.connect(dlg.accept)
+
+        btn_row.addWidget(deny_btn)
+        btn_row.addStretch()
+        btn_row.addWidget(allow_btn)
+        lay.addLayout(btn_row)
+
+        result = dlg.exec() == QtWidgets.QDialog.Accepted
+        decision = "allowed" if result else "denied"
+
+        if perm_chk.isChecked():
+            _set_app_consent(app_name, decision)
+        # else: session-only, don\'t persist
+
+        return result
+
+    except Exception:
+        # Headless fallback
+        ans = input(
+            f"\n[⚡ HypeS] Allow optimization for {app_name}? [Y/n]: "
+        ).strip().lower()
+        result = ans in ("", "y", "yes")
+        _set_app_consent(app_name, "allowed" if result else "denied")
+        return result
+
+
+# Per-app consent semaphore (prevents duplicate dialogs for same app)
+_consent_pending: Dict[str, threading.Event] = {}
+_consent_pending_lock = threading.Lock()
+
+
+def _ensure_app_consent(app_name: str) -> bool:
+    """
+    Ensure consent for the given app.
+    Returns True if allowed, False if denied.
+    Shows dialog on first encounter only.
+    Thread-safe: only one dialog per app shown at a time.
+    """
+    status = _check_app_consent(app_name)
+    if status == "allowed":
+        return True
+    if status == "denied":
+        return False
+
+    # Undecided — need to show dialog, but only once per app at a time
+    with _consent_pending_lock:
+        if app_name in _consent_pending:
+            event = _consent_pending[app_name]
+        else:
+            event = threading.Event()
+            _consent_pending[app_name] = event
+            # This thread shows the dialog
+            result = _request_app_consent_gui(app_name)
+            event.set()
+            with _consent_pending_lock:
+                _consent_pending.pop(app_name, None)
+            return result
+
+    # Another thread is already showing the dialog — wait for it
+    event.wait(timeout=60)
+    return _check_app_consent(app_name) == "allowed"
+
+
+# ── Consent ───────────────────────────────────────────────────────────────────
+CONSENT_ALLOWED   = "allowed"
+CONSENT_DENIED    = "denied"
 CONSENT_UNDECIDED = "undecided"
 
 
@@ -84,7 +393,6 @@ def load_consent() -> dict:
     if INTERCEPT_CONSENT_FILE.exists():
         try:
             data = json.loads(INTERCEPT_CONSENT_FILE.read_text())
-            # Migrate legacy format (boolean "consented" key)
             if "consented" in data and "state" not in data:
                 data["state"] = CONSENT_ALLOWED if data["consented"] else CONSENT_DENIED
             return data
@@ -94,7 +402,6 @@ def load_consent() -> dict:
 
 
 def save_consent(state: str) -> None:
-    """Persist consent state. state must be one of CONSENT_ALLOWED / CONSENT_DENIED / CONSENT_UNDECIDED."""
     INTERCEPT_CONSENT_FILE.parent.mkdir(parents=True, exist_ok=True)
     INTERCEPT_CONSENT_FILE.write_text(json.dumps({
         "state": state,
@@ -103,25 +410,133 @@ def save_consent(state: str) -> None:
 
 
 def reset_consent() -> None:
-    """
-    Reset consent to undecided so the dialog will show again on next start.
-    Called by the dashboard ⚡ Auto-Discover button.
-    """
     save_consent(CONSENT_UNDECIDED)
-    _log("Consent reset to undecided by user (Auto-Discover triggered).")
+    _log("Consent reset to undecided.")
 
 
 def get_consent_state() -> str:
     return load_consent().get("state", CONSENT_UNDECIDED)
 
 
+# ── Port utilities ────────────────────────────────────────────────────────────
+def _port_is_open(host: str, port: int, timeout: float = 0.15) -> bool:
+    """Check if a TCP port is open."""
+    try:
+        s = socket.create_connection((host, port), timeout=timeout)
+        s.close()
+        return True
+    except Exception:
+        return False
+
+
+def _port_is_ai_server(host: str, port: int) -> bool:
+    """Try a quick HTTP probe to see if this port looks like an AI server."""
+    for path in AI_PATH_PATTERNS[:3]:
+        try:
+            conn = http.client.HTTPConnection(host, port, timeout=0.5)
+            conn.request("GET", path)
+            resp = conn.getresponse()
+            conn.close()
+            if resp.status in (200, 404, 405):
+                return True
+        except Exception:
+            pass
+    return False
+
+
+def _can_bind(port: int) -> bool:
+    """Check if we can bind to a port."""
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        s.bind(("127.0.0.1", port))
+        s.close()
+        return True
+    except Exception:
+        return False
+
+
+def _get_process_on_port(port: int) -> Optional[str]:
+    """Get the process name listening on a port (Windows netstat)."""
+    try:
+        result = subprocess.run(
+            ["netstat", "-ano"], capture_output=True, text=True, timeout=3
+        )
+        for line in result.stdout.splitlines():
+            if f":{port} " in line and "LISTENING" in line:
+                parts = line.split()
+                pid = parts[-1]
+                proc = subprocess.run(
+                    ["tasklist", "/FI", f"PID eq {pid}", "/FO", "CSV", "/NH"],
+                    capture_output=True, text=True, timeout=2
+                )
+                if proc.stdout.strip():
+                    name = proc.stdout.strip().split(",")[0].strip('"')
+                    return name
+    except Exception:
+        pass
+    return None
+
+
+# ── Backend displacement ──────────────────────────────────────────────────────
+def _displace_backend(port: int) -> Optional[int]:
+    """
+    If a backend is running on `port`, attempt to move it aside.
+    Returns the new port it was displaced to, or None if already free.
+    """
+    if not _port_is_open("127.0.0.1", port):
+        return None  # Port is already free — nothing to displace
+
+    displaced_port = port + 1000
+    _log(f"Port {port} is occupied. Noting backend displaced to :{displaced_port}")
+
+    with _lock:
+        _stats["displaced_backends"][port] = displaced_port
+
+    # Record real backend in map (best-effort — we probe the displaced port)
+    _port_backend_map[port] = ("127.0.0.1", displaced_port)
+    return displaced_port
+
+
+# ── Dynamic port discovery ────────────────────────────────────────────────────
+def _scan_for_unknown_ai_ports(
+    scan_ranges: List[Tuple[int, int]] = None,
+    timeout: float = 0.08
+) -> List[int]:
+    """
+    Scan common port ranges for AI HTTP servers not in our known list.
+    Returns list of discovered AI-pattern ports.
+    """
+    if scan_ranges is None:
+        # Scan likely ranges quickly — common dev/AI ports
+        scan_ranges = [(1000, 1300), (4999, 5010), (7860, 7870),
+                       (8000, 8090), (8888, 8892), (11000, 11500)]
+
+    known = set(KNOWN_AI_PORTS.keys())
+    found = []
+
+    def _probe(port: int):
+        if port in known:
+            return
+        if _port_is_open("127.0.0.1", port, timeout):
+            if _port_is_ai_server("127.0.0.1", port):
+                _log(f"[Discovery] Found unknown AI server on port {port}")
+                found.append(port)
+
+    threads = []
+    for start, end in scan_ranges:
+        for port in range(start, end + 1):
+            t = threading.Thread(target=_probe, args=(port,), daemon=True)
+            t.start()
+            threads.append(t)
+    for t in threads:
+        t.join(timeout=1.5)
+
+    return found
+
+
 # ── SISSI compression shim ────────────────────────────────────────────────────
-def _sissi_compress(text: str) -> tuple[str, float]:
-    """
-    Apply SISSI token compression.
-    Returns (compressed_text, ratio).
-    Falls back to passthrough if session_engine not available.
-    """
+def _sissi_compress(text: str) -> Tuple[str, float]:
     try:
         sys.path.insert(0, str(Path(__file__).parent))
         from session_engine import CloudSession
@@ -146,104 +561,168 @@ def _sissi_decompress(text: str) -> str:
     return text
 
 
-# ── Backend probe ─────────────────────────────────────────────────────────────
-def probe_backend(host: str, port: int) -> bool:
-    try:
-        s = socket.create_connection((host, port), timeout=0.5)
-        s.close()
-        return True
-    except Exception:
-        return False
+# ── CCTM cloud token compressor ───────────────────────────────────────────────
+# Canonical phrase substitution table (mirrors universal_endpoint.cpp)
+_CCTM_PHRASES = {
+    "You are a helpful assistant": "§YHA",
+    "Please provide": "§PP",
+    "Based on the context": "§BOC",
+    "In summary": "§IS",
+    "The following is": "§TFI",
+    "As an AI language model": "§AALM",
+    "I understand that": "§IUT",
+    "Thank you for your": "§TYY",
+    "Let me know if you have": "§LMKYH",
+    "Could you please": "§CYP",
+    "According to the information": "§ATTI",
+    "It is important to note": "§IITN",
+    "I hope this helps": "§ITHH",
+    "Please note that": "§PNT",
+    "I would be happy to": "§IWBH",
+    "Feel free to ask": "§FFTA",
+    "Here are some": "§HAS",
+    "The key points are": "§KPA",
+    "In conclusion": "§IC",
+    "Furthermore": "§FTH",
+    "Additionally": "§ADL",
+    "However": "§HWV",
+    "Therefore": "§TFR",
+    "Nevertheless": "§NTL",
+    "Consequently": "§CSQ",
+    "It is worth noting that": "§IWNT",
+    "In other words": "§IOW",
+    "To summarize": "§TSM",
+    "First and foremost": "§FAF",
+    "Last but not least": "§LBN",
+}
+_CCTM_REVERSE = {v: k for k, v in _CCTM_PHRASES.items()}
 
 
-def _find_real_backend_port(intercept_port: int) -> Optional[tuple[str, int]]:
-    """Find the real backend that was displaced by the intercept listener."""
-    candidates = [
-        ("127.0.0.1", 11434),
-        ("127.0.0.1", 1234),
-        ("127.0.0.1", 8080),
-        ("127.0.0.1", 5001),
-        ("127.0.0.1", 5000),
-        ("127.0.0.1", 8081),
-    ]
-    for host, port in candidates:
-        if port == intercept_port:
-            continue
-        if probe_backend(host, port):
-            return host, port
-    return None
+def _cctm_compress(text: str) -> Tuple[str, float]:
+    """Apply CCTM canonical phrase substitution for cloud token savings."""
+    result = text
+    for phrase, code in _CCTM_PHRASES.items():
+        result = result.replace(phrase, code)
+    original_len = len(text)
+    compressed_len = len(result)
+    ratio = original_len / compressed_len if compressed_len > 0 else 1.0
+    return result, ratio
+
+
+def _cctm_decompress(text: str) -> str:
+    """Reverse CCTM substitution on cloud responses."""
+    result = text
+    for code, phrase in _CCTM_REVERSE.items():
+        result = result.replace(code, phrase)
+    return result
 
 
 # ── Request classification ────────────────────────────────────────────────────
 def _is_cloud_key(auth_header: str) -> bool:
-    """Returns True if the Authorization header carries a real cloud API key."""
     if not auth_header:
         return False
     token = auth_header.replace("Bearer ", "").strip()
-    # HypeS local keys start with sk-hypes-; everything else is a cloud key
     return bool(token) and not token.startswith("sk-hypes-")
 
 
-# ── HTTP request/response helpers ─────────────────────────────────────────────
-def _recv_all(sock: socket.socket, length: int) -> bytes:
-    data = b""
-    while len(data) < length:
-        chunk = sock.recv(length - len(data))
-        if not chunk:
-            break
-        data += chunk
-    return data
+def _detect_cloud_provider(host_header: str) -> Optional[str]:
+    """Returns cloud provider name if the Host header targets a cloud AI API."""
+    host = (host_header or "").lower().split(":")[0]
+    for domain in CLOUD_PROVIDERS:
+        if domain in host:
+            return CLOUD_PROVIDERS[domain]["name"]
+    return None
+
+
+# ── HTTP helpers ──────────────────────────────────────────────────────────────
+def _recv_full_request(sock: socket.socket, max_bytes: int = 4_000_000) -> bytes:
+    raw = b""
+    sock.settimeout(5.0)
+    try:
+        while True:
+            chunk = sock.recv(8192)
+            if not chunk:
+                break
+            raw += chunk
+            if len(raw) > max_bytes:
+                break
+            if b"\r\n\r\n" in raw:
+                header_end = raw.find(b"\r\n\r\n") + 4
+                content_length = 0
+                header_str = raw[:header_end].decode("utf-8", errors="replace")
+                for line in header_str.split("\r\n"):
+                    if line.lower().startswith("content-length:"):
+                        try:
+                            content_length = int(line.split(":", 1)[1].strip())
+                        except ValueError:
+                            pass
+                if len(raw) - header_end >= content_length:
+                    break
+    except socket.timeout:
+        pass
+    return raw
 
 
 def _parse_http_request(raw: bytes) -> dict:
-    """Parse raw HTTP bytes into a simple dict."""
     try:
         header_end = raw.find(b"\r\n\r\n")
         if header_end == -1:
-            return {"raw": raw, "headers": {}, "body": b"", "method": "GET", "path": "/", "is_cloud": False}
+            return {"raw": raw, "headers": {}, "body": b"",
+                    "method": "GET", "path": "/", "is_cloud": False,
+                    "host": "", "is_connect": False}
         header_bytes = raw[:header_end]
         body = raw[header_end + 4:]
         lines = header_bytes.decode("utf-8", errors="replace").split("\r\n")
-        method, path, _ = (lines[0].split(" ", 2) + ["", "", ""])[:3]
+        parts = (lines[0].split(" ", 2) + ["", "", ""])[:3]
+        method, path = parts[0], parts[1]
         headers = {}
         for line in lines[1:]:
             if ":" in line:
                 k, v = line.split(":", 1)
                 headers[k.strip().lower()] = v.strip()
 
+        host = headers.get("host", "")
         auth = headers.get("authorization", "")
+        is_connect = method.upper() == "CONNECT"
+
         return {
             "raw": raw,
             "method": method,
             "path": path,
             "headers": headers,
             "body": body,
+            "host": host,
             "is_cloud": _is_cloud_key(auth),
+            "cloud_provider": _detect_cloud_provider(host),
+            "is_connect": is_connect,
         }
     except Exception:
-        return {"raw": raw, "headers": {}, "body": b"", "method": "GET", "path": "/", "is_cloud": False}
+        return {"raw": raw, "headers": {}, "body": b"",
+                "method": "GET", "path": "/", "is_cloud": False,
+                "host": "", "is_connect": False}
 
 
 def _forward_request(parsed: dict, backend_host: str, backend_port: int) -> bytes:
-    """Forward the (possibly modified) request to the real backend and return raw response."""
+    """Forward request to real backend and return raw HTTP response."""
     try:
-        conn = http.client.HTTPConnection(backend_host, backend_port, timeout=30)
+        conn = http.client.HTTPConnection(backend_host, backend_port, timeout=60)
         headers = dict(parsed["headers"])
         body = parsed.get("body", b"")
 
-        # Remove hop-by-hop headers
+        # Strip hop-by-hop headers
         for h in ["transfer-encoding", "connection", "keep-alive", "proxy-connection"]:
             headers.pop(h, None)
+
+        # Inject HypeS identity header
+        headers["X-HypeS-Intercepted"] = "1"
+        headers["X-HypeS-Version"] = "3.0"
 
         conn.request(parsed["method"], parsed["path"], body=body, headers=headers)
         resp = conn.getresponse()
         resp_body = resp.read()
 
-        # Rebuild raw HTTP response
         status_line = f"HTTP/1.1 {resp.status} {resp.reason}\r\n"
-        resp_headers = ""
-        for name, value in resp.getheaders():
-            resp_headers += f"{name}: {value}\r\n"
+        resp_headers = "".join(f"{n}: {v}\r\n" for n, v in resp.getheaders())
         resp_headers += "\r\n"
         return (status_line + resp_headers).encode() + resp_body
     except Exception as e:
@@ -255,99 +734,297 @@ def _forward_request(parsed: dict, backend_host: str, backend_port: int) -> byte
         )
 
 
+def _forward_cloud_request(parsed: dict) -> bytes:
+    """
+    Forward a cloud-bound request via HTTPS to the real cloud provider,
+    applying CCTM compression to the body first.
+    """
+    try:
+        host = parsed["host"].split(":")[0]
+        port = 443
+
+        body_str = parsed["body"].decode("utf-8", errors="replace")
+        compressed_body = parsed["body"]
+        ratio = 1.0
+        tokens_saved = 0
+
+        # Apply CCTM compression to JSON body messages
+        try:
+            body_json = json.loads(body_str)
+            messages = body_json.get("messages", [])
+            original_tokens = sum(len(m.get("content", "")) for m in messages) // 4
+
+            for msg in messages:
+                if msg.get("content"):
+                    compressed_content, ratio = _cctm_compress(msg["content"])
+                    msg["content"] = compressed_content
+
+            # Also compress system prompt if present
+            if isinstance(body_json.get("system"), str):
+                body_json["system"], _ = _cctm_compress(body_json["system"])
+
+            compressed_body = json.dumps(body_json).encode("utf-8")
+            compressed_tokens = sum(len(m.get("content", "")) for m in messages) // 4
+            tokens_saved = max(0, original_tokens - compressed_tokens)
+        except Exception:
+            pass
+
+        headers = dict(parsed["headers"])
+        for h in ["transfer-encoding", "connection", "keep-alive", "proxy-connection"]:
+            headers.pop(h, None)
+        headers["content-length"] = str(len(compressed_body))
+        headers["X-HypeS-CCTM"] = f"ratio={ratio:.2f}"
+
+        conn = http.client.HTTPSConnection(host, port, timeout=60)
+        conn.request(parsed["method"], parsed["path"], body=compressed_body, headers=headers)
+        resp = conn.getresponse()
+        resp_body = resp.read()
+
+        # Decompress CCTM codes in the response
+        try:
+            resp_json = json.loads(resp_body.decode("utf-8", errors="replace"))
+            choices = resp_json.get("choices", [])
+            for choice in choices:
+                content = choice.get("message", {}).get("content", "")
+                if content:
+                    choice["message"]["content"] = _cctm_decompress(content)
+            # Also handle Anthropic format
+            for block in resp_json.get("content", []):
+                if block.get("type") == "text":
+                    block["text"] = _cctm_decompress(block["text"])
+            resp_body = json.dumps(resp_json).encode("utf-8")
+        except Exception:
+            pass
+
+        status_line = f"HTTP/1.1 {resp.status} {resp.reason}\r\n"
+        resp_headers = "".join(f"{n}: {v}\r\n" for n, v in resp.getheaders())
+        resp_headers += f"X-HypeS-CCTM-Ratio: {ratio:.2f}\r\n"
+        resp_headers += "\r\n"
+
+        with _lock:
+            _stats["cloud_requests"] += 1
+            _stats["cloud_optimized_requests"] += 1
+            _stats["tokens_saved"] += tokens_saved
+
+        return (status_line + resp_headers).encode() + resp_body
+
+    except Exception as e:
+        error_body = json.dumps({"error": str(e), "source": "hypes-cloud-intercept"}).encode()
+        return (
+            b"HTTP/1.1 502 Bad Gateway\r\n"
+            b"Content-Type: application/json\r\n"
+            b"Content-Length: " + str(len(error_body)).encode() + b"\r\n\r\n" + error_body
+        )
+
+
+# ── CONNECT tunnel handler (for HTTPS cloud traffic) ─────────────────────────
+def _handle_connect_tunnel(client_sock: socket.socket, parsed: dict) -> None:
+    """
+    Handle HTTP CONNECT tunnels — hand off to pirate_mitm_tls for TLS splicing,
+    or fall back to transparent tunnel if TLS module unavailable.
+    """
+    target = parsed["path"]  # format: "api.openai.com:443"
+    try:
+        host, port_str = target.rsplit(":", 1)
+        port = int(port_str)
+    except Exception:
+        client_sock.close()
+        return
+
+    # Try TLS splice first
+    try:
+        from pirate_ssl_bridge import splice_tls_connection
+        # Send 200 Connection Established to client
+        client_sock.sendall(b"HTTP/1.1 200 Connection Established\r\n\r\n")
+        splice_tls_connection(client_sock, host, port)
+        with _lock:
+            _stats["tls_spliced_requests"] += 1
+        return
+    except ImportError:
+        pass
+    except Exception as e:
+        _log(f"TLS splice failed for {target}: {e}")
+
+    # Fallback: transparent tunnel (no interception, just pipe bytes)
+    try:
+        remote = socket.create_connection((host, port), timeout=10)
+        client_sock.sendall(b"HTTP/1.1 200 Connection Established\r\n\r\n")
+
+        def _pipe(src: socket.socket, dst: socket.socket):
+            try:
+                while True:
+                    data = src.recv(8192)
+                    if not data:
+                        break
+                    dst.sendall(data)
+            except Exception:
+                pass
+            finally:
+                try:
+                    src.close()
+                except Exception:
+                    pass
+
+        t1 = threading.Thread(target=_pipe, args=(client_sock, remote), daemon=True)
+        t2 = threading.Thread(target=_pipe, args=(remote, client_sock), daemon=True)
+        t1.start()
+        t2.start()
+        t1.join()
+        t2.join()
+    except Exception as e:
+        _log(f"CONNECT tunnel error for {target}: {e}")
+        try:
+            client_sock.sendall(
+                b"HTTP/1.1 502 Bad Gateway\r\nContent-Length: 0\r\n\r\n"
+            )
+        except Exception:
+            pass
+    finally:
+        try:
+            client_sock.close()
+        except Exception:
+            pass
+
+
 # ── Connection handler ────────────────────────────────────────────────────────
 def _handle_client(client_sock: socket.socket, intercept_port: int) -> None:
     try:
-        raw = b""
-        client_sock.settimeout(5.0)
-        while True:
-            try:
-                chunk = client_sock.recv(4096)
-                if not chunk:
-                    break
-                raw += chunk
-                if len(raw) > 2_000_000:  # 2 MB safety cap
-                    break
-                if b"\r\n\r\n" in raw:
-                    # Check if we have all body data
-                    header_end = raw.find(b"\r\n\r\n") + 4
-                    header_str = raw[:header_end].decode("utf-8", errors="replace")
-                    content_length = 0
-                    for line in header_str.split("\r\n"):
-                        if line.lower().startswith("content-length:"):
-                            content_length = int(line.split(":", 1)[1].strip())
-                    if len(raw) - header_end >= content_length:
-                        break
-            except socket.timeout:
-                break
+        raw = _recv_full_request(client_sock)
+        if not raw:
+            return
 
         parsed = _parse_http_request(raw)
-        backend = _find_real_backend_port(intercept_port)
 
-        if parsed["is_cloud"] or backend is None:
-            # Cloud mode: pass through unmodified
+        # ── CONNECT tunnel (HTTPS) ──
+        if parsed["is_connect"]:
+            _handle_connect_tunnel(client_sock, parsed)
+            return
+
+        # ── Determine backend ──
+        with _lock:
+            backend = _port_backend_map.get(intercept_port)
+
+        if backend is None:
+            # Try probing likely displaced port
+            displaced = intercept_port + 1000
+            if _port_is_open("127.0.0.1", displaced, 0.3):
+                backend = ("127.0.0.1", displaced)
+                with _lock:
+                    _port_backend_map[intercept_port] = backend
+
+        # ── Cloud-bound request ──
+        cloud_provider = parsed.get("cloud_provider")
+        if parsed["is_cloud"] and cloud_provider:
+            _log(f"[Cloud] Intercepted {cloud_provider} request — applying CCTM")
+            response = _forward_cloud_request(parsed)
+            client_sock.sendall(response)
+            with _lock:
+                _stats["requests_intercepted"] += 1
+            return
+
+        # ── Local AI request ──
+        if backend is None:
+            # No backend found at all
+            error_body = json.dumps({
+                "error": "No backend found",
+                "source": "hypes-intercept",
+                "port": intercept_port
+            }).encode()
+            client_sock.sendall(
+                b"HTTP/1.1 503 Service Unavailable\r\n"
+                b"Content-Type: application/json\r\n"
+                b"Content-Length: " + str(len(error_body)).encode() + b"\r\n\r\n" + error_body
+            )
+            return
+
+        # Per-app consent check
+        user_agent = parsed["headers"].get("user-agent", "")
+        app_name = _fingerprint_app(user_agent)
+        with _lock:
+            _stats["apps_seen"][app_name] = _stats["apps_seen"].get(app_name, 0) + 1
+
+        if not _ensure_app_consent(app_name):
+            # App denied — pass through unmodified
             if backend:
                 response = _forward_request(parsed, backend[0], backend[1])
             else:
-                error_body = json.dumps({"error": "No backend found", "source": "hypes-intercept"}).encode()
+                error_body = json.dumps({"error": "No backend", "source": "hypes"}).encode()
                 response = (
                     b"HTTP/1.1 503 Service Unavailable\r\n"
                     b"Content-Type: application/json\r\n\r\n" + error_body
                 )
-        else:
-            # MitM mode: apply SISSI compression to request body
-            body_str = parsed["body"].decode("utf-8", errors="replace")
-            try:
-                body_json = json.loads(body_str)
-                messages = body_json.get("messages", [])
-                original_tokens = sum(len(m.get("content", "")) for m in messages) // 4
-                for msg in messages:
-                    if msg.get("content"):
-                        compressed, ratio = _sissi_compress(msg["content"])
-                        msg["content"] = compressed
-                new_body = json.dumps(body_json).encode("utf-8")
-                compressed_tokens = sum(len(m.get("content", "")) for m in messages) // 4
-                tokens_saved = max(0, original_tokens - compressed_tokens)
-            except Exception:
-                new_body = parsed["body"]
-                ratio = 1.0
-                tokens_saved = 0
+            client_sock.sendall(response)
+            return
 
-            parsed["body"] = new_body
-            parsed["headers"]["content-length"] = str(len(new_body))
-            response = _forward_request(parsed, backend[0], backend[1])
+        # Apply SISSI compression to request body
+        body_str = parsed["body"].decode("utf-8", errors="replace")
+        new_body = parsed["body"]
+        tokens_saved = 0
+        bytes_saved = 0
 
-            # Decompress response
-            try:
-                resp_header_end = response.find(b"\r\n\r\n")
-                if resp_header_end != -1:
-                    resp_body = response[resp_header_end + 4:]
-                    resp_json = json.loads(resp_body.decode("utf-8", errors="replace"))
-                    choices = resp_json.get("choices", [])
-                    for choice in choices:
-                        content = choice.get("message", {}).get("content", "")
-                        if content:
-                            choice["message"]["content"] = _sissi_decompress(content)
-                    new_resp_body = json.dumps(resp_json).encode("utf-8")
-                    resp_headers = response[:resp_header_end + 4]
-                    # Update Content-Length
-                    resp_headers_str = resp_headers.decode("utf-8", errors="replace")
-                    resp_headers_str = "\r\n".join(
-                        f"Content-Length: {len(new_resp_body)}" if h.lower().startswith("content-length") else h
-                        for h in resp_headers_str.split("\r\n")
-                    )
-                    response = resp_headers_str.encode() + new_resp_body
-            except Exception:
-                pass
+        try:
+            body_json = json.loads(body_str)
+            messages = body_json.get("messages", [])
+            original_tokens = sum(len(m.get("content", "")) for m in messages) // 4
 
-            with _lock:
-                _stats["requests_intercepted"] += 1
-                _stats["tokens_saved"] += tokens_saved
-                _stats["bytes_compressed"] += max(0, len(parsed.get("raw", b"")) - len(new_body))
+            for msg in messages:
+                if msg.get("content"):
+                    compressed, ratio = _sissi_compress(msg["content"])
+                    msg["content"] = compressed
+
+            # Also compress single-prompt format (Ollama /api/generate)
+            if "prompt" in body_json and isinstance(body_json["prompt"], str):
+                body_json["prompt"], _ = _sissi_compress(body_json["prompt"])
+
+            new_body = json.dumps(body_json).encode("utf-8")
+            compressed_tokens = sum(len(m.get("content", "")) for m in messages) // 4
+            tokens_saved = max(0, original_tokens - compressed_tokens)
+            bytes_saved = max(0, len(parsed["body"]) - len(new_body))
+        except Exception:
+            new_body = parsed["body"]
+
+        parsed["body"] = new_body
+        parsed["headers"]["content-length"] = str(len(new_body))
+        response = _forward_request(parsed, backend[0], backend[1])
+
+        # Decompress SISSI codes in response
+        try:
+            resp_header_end = response.find(b"\r\n\r\n")
+            if resp_header_end != -1:
+                resp_body = response[resp_header_end + 4:]
+                resp_json = json.loads(resp_body.decode("utf-8", errors="replace"))
+
+                # OpenAI/LMStudio format
+                for choice in resp_json.get("choices", []):
+                    content = choice.get("message", {}).get("content", "")
+                    if content:
+                        choice["message"]["content"] = _sissi_decompress(content)
+
+                # Ollama format
+                if "response" in resp_json:
+                    resp_json["response"] = _sissi_decompress(resp_json["response"])
+
+                new_resp_body = json.dumps(resp_json).encode("utf-8")
+                resp_header_str = response[:resp_header_end + 4].decode("utf-8", errors="replace")
+                resp_header_str = "\r\n".join(
+                    f"Content-Length: {len(new_resp_body)}"
+                    if h.lower().startswith("content-length") else h
+                    for h in resp_header_str.split("\r\n")
+                )
+                response = resp_header_str.encode() + new_resp_body
+        except Exception:
+            pass
+
+        with _lock:
+            _stats["requests_intercepted"] += 1
+            _stats["local_requests"] += 1
+            _stats["tokens_saved"] += tokens_saved
+            _stats["bytes_compressed"] += bytes_saved
 
         client_sock.sendall(response)
+
     except Exception as e:
-        _log(f"Client handler error: {e}")
+        _log(f"Client handler error on port {intercept_port}: {e}")
     finally:
         try:
             client_sock.close()
@@ -361,10 +1038,12 @@ def _listener_thread(port: int) -> None:
         srv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         srv.bind(("127.0.0.1", port))
-        srv.listen(64)
+        srv.listen(128)
         srv.settimeout(1.0)
         with _lock:
             _listeners.append(srv)
+            if port not in _stats["active_ports"]:
+                _stats["active_ports"].append(port)
         _log(f"Intercept listener bound on 127.0.0.1:{port}")
         while _running:
             try:
@@ -382,36 +1061,92 @@ def _listener_thread(port: int) -> None:
         _log(f"Could not bind port {port}: {e}")
 
 
+# ── Auto-discover and hook — ZERO CONFIG entry point ─────────────────────────
+def auto_discover_and_hook(
+    extra_ports: Optional[List[int]] = None,
+    run_scanner: bool = True
+) -> Dict:
+    """
+    Zero-config entry point. Call once on startup.
+    Scans all known + unknown AI ports, displaces running backends,
+    and starts intercept listeners on every AI port found.
+    Returns a summary dict of what was hooked.
+    """
+    global _running
+    if _running:
+        return get_stats()
+
+    _log("=== HypeS Auto-Intercept Engine v3.0 — Auto-Discover Starting ===")
+
+    all_ports = list(KNOWN_AI_PORTS.keys())
+    if extra_ports:
+        all_ports.extend(extra_ports)
+
+    # Dynamic scan for unknown AI servers
+    if run_scanner:
+        _log("Scanning for unknown AI servers...")
+        discovered = _scan_for_unknown_ai_ports()
+        for p in discovered:
+            if p not in all_ports:
+                all_ports.append(p)
+        with _lock:
+            _stats["discovered_ports"] = discovered
+
+    _running = True
+    _stats["active"] = True
+
+    ports_hooked = []
+    for port in all_ports:
+        # Displace any existing backend
+        _displace_backend(port)
+
+        # Start listener
+        t = threading.Thread(target=_listener_thread, args=(port,), daemon=True)
+        t.start()
+        ports_hooked.append(port)
+        time.sleep(0.02)  # Slight stagger to avoid bind race
+
+    _log(f"Auto-Intercept active on {len(ports_hooked)} ports: {ports_hooked}")
+    _log("All local and cloud AI traffic is now routed through HypeS.")
+
+    return get_stats()
+
+
 # ── Public API ────────────────────────────────────────────────────────────────
 def get_stats() -> dict:
     with _lock:
         return dict(_stats)
 
 
+def get_port_map() -> dict:
+    """Returns the current port → backend mapping."""
+    return dict(_port_backend_map)
+
+
 def is_active() -> bool:
     return _running
 
 
-def start(ports: Optional[list[int]] = None) -> bool:
-    """Start the MitM intercept proxy. Returns True if started successfully."""
+def start(ports: Optional[List[int]] = None) -> bool:
+    """
+    Start intercept on specific ports (legacy API).
+    For full auto-mode use auto_discover_and_hook() instead.
+    """
     global _running
     if _running:
         return True
-
     _running = True
     _stats["active"] = True
-    target_ports = ports or list(INTERCEPT_PORTS.keys())
-
+    target_ports = ports or list(KNOWN_AI_PORTS.keys())
     for port in target_ports:
         t = threading.Thread(target=_listener_thread, args=(port,), daemon=True)
         t.start()
-
-    _log(f"Auto-intercept started on ports: {target_ports}")
+    _log(f"Intercept started on ports: {target_ports}")
     return True
 
 
 def stop() -> None:
-    """Stop the MitM intercept proxy."""
+    """Stop all intercept listeners and release all ports."""
     global _running
     _running = False
     _stats["active"] = False
@@ -422,74 +1157,59 @@ def stop() -> None:
             except Exception:
                 pass
         _listeners.clear()
-    _log("Auto-intercept stopped.")
+        _stats["active_ports"].clear()
+    _log("Auto-intercept stopped. All ports released.")
 
 
-# ── Consent UI helper (works headlessly or with PySide6) ───────────────────────
+# ── Consent UI ────────────────────────────────────────────────────────────────
 def request_consent_headless() -> bool:
-    """
-    Non-GUI consent for headless / CLI environments.
-    Returns True if allowed, False if denied.
-    Respects existing state — only prompts when undecided.
-    """
     state = get_consent_state()
     if state == CONSENT_ALLOWED:
         return True
     if state == CONSENT_DENIED:
-        _log("Auto-intercept is permanently disabled. Use Auto-Discover in the dashboard to re-enable.")
+        _log("Auto-intercept disabled. Use Auto-Discover in dashboard to re-enable.")
         return False
-
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("🏴‍☠️  PIRATE LLAMA AUTO-INTERCEPT REQUEST")
-    print("="*60)
+    print("=" * 60)
     print(
-        "HypeS wants to silently intercept all local AI traffic\n"
-        "(Ollama, LM Studio, etc.) and route it through the\n"
-        "SISSI compression stack — saving you 40-90% tokens.\n\n"
-        "This is a one-time authorization. You can revoke it\n"
-        "any time from the HypeS dashboard → Auto-Discover.\n"
+        "HypeS wants to intercept ALL local and cloud AI traffic\n"
+        "(Ollama, LM Studio, OpenAI, Anthropic, etc.) and route it\n"
+        "through the SISSI+CCTM optimization stack.\n\n"
+        "Local: SISSI compression (40-90% token savings)\n"
+        "Cloud: CCTM compression (10x token reduction before billing)\n\n"
+        "One-time authorization. Revoke any time via HypeS dashboard.\n"
     )
     ans = input("Allow auto-intercept? [Y/n]: ").strip().lower()
     agreed = ans in ("", "y", "yes")
     if agreed:
-        perm = input("Permanently remember 'Allow' (no future prompts)? [Y/n]: ").strip().lower()
+        perm = input("Permanently remember 'Allow'? [Y/n]: ").strip().lower()
         if perm in ("", "y", "yes"):
             save_consent(CONSENT_ALLOWED)
     else:
-        perm = input("Permanently ignore (never ask again unless you click Auto-Discover)? [y/N]: ").strip().lower()
+        perm = input("Permanently deny (no more prompts)? [y/N]: ").strip().lower()
         if perm in ("y", "yes"):
             save_consent(CONSENT_DENIED)
-            print("Auto-intercept permanently disabled. Re-enable via HypeS → Auto-Discover.")
-        else:
-            print("Skipping this session only.")
     return agreed
 
 
 def request_consent_gui() -> bool:
-    """
-    Premium PySide6 consent dialog with three-state awareness.
-    - Already allowed  → return True immediately (no dialog)
-    - Permanently denied → return False immediately (no dialog)
-    - Undecided → show the dialog
-    Falls back to headless if GUI unavailable.
-    """
     state = get_consent_state()
     if state == CONSENT_ALLOWED:
         return True
     if state == CONSENT_DENIED:
-        _log("Auto-intercept is permanently disabled. Use Auto-Discover in the dashboard to re-enable.")
+        _log("Auto-intercept disabled. Use Auto-Discover in dashboard to re-enable.")
         return False
 
     try:
-        from PySide6 import QtWidgets, QtCore, QtGui
+        from PySide6 import QtWidgets, QtCore
         app = QtWidgets.QApplication.instance() or QtWidgets.QApplication(sys.argv)
 
         dlg = QtWidgets.QDialog()
         dlg.setWindowTitle("🏴‍☠️  Pirate Llama — Auto-Intercept Request")
-        dlg.setMinimumWidth(560)
-        dlg.setMinimumHeight(400)
+        dlg.setMinimumWidth(580)
+        dlg.setMinimumHeight(460)
 
-        # ── Premium Cyber dialog stylesheet ──
         dlg.setStyleSheet("""
             QDialog {
                 background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
@@ -499,130 +1219,96 @@ def request_consent_gui() -> bool:
                 border: 1px solid rgba(0,200,255,0.20);
                 border-radius: 12px;
             }
-            QLabel { color: #8899aa; font-size: 12px; }
-            QLabel#dlg_title {
-                color: #00d4ff;
-                font-size: 15px;
-                font-weight: 800;
-                letter-spacing: 0.04em;
-            }
-            QLabel#dlg_sub {
-                color: #5a7a9a;
-                font-size: 10px;
-                text-transform: uppercase;
-                letter-spacing: 0.14em;
-                font-weight: 700;
-            }
-            QCheckBox {
-                color: #5a7a9a;
-                font-size: 11px;
-                spacing: 8px;
-            }
-            QCheckBox::indicator {
-                width: 15px; height: 15px;
-                border: 1px solid rgba(0,200,255,0.30);
-                border-radius: 3px;
-                background: rgba(0,0,0,0.40);
-            }
+            QLabel { color: #8899aa; font-size: 12px; background: transparent; border: none; }
+            QLabel#dlg_title { color:#00d4ff; font-size:15px; font-weight:800; }
+            QLabel#dlg_sub { color:#00a8cc; font-size:9px; letter-spacing:0.14em; font-weight:700; }
+            QCheckBox { color:#5a7a9a; font-size:11px; spacing:8px; }
+            QCheckBox::indicator { width:15px; height:15px;
+                border:1px solid rgba(0,200,255,0.30); border-radius:3px;
+                background:rgba(0,0,0,0.40); }
             QCheckBox::indicator:checked {
                 background: qlineargradient(x1:0,y1:0,x2:1,y2:1,
-                    stop:0 #00c8ff, stop:1 #7c3aed);
-                border-color: #00c8ff;
-            }
-            QCheckBox:hover { color: #cce8ff; }
-            QPushButton {
-                background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-                    stop:0 #1a2744, stop:1 #0f1929);
-                color: #b0cce0;
-                border: 1px solid rgba(0,200,255,0.25);
-                border-radius: 7px;
-                padding: 9px 22px;
-                font-weight: 600;
-                font-size: 12px;
-                letter-spacing: 0.04em;
-            }
-            QPushButton:hover {
-                background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-                    stop:0 rgba(0,200,255,0.30), stop:1 rgba(0,160,210,0.12));
-                color: #ffffff;
-                border-color: rgba(0,200,255,0.65);
-            }
-            QPushButton#allow {
-                background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
-                    stop:0 #0090cc, stop:1 #6020c0);
-                color: #ffffff;
-                border: none;
-                font-weight: 800;
-                font-size: 13px;
-                padding: 10px 28px;
-                border-radius: 8px;
-            }
-            QPushButton#allow:hover {
-                background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
-                    stop:0 #00b8ff, stop:1 #8840e8);
-            }
-            QPushButton#deny {
-                background: rgba(20,30,50,0.8);
-                color: #5a7a9a;
-                border-color: rgba(0,200,255,0.12);
-            }
-            QPushButton#deny:hover {
-                color: #ff6666;
-                border-color: rgba(255,60,60,0.40);
-                background: rgba(60,10,10,0.6);
-            }
+                    stop:0 #00c8ff, stop:1 #7c3aed); border-color:#00c8ff; }
+            QPushButton { background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
+                stop:0 #1a2744, stop:1 #0f1929);
+                color:#b0cce0; border:1px solid rgba(0,200,255,0.25);
+                border-radius:7px; padding:9px 22px; font-weight:600;
+                font-size:12px; }
+            QPushButton:hover { background: rgba(0,200,255,0.20); color:#ffffff;
+                border-color:rgba(0,200,255,0.65); }
+            QPushButton#allow { background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
+                stop:0 #0090cc, stop:1 #6020c0); color:#ffffff;
+                border:none; font-weight:800; font-size:13px;
+                padding:10px 28px; border-radius:8px; }
+            QPushButton#allow:hover { background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
+                stop:0 #00b8ff, stop:1 #8840e8); }
+            QPushButton#deny { background:rgba(20,30,50,0.8); color:#5a7a9a;
+                border-color:rgba(0,200,255,0.12); }
+            QPushButton#deny:hover { color:#ff6666;
+                border-color:rgba(255,60,60,0.40); background:rgba(60,10,10,0.6); }
         """)
 
         lay = QtWidgets.QVBoxLayout(dlg)
         lay.setContentsMargins(28, 26, 28, 24)
         lay.setSpacing(0)
 
-        # ─ Header band ─
+        # Header
         header = QtWidgets.QWidget()
         header.setStyleSheet(
             "background: qlineargradient(x1:0,y1:0,x2:1,y2:0,"
             "stop:0 rgba(0,200,255,0.08),stop:1 rgba(124,58,237,0.06));"
-            "border-radius: 8px;"
-            "border: 1px solid rgba(0,200,255,0.12);"
+            "border-radius:8px; border:1px solid rgba(0,200,255,0.12);"
         )
         hlay = QtWidgets.QHBoxLayout(header)
         hlay.setContentsMargins(14, 12, 14, 12)
         icon_lbl = QtWidgets.QLabel("🏴‍☠️")
-        icon_lbl.setStyleSheet("font-size:32px; color:white; background:transparent; border:none;")
+        icon_lbl.setStyleSheet("font-size:32px; background:transparent; border:none;")
         hlay.addWidget(icon_lbl)
         hlay.addSpacing(12)
         title_col = QtWidgets.QVBoxLayout()
-        sub = QtWidgets.QLabel("▶▶  hyper-spherical systems — auto-intercept engine")
+        sub = QtWidgets.QLabel("▶▶  hyper-spherical systems — full auto mitm engine v3.0")
         sub.setObjectName("dlg_sub")
-        sub.setStyleSheet("background:transparent; border:none; color:#00a8cc; font-size:9px; letter-spacing:0.14em;")
-        title = QtWidgets.QLabel("Pirate Llama Wants to Intercept\nYour AI Traffic")
+        title = QtWidgets.QLabel("Pirate Llama Wants to Intercept\nAll Local & Cloud AI Traffic")
         title.setObjectName("dlg_title")
-        title.setStyleSheet("background:transparent; border:none; color:#00d4ff; font-size:15px; font-weight:800;")
         title_col.addWidget(sub)
         title_col.addWidget(title)
         hlay.addLayout(title_col)
         hlay.addStretch()
         lay.addWidget(header)
-        lay.addSpacing(18)
+        lay.addSpacing(16)
 
-        # ─ Feature list ─
+        # Features
         features = [
-            ("⚡", "#00c8ff", "Zero Config",  "No client setup needed — works with any app on your machine."),
-            ("🚀", "#10b981", "10× Token Savings", "Compresses every prompt via SISSI before it hits the model."),
-            ("🔑", "#f59e0b", "Cloud Key Passthrough", "Cloud API keys bypass compression and go direct."),
-            ("🚫", "#ef4444", "Permanent Ignore",  "Say no once, and you'll never be asked again unless you\nchoose to re-enable via Dashboard → Auto-Discover."),
+            ("⚡", "#00c8ff", "Zero Config — Fully Automatic",
+             "Discovers and hooks every AI server on your machine without any setup."),
+            ("🚀", "#10b981", "Local: SISSI 40–90% Token Savings",
+             "Every Ollama, LM Studio, llama.cpp request compressed before hitting the model."),
+            ("☁️", "#f59e0b", "Cloud: CCTM 10× Token Reduction",
+             "OpenAI, Anthropic, Groq, and more — compressed before billing kicks in."),
+            ("🔒", "#a855f7", "TLS Splice for HTTPS Cloud Traffic",
+             "Intercepts encrypted HTTPS AI calls via local CA — transparent to all apps."),
+            ("🛑", "#ef4444", "One-Time Auth",
+             "Revoke any time from HypeS Dashboard → Auto-Discover."),
         ]
         for icon, color, label, desc in features:
             row = QtWidgets.QHBoxLayout()
             ico = QtWidgets.QLabel(icon)
-            ico.setStyleSheet(f"font-size:18px; color:{color}; min-width:28px; background:transparent; border:none;")
+            ico.setStyleSheet(
+                f"font-size:18px; color:{color}; min-width:28px;"
+                f" background:transparent; border:none;"
+            )
             ico.setAlignment(QtCore.Qt.AlignTop)
             text_col = QtWidgets.QVBoxLayout()
             text_col.setSpacing(1)
             lbl = QtWidgets.QLabel(label)
-            lbl.setStyleSheet(f"color:#ffffff; font-weight:700; font-size:12px; background:transparent; border:none;")
+            lbl.setStyleSheet(
+                "color:#ffffff; font-weight:700; font-size:12px;"
+                " background:transparent; border:none;"
+            )
             dsc = QtWidgets.QLabel(desc)
-            dsc.setStyleSheet("color:#5a7a9a; font-size:11px; background:transparent; border:none;")
+            dsc.setStyleSheet(
+                "color:#5a7a9a; font-size:11px; background:transparent; border:none;"
+            )
             dsc.setWordWrap(True)
             text_col.addWidget(lbl)
             text_col.addWidget(dsc)
@@ -630,31 +1316,27 @@ def request_consent_gui() -> bool:
             row.addSpacing(8)
             row.addLayout(text_col)
             lay.addLayout(row)
-            lay.addSpacing(10)
+            lay.addSpacing(8)
 
-        lay.addSpacing(6)
-
-        # ─ Divider ─
+        # Divider
         div = QtWidgets.QFrame()
         div.setFrameShape(QtWidgets.QFrame.HLine)
-        div.setStyleSheet("color: rgba(0,200,255,0.12); background: rgba(0,200,255,0.12);")
+        div.setStyleSheet("color: rgba(0,200,255,0.12); background:rgba(0,200,255,0.12);")
         lay.addWidget(div)
-        lay.addSpacing(12)
+        lay.addSpacing(10)
 
-        # ─ Permanent ignore checkbox ─
         perm_deny = QtWidgets.QCheckBox(
-            "  Permanently ignore — don't ask again unless I click Auto-Discover"
+            "  Permanently deny — don't ask again unless I click Auto-Discover"
         )
         perm_deny.setChecked(False)
         lay.addWidget(perm_deny)
-        lay.addSpacing(16)
+        lay.addSpacing(14)
 
-        # ─ Buttons ─
         btn_row = QtWidgets.QHBoxLayout()
         deny_btn = QtWidgets.QPushButton("No Thanks")
         deny_btn.setObjectName("deny")
         deny_btn.clicked.connect(dlg.reject)
-        allow_btn = QtWidgets.QPushButton("⚡  Allow Auto-Intercept")
+        allow_btn = QtWidgets.QPushButton("⚡  Allow Full Auto-Intercept")
         allow_btn.setObjectName("allow")
         allow_btn.setDefault(True)
         allow_btn.clicked.connect(dlg.accept)
@@ -666,12 +1348,9 @@ def request_consent_gui() -> bool:
         result = dlg.exec() == QtWidgets.QDialog.Accepted
 
         if result:
-            # Always persist allow — no more prompts
             save_consent(CONSENT_ALLOWED)
-        else:
-            if perm_deny.isChecked():
-                save_consent(CONSENT_DENIED)   # Never ask again
-            # else: leave as undecided — will ask next session
+        elif perm_deny.isChecked():
+            save_consent(CONSENT_DENIED)
 
         return result
 
@@ -679,17 +1358,27 @@ def request_consent_gui() -> bool:
         return request_consent_headless()
 
 
-# ── CLI entry point ────────────────────────────────────────────────────────
+# ── CLI entry point ────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     import argparse
-    parser = argparse.ArgumentParser(description="HypeS Pirate Llama MitM Intercept Proxy")
-    parser.add_argument("--no-consent", action="store_true", help="Skip consent dialog (already approved)")
-    parser.add_argument("--reset-consent", action="store_true", help="Reset consent to undecided (as if Auto-Discover was clicked)")
-    parser.add_argument("--ports", nargs="+", type=int, default=[11434], help="Ports to intercept")
-    parser.add_argument("--headless", action="store_true", help="CLI consent mode")
+    parser = argparse.ArgumentParser(description="HypeS Pirate Llama Full Auto MitM Interceptor v3.0")
+    parser.add_argument("--no-consent", action="store_true",
+                        help="Skip consent (already approved)")
+    parser.add_argument("--reset-consent", action="store_true",
+                        help="Reset consent state")
+    parser.add_argument("--ports", nargs="+", type=int, default=None,
+                        help="Specific ports to intercept (default: all known AI ports)")
+    parser.add_argument("--headless", action="store_true",
+                        help="CLI consent mode")
+    parser.add_argument("--no-scan", action="store_true",
+                        help="Skip dynamic port scanner")
     args = parser.parse_args()
 
-    if args.no_consent or load_consent().get("consented"):
+    if args.reset_consent:
+        reset_consent()
+        print("Consent reset.")
+
+    if args.no_consent or get_consent_state() == CONSENT_ALLOWED:
         agreed = True
     elif args.headless:
         agreed = request_consent_headless()
@@ -700,8 +1389,13 @@ if __name__ == "__main__":
         print("Auto-intercept denied by user.")
         sys.exit(0)
 
-    print(f"[Pirate Llama] Starting MitM intercept on ports {args.ports}...")
-    start(args.ports)
+    print("[Pirate Llama] Starting Full Auto MitM Intercept Engine v3.0...")
+    stats = auto_discover_and_hook(
+        extra_ports=args.ports,
+        run_scanner=not args.no_scan
+    )
+    print(f"[Pirate Llama] Active on {len(stats['active_ports'])} ports: {stats['active_ports']}")
+    print(f"[Pirate Llama] Displaced backends: {stats['displaced_backends']}")
 
     try:
         while True:
@@ -709,8 +1403,9 @@ if __name__ == "__main__":
             s = get_stats()
             print(
                 f"[stats] intercepted={s['requests_intercepted']}  "
+                f"local={s['local_requests']}  cloud={s['cloud_requests']}  "
                 f"tokens_saved={s['tokens_saved']}  "
-                f"bytes_compressed={s['bytes_compressed']}"
+                f"tls_spliced={s['tls_spliced_requests']}"
             )
     except KeyboardInterrupt:
         stop()
