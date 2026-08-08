@@ -10,6 +10,7 @@ project_tesseract.toml
 config_gui.yaml
 mcp_server/
 scratch/
+project_tesseract/
 
 # Protect All Source Code and Internal Components
 *Master*
