@@ -58,8 +58,10 @@ __pycache__/
 !synthuron_context/**
 !hypermem/**
 !tools/**
+!common_identity.py
 !setup_all.bat
 !setup_all.ps1
+!uninstall_all.bat
 
 # Allow ONLY Public Releases, Installers, PDF/HTML Docs, and Graphics
 !HypeS_Setup.exe
