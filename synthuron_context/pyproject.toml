@@ -1,0 +1,11 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "synthuron-context"
+version = "1.0.0"
+description = "Infinite Conversational Context, Synthuron Neural Graphs, and Dynamic Steer/Veer Memory Engine"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = []

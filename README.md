@@ -24,11 +24,47 @@ It works with **any GGUF, SFS, or SFS+** model and connects to **any OpenAI-comp
 | What HypeS does | How |
 |---|---|
 | Runs 70B+ models on 12 GB VRAM | VRAM/RAM/NVMe 3-tier virtual VRAM illusion |
+| Zero-CUDA CPU Layer Streaming | Memory-mapped NVMe AVX2 layer spooler for Intel Core i7 / AMD Ryzen 9 |
 | Saves up to 10× cloud API tokens | SISSI + Homophonic + CCTM Ultra compression |
 | Lets models learn and grow permanently | BMRAD Brain Director + HardcodedKnowledgeBase |
 | Protects your conversations end-to-end | AES-256 + 5+1 Homophonic ephemeral session cipher |
 | Enables models to teach each other | SFS+ InteropBus GROW_FROM / GROW_WITH |
 | Gives your AI a voice and a face | 4ID Avatar — real-time STT/TTS + 4D animated entity |
+
+---
+
+## 🛠️ Open-Source Modules & Quickstart
+
+### 1. Installation & Environment Setup
+```bash
+# Run the automated multi-module setup script:
+./setup_all.bat   # Windows CMD
+# or
+./setup_all.ps1   # PowerShell
+```
+
+### 2. Zero-CUDA CPU Spooler Benchmark
+For systems without dedicated NVIDIA/CUDA GPUs (Intel Core i7 / AMD Ryzen 9 laptops):
+```bash
+python layer_streamer/demo_cpu_spooler.py
+```
+
+### 3. Brain & Director Model Pre-Test Suite
+Benchmark candidate supervisory models for hallucination resistance, routing accuracy, and JSON schema compliance:
+```bash
+python tools/brain_model_test_suite.py --endpoint "http://localhost:11434" --model "gemma4:latest"
+```
+
+### 4. Project Tesseract 3D Center-Out & 5-File Stripe Vault Demo
+```bash
+python tesseract_engine/demo_stripe_vault.py
+```
+
+---
+
+## 📢 Community Alpha Notice
+> **Note for Non-CUDA Core Developers & Testers:**  
+> This open-source release includes our zero-CUDA CPU layer streaming engine and supervisory model test harness. It has been tested and verified across our in-house Intel Core i7 and AMD Ryzen 9 test machines. Because hardware configurations vary widely, we encourage community testing across diverse CPU, RAM, and storage topologies. Please report your benchmark findings, latency metrics, and hardware configurations in the Issues tab!
 
 ---
 

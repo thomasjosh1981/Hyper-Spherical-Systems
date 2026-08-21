@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Tesseract &amp; Hyperspherical Dimensional Encoding Engine</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Three.js for 3D Voxel Viewport -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo-group">
+        <div class="logo-symbol">ᛏ</div>
+        <div>
+          <h1>PROJECT TESSERACT &amp; HYPERSPHERICAL ENGINE</h1>
+          <p class="subtitle">Animated 3D Tensor Permutation &amp; 4-Corner Top-Down Unwrapping Engine</p>
+        </div>
+      </div>
+      <div class="header-badges">
+        <span id="badgeDim" class="badge badge-dim">ADAPTIVE DIM: 5×5×5 (125 VOXELS)</span>
+        <span class="badge badge-rune">5 DEAD LANGUAGES + NORDIC RUNES</span>
+        <span id="badgePhase" class="badge badge-cipher">PHASE: IDLE</span>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="workspace-grid">
+      
+      <!-- Left Panel: Pipeline Controls & Step-by-Step Inspector -->
+      <section class="panel control-panel">
+        <div class="panel-header">
+          <h2><span class="step-num">01</span> INPUT PROMPT STREAM</h2>
+          <div class="header-actions">
+            <button id="btnLoadUserPrompts" class="btn btn-sm btn-secondary">Load Conversation Prompts</button>
+            <button id="btnReset" class="btn btn-sm btn-outline">Clear</button>
+          </div>
+        </div>
+        
+        <textarea id="promptInput" rows="4" placeholder="Enter prompt or text to encode into the Adaptive Hyper-Cube..."></textarea>
+        
+        <div class="action-bar">
+          <button id="btnAnimate" class="btn btn-primary">
+            <span class="btn-icon">⚡</span> ANIMATE FULL PIPELINE
+          </button>
+          <button id="btnInstant" class="btn btn-success">
+            <span class="btn-icon">🔓</span> INSTANT ENCODE + DECODE
+          </button>
+        </div>
+
+        <!-- Animation Speed Control -->
+        <div class="speed-control-panel">
+          <div class="speed-header">
+            <h3>ANIMATION SPEED CONTROL</h3>
+            <span id="speedLabel" class="score-pill">SPEED: 1x (Real-Time)</span>
+          </div>
+          <input type="range" id="sliderSpeed" min="0" max="8" value="3" step="1">
+          <div class="speed-ticks">
+            <span>Lightning</span>
+            <span>Fast</span>
+            <span>Normal</span>
+            <span>Slow</span>
+            <span>Cinematic</span>
+          </div>
+          <!-- Animation Progress Bar -->
+          <div class="progress-bar-container">
+            <div id="progressBar" class="progress-bar"></div>
+          </div>
+          <div id="phaseLabel" class="phase-label">Ready</div>
+        </div>
+
+        <!-- 3-Tier Dynamic Score HUD -->
+        <div class="score-hud">
+          <div class="hud-header">
+            <h3>DYNAMIC 3-TIER SCORING HUD</h3>
+            <span id="avgScoreDisplay" class="score-pill">AVG SCORE: --</span>
+          </div>
+          <div class="tier-bar-container">
+            <div id="tierIndicator" class="tier-indicator"></div>
+            <div class="tier-zones">
+              <div class="tier-zone tier-lower">LOWER 1/3 (1-16)<br><span>CCW | X➔Y➔Z</span></div>
+              <div class="tier-zone tier-middle">MIDDLE 1/3 (17-32)<br><span>PING-PONG FLIP | Z➔Y➔X</span></div>
+              <div class="tier-zone tier-upper">UPPER 1/3 (33-48)<br><span>CW | X➔Y➔Z</span></div>
+            </div>
+          </div>
+          <div id="tierVerdict" class="tier-verdict">Awaiting input stream...</div>
+        </div>
+
+        <!-- Pipeline Stages Tabs -->
+        <div class="pipeline-tabs">
+          <button class="tab-btn active" data-tab="tab-opt">1. Lexical Pruning</button>
+          <button class="tab-btn" data-tab="tab-cube">2. 3D Ingress Cube</button>
+          <button class="tab-btn" data-tab="tab-unwrap">3. 4-Corner Unwrap</button>
+          <button class="tab-btn" data-tab="tab-runes">4. 5+1 Rune Cipher</button>
+          <button class="tab-btn" data-tab="tab-decoded">5. Decoded Result</button>
+        </div>
+
+        <!-- Tab Contents -->
+        <div class="tab-content-wrapper">
+          <!-- Tab 1: Lexical -->
+          <div id="tab-opt" class="tab-pane active">
+            <div class="pane-meta">
+              <span>Original Tokens: <strong id="cntOriginal">0</strong></span>
+              <span>Optimized Characters: <strong id="cntOptimized">0</strong></span>
+              <span>Prepositions Stripped: <strong id="cntStripped">0</strong></span>
+            </div>
+            <div id="outOptimized" class="code-stream"></div>
+          </div>
+
+          <!-- Tab 2: 3D Interleaved Cube Stats -->
+          <div id="tab-cube" class="tab-pane">
+            <div class="pane-meta">
+              <span>Adaptive Capacity: <strong id="cntFillers">0</strong></span>
+              <span>Payload Characters: <strong id="cntPayload">0</strong></span>
+            </div>
+            <div id="cubeInterleaveStats" class="code-stream"></div>
+          </div>
+
+          <!-- Tab 3: 4-Corner Unwrapping Scan -->
+          <div id="tab-unwrap" class="tab-pane">
+            <div class="pane-meta">
+              <span>4-Corner Sweep: <strong>Top Plane (z=N-1) down to Base (z=0) rotating L➔R, R➔L, F➔B, B➔F</strong></span>
+            </div>
+            <div id="outUnwrap" class="code-stream"></div>
+          </div>
+
+          <!-- Tab 4: Runes -->
+          <div id="tab-runes" class="tab-pane">
+            <div class="pane-meta">
+              <span>5+1 Homophonic Substitution: <strong>Elder Futhark, Cuneiform, Hieroglyphic, Sanskrit, Greek, Archaic Latin</strong></span>
+            </div>
+            <div id="outRunes" class="rune-stream"></div>
+          </div>
+
+          <!-- Tab 5: Decoded Result -->
+          <div id="tab-decoded" class="tab-pane">
+            <div class="pane-meta">
+              <span class="text-success">Roundtrip Verification: <strong id="verifyStatus">PENDING</strong></span>
+            </div>
+            <div id="outDecoded" class="code-stream text-highlight"></div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Right Panel: Interactive 3D Cube Viewport -->
+      <section class="panel viewport-panel">
+        <div class="panel-header">
+          <h2><span class="step-num">02</span> 3D ADAPTIVE TENSOR HYPER-CUBE</h2>
+          <div class="view-controls">
+            <button id="btnAutoRotate" class="btn btn-xs btn-outline">Auto-Rotate: ON</button>
+            <button id="btnResetCamera" class="btn btn-xs btn-outline">Reset View</button>
+          </div>
+        </div>
+
+        <!-- 3D Canvas Container -->
+        <div id="canvas3DContainer" class="canvas-3d-container">
+          <div id="loadingOverlay" class="loading-overlay">
+            <div class="spinner"></div>
+            <p>Initializing Adaptive Spatial Tensor...</p>
+          </div>
+          <!-- Floating Character Label -->
+          <div id="flyingCharLabel" class="flying-char-label"></div>
+        </div>
+
+        <!-- Slicing & Visualizer Controls -->
+        <div class="viewport-footer">
+          <div class="slice-controls">
+            <div class="slice-slider-group">
+              <label>X-Plane Slice: <span id="valSliceX">ALL</span></label>
+              <input type="range" id="sliderSliceX" min="-1" max="19" value="-1">
+            </div>
+            <div class="slice-slider-group">
+              <label>Y-Plane Slice: <span id="valSliceY">ALL</span></label>
+              <input type="range" id="sliderSliceY" min="-1" max="19" value="-1">
+            </div>
+            <div class="slice-slider-group">
+              <label>Z-Plane Slice: <span id="valSliceZ">ALL</span></label>
+              <input type="range" id="sliderSliceZ" min="-1" max="19" value="-1">
+            </div>
+          </div>
+          <div class="view-toggles">
+            <label class="checkbox-label">
+              <input type="checkbox" id="chkShowSpiralPath" checked> Show 3D Ingress Spiral Ray
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" id="chkColorByTier" checked> Color by 3-Tier Score
+            </label>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <div>Project Tesseract • Animated Pipeline Engine ($5^3 \to 20^3$) • 4-Corner Top-Down Unwinding</div>
+      <div class="footer-status">Engine Status: <span class="status-online">ONLINE / READY</span></div>
+    </footer>
+  </div>
+
+  <script src="engine.js"></script>
+</body>
+</html>

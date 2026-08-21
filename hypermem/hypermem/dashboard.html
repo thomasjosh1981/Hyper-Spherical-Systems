@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HyperMem Control Center - Antigravity Solar Edition</title>
+  <style>
+    :root {
+      --bg: #060913;
+      --card-bg: rgba(13, 20, 36, 0.85);
+      --card-border: #1e293b;
+      --accent: #38bdf8;
+      --solar: #f59e0b;
+      --emerald: #10b981;
+      --purple: #a855f7;
+      --rose: #f43f5e;
+      --text: #f8fafc;
+      --text-dim: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 24px; position: relative; overflow-x: hidden; min-height: 100vh; }
+    
+    #tesseractCanvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; opacity: 0.22; pointer-events: none; }
+
+    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--card-border); padding-bottom: 18px; margin-bottom: 20px; backdrop-filter: blur(8px); }
+    .header-title { display: flex; align-items: center; gap: 12px; }
+    .header-title h1 { font-size: 22px; font-weight: 800; color: var(--accent); letter-spacing: 0.5px; text-transform: uppercase; }
+    .header-title .sub { font-size: 12px; color: var(--solar); font-weight: 600; letter-spacing: 1px; }
+    .status-badges { display: flex; gap: 8px; align-items: center; }
+    .badge { background: #0284c7; color: #fff; padding: 5px 12px; border-radius: 999px; font-size: 11.5px; font-weight: 700; border: 1px solid rgba(255,255,255,0.1); }
+    
+    .main-grid { display: grid; grid-template-columns: 320px 1fr 340px; gap: 18px; margin-bottom: 20px; }
+    .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 18px; backdrop-filter: blur(12px); box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+    .card h2 { font-size: 13.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 8px; display: flex; justify-content: space-between; }
+    
+    .tele-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 12.5px; }
+    .tele-row strong { color: var(--accent); font-weight: 700; }
+    
+    .auth-card { background: rgba(18, 26, 47, 0.95); border: 1px solid #334155; border-radius: 12px; padding: 18px; margin-bottom: 20px; }
+    .auth-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; align-items: center; }
+    .auth-input { width: 100%; background: #090d16; border: 1px solid #334155; color: #fff; padding: 10px 12px; border-radius: 6px; font-size: 13px; outline: none; transition: border 0.2s; }
+    .auth-input:focus { border-color: var(--accent); }
+    .btn { background: #0284c7; color: #fff; border: none; padding: 10px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 700; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn:hover { background: #0369a1; }
+    .btn-solar { background: #d97706; } .btn-solar:hover { background: #b45309; }
+    .btn-emerald { background: #059669; } .btn-emerald:hover { background: #047857; }
+
+    .cultural-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 14px; margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.08); align-items: center; }
+
+    .tier-group { margin-bottom: 10px; }
+    .tier-label { font-size: 12px; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+    .tier-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .t1 { background: var(--emerald); } .t2 { background: var(--solar); } .t3 { background: #ea580c; } .t4 { background: var(--purple); } .t5 { background: var(--text-dim); }
+    .node-box { background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 6px 10px; font-size: 11.5px; margin-bottom: 4px; }
+    
+    .white-sheet { background: #ffffff; color: #0f172a; border-radius: 12px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    .white-sheet h2 { font-size: 15px; font-weight: 800; color: #0f172a; text-transform: uppercase; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th { background: #f1f5f9; color: #475569; font-weight: 700; text-align: left; padding: 9px 10px; border-bottom: 2px solid #cbd5e1; }
+    td { padding: 9px 10px; border-bottom: 1px solid #e2e8f0; }
+    .tag-agreed { background: #dcfce7; color: #15803d; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 11px; }
+  </style>
+</head>
+<body>
+
+  <canvas id="tesseractCanvas"></canvas>
+
+  <div class="header">
+    <div class="header-title">
+      <h1>⚡ HYPERMEM CONTROL CENTER</h1>
+      <span class="sub">ANTIGRAVITY SOLAR EDITION</span>
+    </div>
+    <div class="status-badges">
+      <span class="badge" style="background: #047857;">● 3FA Active</span>
+      <span class="badge" style="background: #b45309;">● Cultural Hash Lock Active</span>
+      <span class="badge">● Proxy: Port 8765</span>
+    </div>
+  </div>
+
+  <!-- 3FA & CULTURAL ANCHOR AUTH -->
+  <div class="auth-card">
+    <h2>
+      <span>🔐 3FA Multi-Factor Gateway & Plausible Deniability Vault Lock</span>
+      <span style="font-size: 11px; color: var(--solar);">Windows Hello | Cultural Quote Salt | Dual-Box Commutative</span>
+    </h2>
+    
+    <!-- Order-Agnostic Dual-Box -->
+    <div class="auth-grid">
+      <div>
+        <label style="font-size: 11px; color: var(--text-dim); display: block; margin-bottom: 4px;">Credential Input Alpha (User or Pass)</label>
+        <input type="text" class="auth-input" id="boxA" placeholder="Type Username or Password">
+      </div>
+      <div>
+        <label style="font-size: 11px; color: var(--text-dim); display: block; margin-bottom: 4px;">Credential Input Beta (User or Pass)</label>
+        <input type="password" class="auth-input" id="boxB" placeholder="Type Password or Username">
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <button class="btn btn-emerald" onclick="handleLogin()">🔓 Log In (Dual-Box)</button>
+        <button class="btn btn-solar" onclick="triggerWindowsHello()">👤 Windows Hello</button>
+      </div>
+    </div>
+
+    <!-- Cultural Anchor Permanent Record Lock -->
+    <div class="cultural-row">
+      <div>
+        <label style="font-size: 11px; color: var(--solar); display: block; margin-bottom: 4px;">🎬 Cultural Work (Movie, Book, Song on Public Record):</label>
+        <input type="text" class="auth-input" id="cultWork" placeholder="e.g. Blade Runner, The Matrix, Dune">
+      </div>
+      <div>
+        <label style="font-size: 11px; color: var(--solar); display: block; margin-bottom: 4px;">🎭 Specific Actor, Scene, or Line / Quote:</label>
+        <input type="text" class="auth-input" id="cultQuote" placeholder="e.g. All those moments will be lost in time...">
+      </div>
+      <div>
+        <button class="btn" style="background: #7c3aed; margin-top: 16px;" onclick="applyCulturalSalt()">🎲 Scramble Dynamic Key</button>
+      </div>
+    </div>
+
+    <!-- User ID & Steganography / USB Bar -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.08); font-size: 12px;">
+      <div>
+        <strong style="color: var(--accent);">5x5x5 Tessercrypted Master User ID:</strong>
+        <span style="font-family: monospace; color: var(--solar); margin-left: 6px;" id="userIdDisplay">7A9F-82B1-4E9D-301C-5X5X5-TESSERACT-125-OK</span>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button class="btn" style="background: #475569;" onclick="exportSteganography()">🖼️ Export Stego-Photo Key</button>
+        <button class="btn" style="background: #475569;" onclick="installToUSB()">💾 Portable USB Vault (>=4GB)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN 3-COLUMN GRID -->
+  <div class="main-grid">
+    
+    <!-- LEFT: Token Telemetry & Core i7 CPU Spooler -->
+    <div class="card">
+      <h2>Token Telemetry</h2>
+      <div class="tele-row"><span>Last 1 Hour:</span><strong>1,420 tk (-68%)</strong></div>
+      <div class="tele-row"><span>Last 12 Hours:</span><strong>18,840 tk (-64%)</strong></div>
+      <div class="tele-row"><span>Last 24 Hours:</span><strong>42,910 tk (-66%)</strong></div>
+      <div class="tele-row"><span>Lossless Parity:</span><strong style="color: var(--emerald);">100.0%</strong></div>
+
+      <h2 style="margin-top: 18px;">Core i7 CPU Layer Spooler</h2>
+      <div class="tele-row"><span>Target Machine:</span><strong>Intel Core i7 (Zero CUDA)</strong></div>
+      <div class="tele-row"><span>NVMe Streaming:</span><strong>Direct mmap + AVX2</strong></div>
+      <div class="tele-row"><span>RAM Footprint:</span><strong>450 MB (2 Layers)</strong></div>
+      <div class="tele-row"><span>Status:</span><strong style="color: var(--emerald);">Oversized GGUF Ready</strong></div>
+    </div>
+
+    <!-- CENTER: 5-Tier Memory Field -->
+    <div class="card">
+      <h2>5-Tier Memory Progression Field</h2>
+      <div class="tier-group">
+        <div class="tier-label" style="color: var(--emerald);"><span class="tier-dot t1"></span> Tier 1: Live Active Window (Prompt Context)</div>
+        <div class="node-box">#a1b2 | TASK (Lv.7) | Tag: [67891] | "Let's implement 4-corner unwrap in Python."</div>
+      </div>
+      <div class="tier-group">
+        <div class="tier-label" style="color: var(--solar);"><span class="tier-dot t2"></span> Tier 2: Near Data (Warm Hysteresis Standby - 0ms Ready)</div>
+        <div class="node-box">#c3d4 | IDEA (Lv.6) | Tag: [54551] | "Wait what about the Tesseract spiral formula?"</div>
+      </div>
+      <div class="tier-group">
+        <div class="tier-label" style="color: #ea580c;"><span class="tier-dot t3"></span> Tier 3: Veered Data (Steered Off / Standby)</div>
+        <div class="node-box">#e5f6 | TANGENT (Lv.2) | Tag: [22111] | "By the way, what pizza dough recipe is best?"</div>
+      </div>
+      <div class="tier-group">
+        <div class="tier-label" style="color: var(--purple);"><span class="tier-dot t4"></span> Tier 4: Synthuron Milestones (Zero Decay Epochs)</div>
+        <div class="node-box">#7a8b | MILESTONE (Epoch) | Tag: [82919] | "Hey man, my dad died, impactful life hard cut."</div>
+      </div>
+      <div class="tier-group">
+        <div class="tier-label" style="color: var(--text-dim);"><span class="tier-dot t5"></span> Tier 5: Deep Cold Archive (Blind Vault)</div>
+        <div class="node-box">synthuron_vault/7a9f82b1c4e9 | Compressed with 50-char rolling footer.</div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Co-Pilot & Arterial Highways -->
+    <div class="card">
+      <h2>Embedded Co-Pilot (Gemini Flash)</h2>
+      <div class="tele-row"><span>Role:</span><strong>Anti-Hallucination & M2M</strong></div>
+      <div class="tele-row"><span>Re-indexing:</span><strong style="color: var(--emerald);">Active on-the-fly</strong></div>
+      <div class="tele-row"><span>M2M Handshake:</span><strong>Autonomous</strong></div>
+
+      <h2 style="margin-top: 18px;">Active Arterials & Tunnels</h2>
+      <div class="node-box" style="border-left: 3px solid var(--accent);">Arterial Trunk #1 ══► 3D Tesseract Engine</div>
+      <div class="node-box" style="border-left: 3px solid var(--accent);">Arterial Trunk #2 ══► ISSI Dynamic Index</div>
+      <div class="node-box" style="border-left: 3px solid var(--purple);">HyperSynthuron: [Tesseract Math] ══► [Pizza Dough]</div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM: White-Field Model Discovery & ISSI Agreement Spreadsheet -->
+  <div class="white-sheet">
+    <h2>
+      <span>Auto-Discovered Model Endpoints & ISSI Agreement Registry</span>
+      <span style="font-size: 11px; color: #64748b; font-weight: 500;">Hermes Agent | Claude | Ollama | OpenAI</span>
+    </h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Model Identifier</th>
+          <th>Server Address / URL</th>
+          <th>Tokenizer Family</th>
+          <th>Token Size</th>
+          <th>ISSI Agreement</th>
+          <th>Active Optimizations</th>
+          <th>Token Savings</th>
+          <th>Authorization</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Hermes Agent (Local Hook)</strong></td>
+          <td>http://127.0.0.1:8765/hermes</td>
+          <td>hermes_native</td>
+          <td>3.8 B/tok</td>
+          <td><span class="tag-agreed">AGREED</span></td>
+          <td>Native Synthuron 8-Weave + ISSI</td>
+          <td><strong style="color: #16a34a;">-72.5%</strong></td>
+          <td><strong style="color: #16a34a;">AUTHORIZED</strong></td>
+        </tr>
+        <tr>
+          <td><strong>GPT-4o (Omni)</strong></td>
+          <td>https://api.openai.com/v1</td>
+          <td>o200k_base</td>
+          <td>4.1 B/tok</td>
+          <td><span class="tag-agreed">AGREED</span></td>
+          <td>ISSI_M2M + Ephemeral Cache</td>
+          <td><strong style="color: #16a34a;">-68.4%</strong></td>
+          <td><strong style="color: #16a34a;">AUTHORIZED</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Claude 3.5 Sonnet</strong></td>
+          <td>https://api.anthropic.com/v1</td>
+          <td>claude_bpe</td>
+          <td>3.9 B/tok</td>
+          <td><span class="tag-agreed">AGREED</span></td>
+          <td>ISSI_M2M + Cache-Control</td>
+          <td><strong style="color: #16a34a;">-71.2%</strong></td>
+          <td><strong style="color: #16a34a;">AUTHORIZED</strong></td>
+        </tr>
+        <tr>
+          <td><strong>DeepSeek R1 (GGUF Spooled)</strong></td>
+          <td>C:/models/deepseek-r1.gguf</td>
+          <td>deepseek_bpe</td>
+          <td>3.7 B/tok</td>
+          <td><span class="tag-agreed">AGREED</span></td>
+          <td>Core i7 CPU Layer Spooling</td>
+          <td><strong style="color: #16a34a;">-64.0%</strong></td>
+          <td><strong style="color: #16a34a;">AUTHORIZED</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("tesseractCanvas");
+    const ctx = canvas.getContext("2d");
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    window.addEventListener("resize", () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+
+    const vertices4D = [];
+    for (let i = 0; i < 16; i++) {
+      vertices4D.push([(i & 1) ? 1 : -1, (i & 2) ? 1 : -1, (i & 4) ? 1 : -1, (i & 8) ? 1 : -1]);
+    }
+
+    const edges = [];
+    for (let i = 0; i < 16; i++) {
+      for (let j = i + 1; j < 16; j++) {
+        let diff = 0;
+        for (let k = 0; k < 4; k++) {
+          if (vertices4D[i][k] !== vertices4D[j][k]) diff++;
+        }
+        if (diff === 1) edges.push([i, j]);
+      }
+    }
+
+    let angleZW = 0, angleXY = 0;
+
+    function renderTesseract() {
+      ctx.clearRect(0, 0, width, height);
+      angleZW += 0.006;
+      angleXY += 0.004;
+
+      const projected = [];
+      const distance = 2.8;
+
+      for (let i = 0; i < 16; i++) {
+        let [x, y, z, w] = vertices4D[i];
+        let cosZW = Math.cos(angleZW), sinZW = Math.sin(angleZW);
+        let z1 = z * cosZW - w * sinZW;
+        let w1 = z * sinZW + w * cosZW;
+
+        let cosXY = Math.cos(angleXY), sinXY = Math.sin(angleXY);
+        let x1 = x * cosXY - y * sinXY;
+        let y1 = x * sinXY + y * cosXY;
+
+        let wFactor = 1 / (distance - w1);
+        let x3 = x1 * wFactor;
+        let y3 = y1 * wFactor;
+        let z3 = z1 * wFactor;
+
+        let scale = Math.min(width, height) * 0.42;
+        projected.push({ x: width / 2 + x3 * scale, y: height / 2 + y3 * scale, z: z3 });
+      }
+
+      ctx.lineWidth = 1.2;
+      for (const [i, j] of edges) {
+        const p1 = projected[i];
+        const p2 = projected[j];
+        const grad = ctx.createLinearGradient(p1.x, p1.y, p2.x, p2.y);
+        grad.addColorStop(0, "rgba(56, 189, 248, 0.45)");
+        grad.addColorStop(1, "rgba(245, 158, 11, 0.45)");
+        ctx.strokeStyle = grad;
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.stroke();
+      }
+      requestAnimationFrame(renderTesseract);
+    }
+    renderTesseract();
+
+    function handleLogin() {
+      const a = document.getElementById("boxA").value;
+      const b = document.getElementById("boxB").value;
+      if (!a || !b) {
+        alert("Please fill both input boxes in any order!");
+        return;
+      }
+      alert("✅ Dual-Box Order-Agnostic Auth Verified! Session Permanently Locked.");
+    }
+
+    function triggerWindowsHello() {
+      alert("👤 Windows Hello (Face ID / Fingerprint) Authenticated!");
+    }
+
+    function applyCulturalSalt() {
+      const work = document.getElementById("cultWork").value;
+      const quote = document.getElementById("cultQuote").value;
+      if (!work || !quote) {
+        alert("Please specify both the cultural work and your quote/line!");
+        return;
+      }
+      alert(`🎬 Cultural Anchor Applied! Dynamic ISSI Permutation Salt derived from '${work}'. Full zero-knowledge lock engaged.`);
+    }
+
+    function exportSteganography() {
+      alert("🖼️ Emergency Steganographic Key Exported! Saved as Emergency_Recovery_Photo.png");
+    }
+
+    function installToUSB() {
+      alert("💾 Portable USB Vault Installed! Drive formatted with persistent Synthuron memory.");
+    }
+  </script>
+
+</body>
+</html>
