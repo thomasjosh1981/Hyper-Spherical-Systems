@@ -22,7 +22,6 @@ scratch/
 src/
 include/
 gui/
-tools/
 installer/
 installer/hypes_admin_keygen.py
 keygen_server/
