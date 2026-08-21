@@ -50,8 +50,16 @@ __pycache__/
 *.pyd
 *.obj
 *.spec
-*.bat
-*.ps1
+
+# Allow Open-Source Modules and Scripts
+!layer_streamer/**
+!issi_compression/**
+!tesseract_engine/**
+!synthuron_context/**
+!hypermem/**
+!tools/**
+!setup_all.bat
+!setup_all.ps1
 
 # Allow ONLY Public Releases, Installers, PDF/HTML Docs, and Graphics
 !HypeS_Setup.exe
@@ -61,8 +69,6 @@ __pycache__/
 !config.yaml
 !docs/
 !docs/**
-docs/*.py
-docs/**/*.py
 
 # OS & Environment
 .DS_Store
