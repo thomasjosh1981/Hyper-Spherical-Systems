@@ -58,6 +58,8 @@ __pycache__/
 !synthuron_context/**
 !hypermem/**
 !tools/**
+!tools/*.py
+!tools/*.bat
 !common_identity.py
 !setup_all.bat
 !setup_all.ps1
