@@ -153,7 +153,8 @@ DEFAULT_PREPOSITIONS = {
     'during', 'except', 'for', 'from', 'in', 'inside', 'into', 'near', 'of', 'off', 'on',
     'onto', 'out', 'outside', 'over', 'past', 'since', 'through', 'throughout', 'till',
     'to', 'toward', 'towards', 'under', 'underneath', 'until', 'up', 'upon', 'with',
-    'within', 'without', 'the', 'a', 'an', 'and', 'is', 'are', 'it'
+    'within', 'without', 'the', 'a', 'an', 'and', 'is', 'are', 'it', 'please', 'pls',
+    'thank', 'thanks', 'thankyou', 'could', 'would', 'kindly'
 }
 
 
