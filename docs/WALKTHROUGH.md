@@ -59,12 +59,12 @@ This document provides an end-to-end walkthrough of all modules and key technica
 
 ## 🔒 4. Compression & Cryptographic Pipeline
 
-### SISSI (Semantic Inline Substitution System Index)
+### ISSI (Semantic Inline Substitution System Index)
 - Replaces high-frequency natural language phrases with compact 1-byte designators (`§CODE`).
 - Supports bidirectional phrase negotiation with cloud providers.
 
 ### 5+1 Homophonic Ephemeral Session Cipher
-- Combines SISSI compression with a 5+1 frequency-mapped substitution cipher.
+- Combines ISSI compression with a 5+1 frequency-mapped substitution cipher.
 - Uses single-token Unicode character pools (Latin Extended-A/B) to maximize tokenizer efficiency.
 - Session key material lives purely in volatile RAM and is completely zeroed upon session teardown.
 
@@ -105,3 +105,4 @@ This document provides an end-to-end walkthrough of all modules and key technica
 
 - **Total Test Suites**: 150 / 150 tests passed (`pirate_tests.exe`).
 - **Security Compliance**: Zero source code exposed; strictly pre-compiled binaries, installers, and documentation assets committed.
+

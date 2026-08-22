@@ -325,7 +325,7 @@ class CompressionPanel(QtWidgets.QGroupBox):
         self.text_in.setPlainText(sample)
 
         self.run_btn = QtWidgets.QPushButton("Test Token Compression")
-        self.run_btn.setToolTip("Execute live SISSI/homophonic token compression test on sample text.")
+        self.run_btn.setToolTip("Execute live ISSI/homophonic token compression test on sample text.")
         self.run_btn.clicked.connect(self._on_run)
         self.ratio_lbl = QtWidgets.QLabel("—")
         font = self.ratio_lbl.font()
@@ -643,7 +643,7 @@ class GpuHardwareTargetPanel(QtWidgets.QGroupBox):
             pixmap = QtGui.QPixmap(str(mascot_path)).scaledToHeight(120, QtCore.Qt.SmoothTransformation)
             mascot_lbl.setPixmap(pixmap)
             mascot_lbl.setAlignment(QtCore.Qt.AlignCenter)
-            mascot_lbl.setToolTip("🏴‍☠️ Pirate Llama Cyber Mascot — 2-Way Zero-Config Intercept & SISSI Compression Engine")
+            mascot_lbl.setToolTip("🏴‍☠️ Pirate Llama Cyber Mascot — 2-Way Zero-Config Intercept & ISSI Compression Engine")
             layout.addWidget(mascot_lbl)
 
         # ── Section 1: GPU Target Selection & Auto-Tune Button
@@ -741,7 +741,7 @@ class GpuHardwareTargetPanel(QtWidgets.QGroupBox):
             f"Auto-Tuned Sliders for {gpu_name}:\n\n"
             f"• Target VRAM: {target_vram} GB\n"
             f"• Primary Model Base Size: {base_size:.0f} GB\n"
-            f"• Auto-Calculated SISSI Compression Target: {desired_ratio:.1f}×\n"
+            f"• Auto-Calculated ISSI Compression Target: {desired_ratio:.1f}×\n"
             f"• Estimated Active VRAM Footprint: ~{(base_size / desired_ratio) * 0.18:.1f} GB\n\n"
             f"Sliders updated and locked to optimal hardware parameters!"
         )
@@ -3594,3 +3594,4 @@ def _humanize_bytes(n: int) -> str:
         if n < 1024: return f"{n:.1f} {unit}"
         n /= 1024
     return f"{n:.1f} PB"
+

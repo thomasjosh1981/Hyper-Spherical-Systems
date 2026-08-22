@@ -7,7 +7,7 @@
 
 ### 1. Master Architecture & Blueprint Reference
 
-Hyper-Spherical Systems (HypeS) replaces legacy matrix multiplication and lossy quantization with **proprietary 4D Bladed Vortex Geometry** and **proprietary SISSI Codebook Indexing**. 
+Hyper-Spherical Systems (HypeS) replaces legacy matrix multiplication and lossy quantization with **proprietary 4D Bladed Vortex Geometry** and **proprietary ISSI Codebook Indexing**. 
 
 SFS (Spherical Function System) and SFS+ models execute completely standalone on any host machine — requiring zero third-party runtimes, python environments, or external container wrappers.
 
@@ -49,7 +49,7 @@ graph TD
 
 #### A. HypeS Core Base Engine (Included Base)
 - **Custom Embedding Model Builder:** Custom embedding model generation and training tools.
-- **SISSI Compression with Dual Index Dictionaries:** Canonical phrase dictionary + semantic entity dictionary.
+- **ISSI Compression with Dual Index Dictionaries:** Canonical phrase dictionary + semantic entity dictionary.
 - **AES-256 + 5+1 Homophonic Cipher:** Encryption, obfuscation, and fixed-interval cold storage archival.
 - **Native Full-Duplex Voice:** All SFS and SFS+ models support native full-duplex voice interaction.
 
@@ -116,3 +116,4 @@ graph TD
 3. **Living 4D Entity AI:** The **4-I.D.Entity_Avatar Module** transforms static models into living interactive avatars with native full-duplex voice, lip-syncing, and procedural gestures.
 4. **Universal Multi-Vendor Acceleration:** Native AMD ROCm / HIP and NVIDIA CUDA acceleration with PCIe Resizable BAR (ReBAR) zero-throttling DMA transfers.
 5. **Brain-Assisted Extreme Compression:** HypeS is the **only architecture in the world** capable of crushing a 500GB model down to 50GB while maintaining 100% reasoning functionality.
+

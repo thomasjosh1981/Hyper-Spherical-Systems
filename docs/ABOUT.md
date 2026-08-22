@@ -31,7 +31,7 @@ Three independent compression layers work in parallel:
 
 | Layer | What it compresses | Ratio |
 |---|---|---|
-| **SISSI** | Common LLM boilerplate phrases → §codes | 2–4× tokens |
+| **ISSI** | Common LLM boilerplate phrases → §codes | 2–4× tokens |
 | **CCTM Ultra** | Semantic deduplication + differential encoding | Up to 10× tokens |
 | **5+1 Homophonic Cipher** | Character-level scramble using session-unique Unicode pool | Confidentiality |
 
@@ -72,7 +72,7 @@ The *Brain Model Realignment & Attention Director (BMRAD)* is injected into ever
                          │
 ┌────────────────────────▼─────────────────────────────────┐
 │              Pirate Llama Proxy (:11435)                  │
-│   OpenAI-compatible API → SISSI compress → forward       │
+│   OpenAI-compatible API → ISSI compress → forward       │
 └────────────────────────┬─────────────────────────────────┘
                          │
 ┌────────────────────────▼─────────────────────────────────┐
@@ -82,7 +82,7 @@ The *Brain Model Realignment & Attention Director (BMRAD)* is injected into ever
 │  │  Director   │  │     Bus      │  │    Engine       │ │
 │  └─────────────┘  └──────────────┘  └─────────────────┘ │
 │  ┌─────────────┐  ┌──────────────┐  ┌─────────────────┐ │
-│  │ SISSI/CCTM  │  │ HKB Skill    │  │ LayerIllusionist│ │
+│  │ ISSI/CCTM  │  │ HKB Skill    │  │ LayerIllusionist│ │
 │  │ Compression │  │   Store      │  │  + Predictor    │ │
 │  └─────────────┘  └──────────────┘  └─────────────────┘ │
 └──────────────────────────────────────────────────────────┘
@@ -105,7 +105,7 @@ The *Brain Model Realignment & Attention Director (BMRAD)* is injected into ever
 | 2 | **BMRAD** — Brain Director (AttentionAnalyzer, LoopDetector, ConsensusAuditor…) | `MODULE_BMRAD` |
 | 3 | **SFS/SFS+ Interop** — CrossModel bus, CompetitiveGrowthEngine, ToolRegistry, Sandbox | `MODULE_SFS_PLUS_INTEROP` |
 | 4 | **Pirate Llama** — Universal OpenAI-compat proxy + Declutterizer | *(base)* |
-| 5 | **SISSI** — Phrase codec, Handshake protocol, MNECP | `MODULE_CIPHER` |
+| 5 | **ISSI** — Phrase codec, Handshake protocol, MNECP | `MODULE_CIPHER` |
 | 6 | **CCTM Ultra** — 10× Cloud Token Compression | `MODULE_CCTM_ULTRA` |
 | 7 | **Tesseract Memory** — LayerIllusionist, PatternPredictor, WeightStreamer, DraftTokenEngine | *(base)* |
 | 8 | **NVMe Benchmark** — Sequential & random I/O characterization | *(base)* |
@@ -133,4 +133,5 @@ The *Brain Model Realignment & Attention Director (BMRAD)* is injected into ever
 ---
 
 *Hyper-Spherical Systems © 2026. Developed by twiztedsocal. Source code is proprietary and not publicly distributed.*
+
 

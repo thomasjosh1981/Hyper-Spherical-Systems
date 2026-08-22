@@ -25,7 +25,7 @@ It works with **any GGUF, SFS, or SFS+** model and connects to **any OpenAI-comp
 |---|---|
 | Runs 70B+ models on 12 GB VRAM | VRAM/RAM/NVMe 3-tier virtual VRAM illusion |
 | Zero-CUDA CPU Layer Streaming | Memory-mapped NVMe AVX2 layer spooler for Intel Core i7 / AMD Ryzen 9 |
-| Saves up to 10× cloud API tokens | SISSI + Homophonic + CCTM Ultra compression |
+| Saves up to 10× cloud API tokens | ISSI + Homophonic + CCTM Ultra compression |
 | Lets models learn and grow permanently | BMRAD Brain Director + HardcodedKnowledgeBase |
 | Protects your conversations end-to-end | AES-256 + 5+1 Homophonic ephemeral session cipher |
 | Enables models to teach each other | SFS+ InteropBus GROW_FROM / GROW_WITH |
@@ -107,10 +107,10 @@ chmod +x release/launch_hypes_linux.sh
 |---|---|---|
 | **Tesseract Memory Engine** | `pirate_core.exe` | Virtual VRAM illusion — 3-tier layer streaming (VRAM → RAM → NVMe) |
 | **BMRAD Brain Director** | `pirate_core.exe` | Autonomous attention pruner, loop detector, recursive self-improvement |
-| **SISSI Compression** | `pirate_core.exe` | Phrase-code substitution — reduces prompts by up to 10× tokens |
+| **ISSI Compression** | `pirate_core.exe` | Phrase-code substitution — reduces prompts by up to 10× tokens |
 | **CCTM Ultra** | `pirate_core.exe` | Cloud Token Compression Module — semantic deduplication + AES-256 |
 | **SFS+ Interop Bus** | `pirate_core.exe` | Cross-model skill borrowing, GROW_FROM, GROW_WITH |
-| **Pirate Llama Proxy** | `pirate_llama.exe` | OpenAI-compatible HTTP proxy with live SISSI compression |
+| **Pirate Llama Proxy** | `pirate_llama.exe` | OpenAI-compatible HTTP proxy with live ISSI compression |
 | **Golden Candy Spinner** | `golden_candy_spinner.exe` | `.hscc` 4D vortex model packager |
 | **NVMe Benchmark** | `nvme_benchmark.exe` | Drive throughput characterization (GB/s, IOPS) |
 | **4ID Avatar** | embedded | Real-time voice STT/TTS + procedural 4D animated entity |
@@ -203,4 +203,5 @@ Enterprise builds require a separate commercial agreement.
   <i>Experience the future of local AI inference. Grind down the limits.</i><br><br>
   <b>Developed by twiztedsocal — Hyper-Spherical Systems © 2026</b>
 </div>
+
 

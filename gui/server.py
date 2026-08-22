@@ -12,7 +12,7 @@
 #   GET  /api/hf/recs           → brain model recommendations
 #   GET  /api/onboarding        → onboarding status
 #   POST /api/onboarding        → save onboarding config
-#   POST /api/session/open      → open a M2M+SISSI+5+1 cloud session
+#   POST /api/session/open      → open a M2M+ISSI+5+1 cloud session
 #   POST /api/session/chat      → send compressed message, get decoded response
 #   GET  /api/session/stats     → live token savings stats
 #   POST /api/session/close     → teardown session (zeroes key material)
@@ -551,7 +551,7 @@ def create_flask_app():
             "debugger_attached": debugger_attached,
             "encryption": {
                 "keystore": "AES-256 (XOR + Key Derivation)",
-                "session_cipher": "M2M + SISSI + 5+1 Homophonic Unicode Encryption",
+                "session_cipher": "M2M + ISSI + 5+1 Homophonic Unicode Encryption",
                 "binary_hardening": "Control Flow Guard + ASLR + DEP + PDB Alt Path Poisoning",
                 "upx_packed": True
             },
@@ -1003,3 +1003,4 @@ if __name__ == "__main__":
         print("[server] Flask not installed — using stdlib server (limited API).")
         print("[server] Install Flask for full SSE streaming: pip install flask")
         run_stdlib_server(args.port)
+

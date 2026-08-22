@@ -10,7 +10,7 @@ This document catalogs the key technical topics, design specifications, and prom
 - Dead-center outward 3D spiral winding algorithm for prompt tensors.
 
 ### 2. ISSI (Integer String Substitution Index)
-- Evolutionary successor to SISSI.
+- Evolutionary successor to ISSI.
 - Dynamic prompt compression dictionary mapping recurring n-grams into grid coordinates/tokens.
 - Infinite conversational memory retention using synthurons, hyperhubs, and cold-storage retrieval.
 
@@ -23,3 +23,4 @@ This document catalogs the key technical topics, design specifications, and prom
 - PyTorch CUDA streams (compute stream vs prefetch stream).
 - Memory-mapped `safetensors` zero-copy traversal.
 - Hysteresis VRAM cache preventing bus saturation.
+
