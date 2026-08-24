@@ -137,9 +137,29 @@ class HyperMemProxyHandler(BaseHTTPRequestHandler):
             # Log Token Telemetry
             in_tokens = self.tokenizer_aligner.estimate_token_count(user_prompt)
             out_tokens = self.tokenizer_aligner.estimate_token_count(clean_reply)
-            compressed_snippet = self.engine.active_nodes[-1].issi_tokens if self.engine.active_nodes else user_prompt
+            compressed_snippet = self.engine.active_nodes[-1].issi_tokens if self.engine and self.engine.active_nodes else user_prompt
             if self.telemetry:
                 self.telemetry.log_turn_event(in_tokens, out_tokens, user_prompt, compressed_snippet)
+
+            # Log to IPC event stream for live Token HUD Overlay
+            events_file = Path.home() / ".hypes" / "intercept_events.jsonl"
+            try:
+                events_file.parent.mkdir(parents=True, exist_ok=True)
+                model_name = req_data.get("model", "gemma4-hermes")
+                app_agent = self.headers.get("User-Agent", "AI Client")
+                comp_tokens = self.tokenizer_aligner.estimate_token_count(compressed_snippet)
+                with open(events_file, "a", encoding="utf-8") as ef:
+                    ef.write(json.dumps({
+                        "url": self.headers.get("Host", "http://127.0.0.1:8765"),
+                        "model": model_name,
+                        "app": app_agent,
+                        "user": os.environ.get("USERNAME", "twist"),
+                        "raw_tokens": in_tokens,
+                        "compressed_tokens": comp_tokens,
+                        "timestamp": time.strftime("%H:%M:%S")
+                    }) + "\n")
+            except Exception:
+                pass
 
         # 6. Return Response
         self.send_response(200)
