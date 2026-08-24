@@ -502,8 +502,8 @@ class TokenHUD(QtWidgets.QWidget):
         self._build_ui()
         self._load_geo()
 
-        # Load active transcript tokens on boot
-        self._sniff_ide_transcript()
+        # Initialize transcript offset at current end of file (starts clean at 0 for new turns)
+        self._sniff_ide_transcript(initial_boot=True)
 
         # Timers
         self._ct = QtCore.QTimer(self); self._ct.timeout.connect(self._anim); self._ct.start(25)
@@ -671,33 +671,43 @@ class TokenHUD(QtWidgets.QWidget):
         dlg.exec()
 
     # ── Sniff Active Antigravity / Gemini Transcript Tokens ───────────────────
-    def _sniff_ide_transcript(self):
+    def _sniff_ide_transcript(self, initial_boot: bool = False):
         transcript_path = get_active_transcript_path()
         if not transcript_path or not transcript_path.exists():
             return
         try:
             with open(transcript_path, "r", encoding="utf-8") as f:
+                # On initial boot, jump straight to the current end of file so we only count NEW turns from now on
+                if initial_boot or self._transcript_offset == 0:
+                    f.seek(0, os.SEEK_END)
+                    self._transcript_offset = f.tell()
+                    return
+
                 f.seek(self._transcript_offset)
                 for ln in f:
                     if ln.strip():
                         item = json.loads(ln)
-                        content = item.get("content", "")
-                        if content and len(content) > 30:
-                            # Estimate tokens (~4 chars/tok)
-                            raw_tok = max(1, len(content) // 4)
-                            # ISSI + 3D + 5+1 10x ratio
-                            comp_tok = max(1, raw_tok // 10)
-                            
-                            src = item.get("source", "IDE")
-                            self.push(
-                                url="antigravity://active-session",
-                                model="gemini-3.7-flash",
-                                app=f"Antigravity IDE ({src})",
-                                user="twist",
-                                raw=raw_tok,
-                                comp=comp_tok,
-                                timestamp=time.strftime("%H:%M:%S")
-                            )
+                        step_type = item.get("type", "")
+                        source = item.get("source", "")
+                        
+                        # Only count actual User and Assistant conversation turns (ignore raw tool binary blobs)
+                        if step_type in ("USER_INPUT", "PLANNER_RESPONSE") or source in ("USER_EXPLICIT", "MODEL"):
+                            content = item.get("content", "")
+                            if content and len(content) > 5:
+                                # Clean conversational text estimation (~4 chars/token)
+                                raw_tok = max(1, len(content) // 4)
+                                comp_tok = max(1, int(raw_tok / 10.0))  # 10x ISSI compression
+                                
+                                role_lbl = "User Prompt" if "USER" in step_type or "USER" in source else "AI Response"
+                                self.push(
+                                    url="antigravity://active-session",
+                                    model="gemini-3.7-flash",
+                                    app=f"Antigravity ({role_lbl})",
+                                    user="twist",
+                                    raw=raw_tok,
+                                    comp=comp_tok,
+                                    timestamp=time.strftime("%H:%M:%S")
+                                )
                 self._transcript_offset = f.tell()
         except Exception:
             pass
