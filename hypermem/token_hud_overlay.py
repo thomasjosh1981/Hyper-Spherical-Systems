@@ -408,6 +408,7 @@ class TokenHUD(QtWidgets.QWidget):
         self._tgt_disp = 0.0
         self._evt_offset = 0
         self._transcript_offset = 0
+        self._seen_steps = set()
 
         self._apply_flags()
         self.setWindowTitle("HypeS Token Counter HUD")
@@ -677,7 +678,7 @@ class TokenHUD(QtWidgets.QWidget):
             return
         try:
             with open(transcript_path, "r", encoding="utf-8") as f:
-                # On initial boot, jump straight to the current end of file so we only count NEW turns from now on
+                # On initial boot, jump straight to the current end of file
                 if initial_boot or self._transcript_offset == 0:
                     f.seek(0, os.SEEK_END)
                     self._transcript_offset = f.tell()
@@ -687,15 +688,31 @@ class TokenHUD(QtWidgets.QWidget):
                 for ln in f:
                     if ln.strip():
                         item = json.loads(ln)
+                        step_idx = item.get("step_index")
+
+                        # Deduplicate so no step is ever counted twice
+                        if step_idx is not None:
+                            if step_idx in self._seen_steps:
+                                continue
+                            self._seen_steps.add(step_idx)
+
                         step_type = item.get("type", "")
                         source = item.get("source", "")
                         
-                        # Only count actual User and Assistant conversation turns (ignore raw tool binary blobs)
+                        # Only count actual User and Assistant conversation turns
                         if step_type in ("USER_INPUT", "PLANNER_RESPONSE") or source in ("USER_EXPLICIT", "MODEL"):
                             content = item.get("content", "")
-                            if content and len(content) > 5:
-                                # Clean conversational text estimation (~4 chars/token)
-                                raw_tok = max(1, len(content) // 4)
+                            # Strip out system tags if present
+                            if "<USER_REQUEST>" in content:
+                                try:
+                                    content = content.split("<USER_REQUEST>")[1].split("</USER_REQUEST>")[0].strip()
+                                except Exception:
+                                    pass
+
+                            if content and len(content) > 3:
+                                # Realistic Token Counting: ~1.33 tokens per word
+                                words = content.split()
+                                raw_tok = max(1, int(len(words) * 1.33))
                                 comp_tok = max(1, int(raw_tok / 10.0))  # 10x ISSI compression
                                 
                                 role_lbl = "User Prompt" if "USER" in step_type or "USER" in source else "AI Response"
