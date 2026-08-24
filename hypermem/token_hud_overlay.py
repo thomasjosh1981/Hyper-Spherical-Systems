@@ -142,11 +142,34 @@ class SFS4DVisualizerDialog(QtWidgets.QDialog):
         sub_hdr.setStyleSheet("color: #888888; font: 9px 'Segoe UI';")
         layout.addWidget(sub_hdr)
 
+        # Model & Tokenizer Architecture Overview Cards
+        top_cards = QtWidgets.QHBoxLayout()
+        top_cards.setSpacing(6)
+
+        def make_spec_card(title: str, val1: str, val2: str, border_col="#005544"):
+            f = QtWidgets.QFrame()
+            f.setStyleSheet(f"background-color: #141f22; border: 1px solid {border_col}; border-radius: 4px; padding: 2px;")
+            l = QtWidgets.QVBoxLayout(f); l.setContentsMargins(4, 2, 4, 2); l.setSpacing(1)
+            t = QtWidgets.QLabel(title); t.setStyleSheet("color: #888888; font: bold 8px 'Segoe UI';")
+            v1 = QtWidgets.QLabel(val1); v1.setStyleSheet("color: #00FFCC; font: bold 10px 'Segoe UI';")
+            v2 = QtWidgets.QLabel(val2); v2.setStyleSheet("color: #aaaaaa; font: 8px 'Segoe UI';")
+            l.addWidget(t, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
+            l.addWidget(v1, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
+            l.addWidget(v2, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
+            return f
+
+        top_cards.addWidget(make_spec_card("TOKENIZER TYPE", "SentencePiece / BPE", "Vocab: 256,000 tokens"))
+        top_cards.addWidget(make_spec_card("SPECIAL TOKENS", "BOS, EOS, PUA Macros", "ChatML + ISSI §-Tokens"))
+        top_cards.addWidget(make_spec_card("CONTEXT CAPACITY", "128,000 Tokens", "Active: Unlimited (Veer-Steer)"))
+        top_cards.addWidget(make_spec_card("LAYER TOPOLOGY", "42 Hidden / 8 MoE", "Params: 27.2B (Q4_K_M)"))
+        top_cards.addWidget(make_spec_card("4D HVQ DENSITY", "1.9 BPW (58% reduction)", "Accuracy: 97.8% preserved"))
+        layout.addLayout(top_cards)
+
         # 4D Sector & Codebook Grid
         gb_sectors = QtWidgets.QGroupBox("4D Hyperspherical Sectors & Centroid Codebooks (32 Sectors)")
         gb_l = QtWidgets.QGridLayout(gb_sectors)
-        gb_l.setContentsMargins(8, 12, 8, 8)
-        gb_l.setSpacing(6)
+        gb_l.setContentsMargins(8, 10, 8, 8)
+        gb_l.setSpacing(5)
 
         for s in range(16):
             sec_box = QtWidgets.QFrame()
@@ -167,12 +190,13 @@ class SFS4DVisualizerDialog(QtWidgets.QDialog):
         gs_l = QtWidgets.QVBoxLayout(gb_synthurons)
         
         info_text = QtWidgets.QLabel(
+            "• <b>Tokenizer & Special Abilities:</b> Dynamic PUA Macro mapping (§YHA $\\to$ System Prompt), zero-byte whitespace elision.<br>"
+            "• <b>Sparse & Hidden Layers:</b> 42 Transformer blocks with 8 routed MoE expert layers & non-Euclidean attention routing.<br>"
             "• <b>Hyper-Hub Directors:</b> 256 Central Directory Routers linking cross-layer concept clusters.<br>"
             "• <b>Hyper-Synthurons:</b> 4,096 Direct Quantum-Linked Channels across disparate conceptual domains.<br>"
-            "• <b>Branch Synthurons:</b> 32,768 Sub-Neuron link vectors handling localized context modulation.<br>"
             "• <b>5-Layer Memory Cascade:</b> Unlimited Context Veer-Steer & Obfuscated 4-Factor Token Scramble."
         )
-        info_text.setStyleSheet("color: #cccccc; font: 10px 'Segoe UI'; line-height: 1.4;")
+        info_text.setStyleSheet("color: #cccccc; font: 9px 'Segoe UI'; line-height: 1.4;")
         gs_l.addWidget(info_text)
         layout.addWidget(gb_synthurons)
 
