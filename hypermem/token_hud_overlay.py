@@ -33,8 +33,22 @@ CONFIG_FILE = HYPES_DIR / "compression_config.json"
 APP_CONSENT_FILE = HYPES_DIR / "app_consent.json"
 HYPES_DIR.mkdir(parents=True, exist_ok=True)
 
-# Active Session Transcript Path
-TRANSCRIPT_LOG = Path(r"C:\Users\twist\.gemini\antigravity\brain\049c8c18-c6f5-4e4d-be7e-59c36b2bf5e7\.system_generated\logs\transcript.jsonl")
+# ── Dynamic Active Conversation Transcript Finder ──────────────────────────────
+def get_active_transcript_path() -> Path:
+    """Finds the most recently modified Antigravity conversation transcript."""
+    brain_dir = Path(r"C:\Users\twist\.gemini\antigravity\brain")
+    if not brain_dir.exists():
+        return Path("")
+    try:
+        transcripts = list(brain_dir.glob("*/.system_generated/logs/transcript.jsonl"))
+        if transcripts:
+            # Sort by last modification time (most recent first)
+            transcripts.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+            return transcripts[0]
+    except Exception:
+        pass
+    return Path(r"C:\Users\twist\.gemini\antigravity\brain\049c8c18-c6f5-4e4d-be7e-59c36b2bf5e7\.system_generated\logs\transcript.jsonl")
+
 
 DEFAULT_CONFIG = {
     "mode": "dynamic",
@@ -658,10 +672,11 @@ class TokenHUD(QtWidgets.QWidget):
 
     # ── Sniff Active Antigravity / Gemini Transcript Tokens ───────────────────
     def _sniff_ide_transcript(self):
-        if not TRANSCRIPT_LOG.exists():
+        transcript_path = get_active_transcript_path()
+        if not transcript_path or not transcript_path.exists():
             return
         try:
-            with open(TRANSCRIPT_LOG, "r", encoding="utf-8") as f:
+            with open(transcript_path, "r", encoding="utf-8") as f:
                 f.seek(self._transcript_offset)
                 for ln in f:
                     if ln.strip():
@@ -675,7 +690,7 @@ class TokenHUD(QtWidgets.QWidget):
                             
                             src = item.get("source", "IDE")
                             self.push(
-                                url="antigravity://session-chat",
+                                url="antigravity://active-session",
                                 model="gemini-3.7-flash",
                                 app=f"Antigravity IDE ({src})",
                                 user="twist",
