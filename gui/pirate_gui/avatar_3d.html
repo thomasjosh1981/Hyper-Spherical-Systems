@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HypeS 4ID Cyber Office & Holographic Gesture Interface</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body, html { width: 100%; height: 100%; overflow: hidden; background: #02050c; font-family: 'Segoe UI', Inter, sans-serif; }
+        #canvas-container { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+        
+        #overlay-ui {
+            position: absolute; top: 12px; left: 12px; right: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+            pointer-events: none; z-index: 10;
+        }
+        .badge {
+            background: rgba(4, 10, 24, 0.85); border: 1px solid rgba(0, 212, 255, 0.4);
+            backdrop-filter: blur(8px); border-radius: 6px; padding: 6px 14px;
+            color: #00d4ff; font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+            text-transform: uppercase; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+        }
+        .status-badge { color: #00ffcc; font-weight: 600; }
+
+        #tool-hud {
+            position: absolute; top: 52px; left: 12px;
+            background: rgba(4, 10, 24, 0.88); border: 1px solid rgba(0, 255, 204, 0.4);
+            border-radius: 6px; padding: 8px 14px; color: #4ade80; font-family: Consolas, monospace;
+            font-size: 11px; max-width: 380px; display: none; z-index: 10; pointer-events: none;
+            backdrop-filter: blur(8px); box-shadow: 0 0 20px rgba(0, 255, 204, 0.2);
+        }
+
+        #gesture-controls {
+            position: absolute; bottom: 16px; left: 16px;
+            display: flex; gap: 8px; z-index: 10; pointer-events: auto;
+        }
+        .btn {
+            background: rgba(15, 23, 42, 0.85); border: 1px solid #334155;
+            color: #94a3b8; padding: 8px 14px; border-radius: 6px; font-size: 11px;
+            font-weight: 700; cursor: pointer; transition: all 0.2s ease;
+            backdrop-filter: blur(8px);
+        }
+        .btn:hover { border-color: #00d4ff; color: #00d4ff; transform: translateY(-2px); }
+        .btn.active { background: rgba(0, 212, 255, 0.2); border-color: #00d4ff; color: #00ffcc; box-shadow: 0 0 12px rgba(0, 212, 255, 0.4); }
+
+        #voice-wave {
+            position: absolute; bottom: 15px; right: 20px;
+            display: flex; gap: 4px; align-items: flex-end; height: 30px; pointer-events: none; z-index: 10;
+        }
+        .bar { width: 4px; height: 4px; background: #00ffcc; border-radius: 2px; transition: height 0.08s ease; }
+    </style>
+    <script src="three.min.js"></script>
+    <script>
+        if (typeof THREE === 'undefined') {
+            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+    <div id="canvas-container"></div>
+
+    <div id="overlay-ui">
+        <div class="badge" id="name-badge">🌌 4ID ENTITY: MINORITY REPORT AI</div>
+        <div class="badge status-badge" id="status-badge">HUD: HOLOGRAPHIC GESTURE DESK</div>
+    </div>
+
+    <div id="tool-hud">
+        ✨ MINORITY REPORT HUD: <span id="tool-name">idle</span>
+    </div>
+
+    <div id="gesture-controls">
+        <button class="btn active" onclick="triggerGesture('idle')">🏢 Cyber Office</button>
+        <button class="btn" onclick="triggerGesture('search')">📁 Grab File Holograms</button>
+        <button class="btn" onclick="triggerGesture('terminal')">🖥️ Glass HUD Terminal</button>
+        <button class="btn" onclick="triggerGesture('deploy')">⚡ Fuse & Deploy Code</button>
+    </div>
+
+    <div id="voice-wave">
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+    </div>
+
+    <script>
+        // ── 3D Engine & Minority Report Holographic Globals ─────────────────
+        let scene, camera, renderer, controls;
+        let avatarGroup, headGroup, rightArmGroup, leftArmGroup;
+        let holoGlassMesh, holoFileCardsGroup, dataCubeGroup, terminalGlassMesh;
+        let materials = {};
+        
+        let currentState = 'idle'; // 'idle', 'search', 'terminal', 'deploy'
+        let isSpeaking = false;
+        let activeFileCard = null;
+        let clock = new THREE.Clock();
+
+        const waveBars = document.querySelectorAll('#voice-wave .bar');
+
+        function init3DEngine() {
+            const container = document.getElementById('canvas-container');
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x02050c, 0.025);
+
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+            camera.position.set(0, 1.6, 3.4);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.3;
+            container.appendChild(renderer.domElement);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.maxPolarAngle = Math.PI / 2 + 0.05;
+            controls.target.set(0, 1.1, 0);
+
+            setupLights();
+            setupCyberOfficeEnvironment();
+            createMaterials();
+
+            buildHolographicGlassInterface();
+            buildBase3DAvatar();
+
+            animate();
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function setupLights() {
+            const ambient = new THREE.AmbientLight(0x0a192f, 1.8);
+            scene.add(ambient);
+
+            const cyanSpot = new THREE.SpotLight(0x00ffcc, 3.5, 12, Math.PI / 3, 0.4);
+            cyanSpot.position.set(0, 4, 2);
+            scene.add(cyanSpot);
+
+            const purpleLight = new THREE.PointLight(0xa855f7, 2.5, 10);
+            purpleLight.position.set(-3, 2, 1);
+            scene.add(purpleLight);
+
+            const rimLight = new THREE.DirectionalLight(0x00d4ff, 2.8);
+            rimLight.position.set(0, 3, -4);
+            scene.add(rimLight);
+        }
+
+        function setupCyberOfficeEnvironment() {
+            const grid = new THREE.GridHelper(30, 60, 0x00d4ff, 0x07152b);
+            grid.position.y = 0;
+            scene.add(grid);
+
+            // Office Background Curved Wall
+            const wallGeo = new THREE.CylinderGeometry(12, 12, 8, 32, 1, true, -Math.PI / 3, (2 * Math.PI) / 3);
+            const wallMat = new THREE.MeshBasicMaterial({ color: 0x030a1a, side: THREE.BackSide, wireframe: true });
+            const wall = new THREE.Mesh(wallGeo, wallMat);
+            wall.position.set(0, 4, 0);
+            scene.add(wall);
+        }
+
+        function createMaterials() {
+            materials.skin = new THREE.MeshStandardMaterial({ color: 0x2a3b5c, roughness: 0.4, metalness: 0.6 });
+            materials.armor = new THREE.MeshStandardMaterial({ color: 0x0c192e, roughness: 0.25, metalness: 0.9 });
+            materials.neonCyan = new THREE.MeshBasicMaterial({ color: 0x00ffcc });
+            materials.neonPurple = new THREE.MeshBasicMaterial({ color: 0xa855f7 });
+            materials.neonGold = new THREE.MeshBasicMaterial({ color: 0xffd700 });
+            
+            // Minority Report See-Through Holographic Glass
+            materials.holoGlass = new THREE.MeshPhysicalMaterial({
+                color: 0x00d4ff,
+                transmission: 0.85,
+                opacity: 0.9,
+                transparent: true,
+                roughness: 0.05,
+                ior: 1.5,
+                side: THREE.DoubleSide
+            });
+
+            materials.holoCard = new THREE.MeshPhysicalMaterial({
+                color: 0x00ffcc,
+                transmission: 0.75,
+                opacity: 0.85,
+                transparent: true,
+                roughness: 0.1,
+                side: THREE.DoubleSide
+            });
+        }
+
+        // ── 🖐️ MINORITY REPORT SEE-THROUGH GLASS HOLOGRAPHIC HUD ─────────────
+        function buildHolographicGlassInterface() {
+            holoGlassMesh = new THREE.Group();
+
+            // Main Curved Glass Display Plane
+            const glassGeo = new THREE.CylinderGeometry(1.6, 1.6, 0.9, 32, 1, true, -Math.PI / 4, Math.PI / 2);
+            const glass = new THREE.Mesh(glassGeo, materials.holoGlass);
+            glass.position.set(0, 1.2, 0.4);
+            glass.rotation.y = Math.PI;
+            holoGlassMesh.add(glass);
+
+            // Glowing HUD Border Ring
+            const borderGeo = new THREE.TorusGeometry(1.62, 0.02, 16, 32, Math.PI / 2);
+            const border = new THREE.Mesh(borderGeo, materials.neonCyan);
+            border.rotation.x = Math.PI / 2;
+            border.position.set(0, 0.75, 0.4);
+            holoGlassMesh.add(border);
+
+            // Floating 3D Holographic File Cards (Minority Report Style)
+            holoFileCardsGroup = new THREE.Group();
+            const fileNames = ["dashboard.py", "bridge.py", "model.sfs", "tesseract.cctm", "guardian.py"];
+
+            fileNames.forEach((name, idx) => {
+                const cardGeo = new THREE.PlaneGeometry(0.35, 0.22);
+                const cardMat = new THREE.MeshPhysicalMaterial({
+                    color: idx === 0 ? 0x00ffcc : 0x00d4ff,
+                    transmission: 0.8,
+                    transparent: true,
+                    opacity: 0.85,
+                    side: THREE.DoubleSide
+                });
+                const card = new THREE.Mesh(cardGeo, cardMat);
+                
+                const angle = ((idx - 2) / 4) * (Math.PI / 3);
+                card.position.set(Math.sin(angle) * 1.3, 1.2 + (idx % 2) * 0.15, Math.cos(angle) * 0.5 + 0.3);
+                card.rotation.y = angle;
+                card.userData = { name: name, basePos: card.position.clone() };
+                holoFileCardsGroup.add(card);
+            });
+            holoGlassMesh.add(holoFileCardsGroup);
+
+            // Data Fusion Energy Cubes
+            dataCubeGroup = new THREE.Group();
+            for (let i = 0; i < 8; i++) {
+                const cubeGeo = new THREE.BoxGeometry(0.08, 0.08, 0.08);
+                const cube = new THREE.Mesh(cubeGeo, materials.neonPurple);
+                cube.position.set((Math.random() - 0.5) * 1.4, 0.9 + Math.random() * 0.6, 0.5 + Math.random() * 0.4);
+                dataCubeGroup.add(cube);
+            }
+            holoGlassMesh.add(dataCubeGroup);
+
+            scene.add(holoGlassMesh);
+        }
+
+        // ── 🤖 3D AVATAR WITH GESTURING ARMS ─────────────────────────────────
+        function buildBase3DAvatar() {
+            if (avatarGroup) scene.remove(avatarGroup);
+
+            avatarGroup = new THREE.Group();
+            headGroup = new THREE.Group();
+            rightArmGroup = new THREE.Group();
+            leftArmGroup = new THREE.Group();
+
+            // Torso & Body
+            const torsoGeo = new THREE.CylinderGeometry(0.35, 0.25, 0.8, 8);
+            const torso = new THREE.Mesh(torsoGeo, materials.armor);
+            torso.position.y = 0.65;
+            avatarGroup.add(torso);
+
+            // Head
+            headGroup.position.set(0, 1.35, 0);
+            const headGeo = new THREE.BoxGeometry(0.42, 0.52, 0.48);
+            const head = new THREE.Mesh(headGeo, materials.skin);
+            headGroup.add(head);
+
+            const snoutGeo = new THREE.BoxGeometry(0.28, 0.22, 0.28);
+            const snout = new THREE.Mesh(snoutGeo, materials.armor);
+            snout.position.set(0, -0.1, 0.28);
+            headGroup.add(snout);
+
+            avatarGroup.add(headGroup);
+
+            // Right Arm (Gesture Arm)
+            const rArmGeo = new THREE.CylinderGeometry(0.07, 0.05, 0.5);
+            const rArm = new THREE.Mesh(rArmGeo, materials.armor);
+            rArm.position.set(0.35, 0.7, 0.2);
+            rArm.rotation.x = -Math.PI / 3;
+            rArm.rotation.z = -Math.PI / 8;
+            rightArmGroup.add(rArm);
+
+            const rHandGeo = new THREE.SphereGeometry(0.06, 8, 8);
+            const rHand = new THREE.Mesh(rHandGeo, materials.neonCyan);
+            rHand.position.set(0.38, 0.5, 0.42);
+            rightArmGroup.add(rHand);
+            avatarGroup.add(rightArmGroup);
+
+            // Left Arm
+            const lArmGeo = new THREE.CylinderGeometry(0.07, 0.05, 0.5);
+            const lArm = new THREE.Mesh(lArmGeo, materials.armor);
+            lArm.position.set(-0.35, 0.7, 0.2);
+            lArm.rotation.x = -Math.PI / 4;
+            leftArmGroup.add(lArm);
+
+            const lHandGeo = new THREE.SphereGeometry(0.06, 8, 8);
+            const lHand = new THREE.Mesh(lHandGeo, materials.neonCyan);
+            lHand.position.set(-0.38, 0.55, 0.38);
+            leftArmGroup.add(lHand);
+            avatarGroup.add(leftArmGroup);
+
+            avatarGroup.position.set(0, 0, 0);
+            scene.add(avatarGroup);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const t = clock.getElapsedTime();
+
+            // Animate Holographic File Cards (Minority Report Floating & Swiping)
+            if (holoFileCardsGroup) {
+                holoFileCardsGroup.children.forEach((card, idx) => {
+                    if (currentState === 'search' && idx === 0) {
+                        // Grab active file hologram and expand forward!
+                        card.position.lerp(new THREE.Vector3(0, 1.25, 0.95), 0.1);
+                        card.scale.lerp(new THREE.Vector3(1.6, 1.6, 1.6), 0.1);
+                        card.rotation.y = 0;
+                    } else {
+                        const base = card.userData.basePos;
+                        card.position.y = base.y + Math.sin(t * 2.0 + idx) * 0.03;
+                        card.scale.lerp(new THREE.Vector3(1.0, 1.0, 1.0), 0.1);
+                    }
+                });
+            }
+
+            // Animate Data Fusion Cubes
+            if (dataCubeGroup) {
+                dataCubeGroup.children.forEach((cube, idx) => {
+                    cube.rotation.x += 0.02;
+                    cube.rotation.y += 0.03;
+                    if (currentState === 'deploy') {
+                        // Combine cubes into center holographic beam!
+                        cube.position.lerp(new THREE.Vector3(0, 1.25, 0.7), 0.08);
+                    }
+                });
+            }
+
+            // Animate Arm Gestures (Grabbing / Moving Holograms)
+            if (rightArmGroup && leftArmGroup) {
+                if (currentState === 'search') {
+                    rightArmGroup.rotation.x = Math.sin(t * 4) * 0.2 - 0.2;
+                    rightArmGroup.rotation.y = Math.cos(t * 3) * 0.2;
+                } else if (currentState === 'terminal') {
+                    rightArmGroup.rotation.x = Math.sin(t * 12) * 0.08;
+                    leftArmGroup.rotation.x = Math.cos(t * 12) * 0.08;
+                } else if (currentState === 'deploy') {
+                    rightArmGroup.rotation.z = Math.sin(t * 6) * 0.3;
+                    leftArmGroup.rotation.z = -Math.sin(t * 6) * 0.3;
+                } else {
+                    rightArmGroup.rotation.x = Math.sin(t * 1.5) * 0.05;
+                    leftArmGroup.rotation.x = -Math.sin(t * 1.5) * 0.05;
+                }
+            }
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // ── Public Minority Report Gesture API ──────────────────────────────
+        function triggerGesture(stateKey, fileName) {
+            currentState = stateKey || 'idle';
+            document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+
+            const statusTxt = {
+                idle: "HUD: MINORITY REPORT HOLOGRAPHIC DESK (IDLE)",
+                search: "HUD: GRABBING & EXPANDING FILE HOLOGRAMS",
+                terminal: "HUD: TYPING ON SEE-THROUGH GLASS TERMINAL",
+                deploy: "HUD: COMBINING & DEPLOYING DATA CUBES"
+            };
+
+            document.getElementById('status-badge').innerText = statusTxt[currentState] || "HUD: ACTIVE";
+
+            if (fileName && holoFileCardsGroup && holoFileCardsGroup.children.length > 0) {
+                holoFileCardsGroup.children[0].userData.name = fileName;
+            }
+        }
+
+        function setAgentToolCall(toolName, argsStr) {
+            const hud = document.getElementById('tool-hud');
+            const toolSpan = document.getElementById('tool-name');
+            hud.style.display = 'block';
+            toolSpan.innerText = toolName + (argsStr ? " (" + argsStr + ")" : "");
+
+            const t = (toolName || "").toLowerCase();
+            if (t.includes("run_command") || t.includes("terminal") || t.includes("cmd") || t.includes("powershell")) {
+                triggerGesture('terminal');
+            } else if (t.includes("grep_search") || t.includes("search") || t.includes("view_file") || t.includes("list_dir")) {
+                triggerGesture('search', argsStr);
+            } else if (t.includes("replace_file_content") || t.includes("write_to_file") || t.includes("deploy") || t.includes("build")) {
+                triggerGesture('deploy');
+            } else {
+                triggerGesture('idle');
+            }
+        }
+
+        window.onload = init3DEngine;
+    </script>
+</body>
+</html>

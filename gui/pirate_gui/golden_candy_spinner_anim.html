@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Golden Candy Spinner - 4D Shredder & Lab Distillation Stage</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #040810;
+    overflow: hidden;
+    font-family: 'Consolas', 'Courier New', monospace;
+    color: #00ffaa;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  #canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .hud-overlay {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+    font-size: 11px;
+    color: #ffd700;
+    text-shadow: 0 0 8px rgba(255,215,0,0.6);
+  }
+  .stage-badge {
+    background: rgba(10,20,35,0.8);
+    border: 1px solid rgba(0,200,255,0.4);
+    padding: 4px 10px;
+    border-radius: 4px;
+    color: #00e5ff;
+  }
+</style>
+</head>
+<body>
+<div class="hud-overlay">
+  <div class="stage-badge" id="stage-lbl">STAGE: IDLE (AWAITING MODEL DECOMPOSITION)</div>
+  <div class="stage-badge" id="telemetry-lbl">VORTEX: 0 RPM | DISTILLATION TEMP: 24°C | COMPRESSION: 1.0x</div>
+</div>
+<canvas id="canvas"></canvas>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+let width, height;
+function resize() {
+  width = canvas.width = window.innerWidth;
+  height = canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+
+// Animation state
+let isSpinning = false;
+let progress = 0;
+let stage = 'IDLE';
+let currentLayer = 0;
+let totalLayers = 32;
+let shredderAngle = 0;
+let spinnerAngle = 0;
+let bubbles = [];
+let sparks = [];
+let filaments = [];
+let liquidLevel = 0.6;
+let vaporParticles = [];
+
+// Initialize bubbles in distillation flask
+for (let i = 0; i < 40; i++) {
+  bubbles.push({
+    x: Math.random(),
+    y: Math.random(),
+    r: Math.random() * 4 + 2,
+    speed: Math.random() * 1.5 + 0.5,
+    hue: Math.random() > 0.5 ? 45 : 180 // gold or cyan
+  });
+}
+
+// Particle update loops
+function spawnSpark(x, y) {
+  for (let i = 0; i < 5; i++) {
+    sparks.push({
+      x: x,
+      y: y,
+      vx: (Math.random() - 0.5) * 6,
+      vy: (Math.random() - 0.5) * 6,
+      life: 1.0,
+      color: Math.random() > 0.3 ? '#ffd700' : '#ff4400'
+    });
+  }
+}
+
+function spawnVapor(x, y) {
+  vaporParticles.push({
+    x: x + (Math.random() - 0.5) * 10,
+    y: y,
+    vy: - (Math.random() * 1.5 + 1),
+    vx: (Math.random() - 0.5) * 0.8,
+    life: 1.0,
+    r: Math.random() * 5 + 3
+  });
+}
+
+function drawGrid() {
+  ctx.strokeStyle = 'rgba(0, 200, 255, 0.04)';
+  ctx.lineWidth = 1;
+  const gridSize = 24;
+  for (let x = 0; x < width; x += gridSize) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke();
+  }
+  for (let y = 0; y < height; y += gridSize) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();
+  }
+}
+
+// ── 1. THE CHIPPER / SHREDDER APPARATUS ──
+function drawShredder(x, y, w, h) {
+  ctx.save();
+  ctx.translate(x, y);
+
+  // Hopper Container
+  ctx.strokeStyle = '#00c8ff';
+  ctx.lineWidth = 2;
+  ctx.fillStyle = 'rgba(5, 15, 30, 0.7)';
+  ctx.beginPath();
+  ctx.moveTo(10, 0);
+  ctx.lineTo(w - 10, 0);
+  ctx.lineTo(w - 30, h * 0.4);
+  ctx.lineTo(w - 30, h);
+  ctx.lineTo(30, h);
+  ctx.lineTo(30, h * 0.4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  // Label
+  ctx.fillStyle = '#ffd700';
+  ctx.font = 'bold 10px Consolas';
+  ctx.fillText('4D TENSOR SHREDDER', 25, -6);
+
+  // Shredder Blades (Left & Right Counter-Rotating Gears)
+  const gearRadius = 26;
+  const gy = h * 0.65;
+  const gx1 = w * 0.38;
+  const gx2 = w * 0.62;
+
+  drawGear(gx1, gy, gearRadius, shredderAngle, '#ff9900');
+  drawGear(gx2, gy, gearRadius, -shredderAngle, '#00e5ff');
+
+  if (isSpinning && Math.random() > 0.3) {
+    spawnSpark(x + w * 0.5, y + gy);
+  }
+
+  ctx.restore();
+}
+
+function drawGear(x, y, r, angle, color) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 3;
+  ctx.fillStyle = 'rgba(0,0,0,0.8)';
+
+  const teeth = 8;
+  ctx.beginPath();
+  for (let i = 0; i < teeth * 2; i++) {
+    const a = (i * Math.PI) / teeth;
+    const rad = i % 2 === 0 ? r + 6 : r - 3;
+    const px = Math.cos(a) * rad;
+    const py = Math.sin(a) * rad;
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  // Inner hub
+  ctx.beginPath();
+  ctx.arc(0, 0, 8, 0, Math.PI * 2);
+  ctx.fillStyle = color;
+  ctx.fill();
+  ctx.restore();
+}
+
+// ── 2. LABORATORY GLASSWARE & DISTILLATION COLUMN ──
+function drawDistillationLab(x, y, w, h) {
+  ctx.save();
+  ctx.translate(x, y);
+
+  // Boiling Flask (Erlenmeyer / Round Bottom)
+  const flaskX = w * 0.25;
+  const flaskY = h * 0.65;
+  const flaskR = 40;
+
+  // Flask outline
+  ctx.strokeStyle = 'rgba(0, 229, 255, 0.8)';
+  ctx.lineWidth = 2.5;
+  ctx.shadowColor = '#00c8ff';
+  ctx.shadowBlur = 10;
+
+  ctx.beginPath();
+  ctx.arc(flaskX, flaskY, flaskR, Math.PI * 0.2, Math.PI * 0.8, false);
+  ctx.lineTo(flaskX - 10, flaskY - 60);
+  ctx.lineTo(flaskX + 10, flaskY - 60);
+  ctx.closePath();
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // Liquid in flask
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(flaskX, flaskY, flaskR - 3, 0, Math.PI, false);
+  ctx.closePath();
+  ctx.fillStyle = isSpinning ? 'rgba(255, 215, 0, 0.4)' : 'rgba(0, 200, 255, 0.2)';
+  ctx.fill();
+
+  // Bubbles
+  bubbles.forEach(b => {
+    const bx = flaskX - flaskR * 0.6 + b.x * flaskR * 1.2;
+    const by = flaskY + flaskR * 0.7 - b.y * flaskR * 0.8;
+    ctx.beginPath();
+    ctx.arc(bx, by, b.r, 0, Math.PI * 2);
+    ctx.fillStyle = b.hue === 45 ? '#ffd700' : '#00e5ff';
+    ctx.fill();
+    if (isSpinning) {
+      b.y += 0.02 * b.speed;
+      if (b.y > 1) { b.y = 0; b.x = Math.random(); }
+    }
+  });
+  ctx.restore();
+
+  // Glass Coil Condenser
+  const coilX = w * 0.55;
+  const coilY = h * 0.25;
+  ctx.strokeStyle = 'rgba(0, 255, 170, 0.6)';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(flaskX, flaskY - 60);
+  ctx.lineTo(coilX, coilY);
+  
+  // Spiral Coil
+  for (let i = 0; i < 6; i++) {
+    const cy = coilY + i * 16;
+    ctx.bezierCurveTo(coilX + 25, cy + 4, coilX + 25, cy + 12, coilX, cy + 16);
+    ctx.bezierCurveTo(coilX - 25, cy + 20, coilX - 25, cy + 28, coilX, cy + 32);
+  }
+  ctx.stroke();
+
+  // Vapor rising through column
+  if (isSpinning && Math.random() > 0.4) {
+    spawnVapor(flaskX, flaskY - 50);
+  }
+
+  // Label
+  ctx.fillStyle = '#00ffaa';
+  ctx.font = 'bold 10px Consolas';
+  ctx.fillText('S5 HYPER-SPHERICAL DISTILLATION', w * 0.1, h * 0.95);
+
+  ctx.restore();
+}
+
+// ── 3. GOLDEN CANDY VORTEX SPINNER CENTRIFUGE ──
+function drawGoldenSpinner(x, y, w, h) {
+  ctx.save();
+  ctx.translate(x, y);
+
+  const cx = w * 0.5;
+  const cy = h * 0.55;
+  const bowlR = 60;
+
+  // Outer centrifuge bowl (Half Sphere / Half Brain Hybrid)
+  ctx.strokeStyle = 'rgba(255, 215, 0, 0.85)';
+  ctx.lineWidth = 3;
+  ctx.shadowColor = '#ffd700';
+  ctx.shadowBlur = isSpinning ? 20 : 8;
+
+  ctx.beginPath();
+  // Left half: Perfect Geometric Semi-Sphere
+  ctx.arc(cx, cy, bowlR, Math.PI / 2, Math.PI * 1.5, false);
+  
+  // Right half: Detailed Cortical Brain Silhouette
+  ctx.bezierCurveTo(cx + bowlR * 0.45, cy - bowlR * 1.15, cx + bowlR * 1.15, cy - bowlR * 0.95, cx + bowlR * 1.05, cy - bowlR * 0.35);
+  ctx.bezierCurveTo(cx + bowlR * 1.35, cy + bowlR * 0.1, cx + bowlR * 1.1, cy + bowlR * 0.75, cx + bowlR * 0.4, cy + bowlR * 1.05);
+  ctx.lineTo(cx, cy + bowlR);
+  ctx.stroke();
+  
+  // Left Side: Sphere Latitude & Longitude Geodesic Rings
+  ctx.strokeStyle = 'rgba(0, 229, 255, 0.4)';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.arc(cx, cy, bowlR * 0.65, Math.PI / 2, Math.PI * 1.5, false);
+  ctx.arc(cx, cy, bowlR * 0.35, Math.PI / 2, Math.PI * 1.5, false);
+  ctx.stroke();
+
+  // Right Side: Intricate Brain Sulci & Cortical Gyri
+  ctx.strokeStyle = 'rgba(255, 215, 0, 0.6)';
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  // Frontal Lobe folds
+  ctx.moveTo(cx, cy - bowlR * 0.85);
+  ctx.bezierCurveTo(cx + bowlR * 0.4, cy - bowlR * 0.8, cx + bowlR * 0.6, cy - bowlR * 0.5, cx + bowlR * 0.85, cy - bowlR * 0.4);
+  // Parietal & Occipital folds
+  ctx.moveTo(cx + bowlR * 0.3, cy - bowlR * 0.4);
+  ctx.bezierCurveTo(cx + bowlR * 0.7, cy - bowlR * 0.25, cx + bowlR * 0.95, cy + bowlR * 0.05, cx + bowlR * 0.9, cy + bowlR * 0.35);
+  // Temporal Lobe folds
+  ctx.moveTo(cx, cy + bowlR * 0.1);
+  ctx.bezierCurveTo(cx + bowlR * 0.45, cy + bowlR * 0.15, cx + bowlR * 0.75, cy + bowlR * 0.45, cx + bowlR * 0.65, cy + bowlR * 0.8);
+  ctx.stroke();
+
+  // Pulsating Synaptic Nodes (Glowing Brain Sparks)
+  const synPulse = 0.5 + 0.5 * Math.sin(Date.now() * 0.005);
+  const synPoints = [
+    [cx + bowlR * 0.5, cy - bowlR * 0.6],
+    [cx + bowlR * 0.8, cy - bowlR * 0.2],
+    [cx + bowlR * 0.65, cy + bowlR * 0.3],
+    [cx + bowlR * 0.35, cy + bowlR * 0.65],
+  ];
+  for (const [sx, sy] of synPoints) {
+    ctx.fillStyle = `rgba(0, 255, 170, ${0.4 + 0.6 * synPulse})`;
+    ctx.shadowColor = '#00ffaa';
+    ctx.shadowBlur = 8;
+    ctx.beginPath();
+    ctx.arc(sx, sy, 2.5 + synPulse * 1.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.shadowBlur = 0;
+
+  // Center Vertical Division Line (Spinal / Manifold Meridian)
+  ctx.strokeStyle = 'rgba(0, 229, 255, 0.7)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - bowlR);
+  ctx.lineTo(cx, cy + bowlR);
+  ctx.stroke();
+
+  // Spinning Centrifuge Head
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(spinnerAngle);
+
+  ctx.fillStyle = '#ff9900';
+  ctx.beginPath();
+  ctx.arc(0, 0, 18, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Spinning Vortex Blades
+  ctx.strokeStyle = '#ffd700';
+  ctx.lineWidth = 2.5;
+  for (let i = 0; i < 4; i++) {
+    ctx.rotate(Math.PI / 2);
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.quadraticCurveTo(24, 12, 45, 0);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // Golden Crystalline Filaments (Spun Candy Web)
+  if (isSpinning) {
+    ctx.strokeStyle = 'rgba(255, 230, 100, 0.6)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 12; i++) {
+      const a1 = Math.random() * Math.PI * 2;
+      const a2 = a1 + (Math.random() - 0.5) * 1.5;
+      const r1 = 15 + Math.random() * (bowlR - 20);
+      const r2 = 15 + Math.random() * (bowlR - 20);
+      ctx.beginPath();
+      ctx.moveTo(cx + Math.cos(a1) * r1, cy + Math.sin(a1) * r1);
+      ctx.lineTo(cx + Math.cos(a2) * r2, cy + Math.sin(a2) * r2);
+      ctx.stroke();
+    }
+  }
+
+  // Label
+  ctx.fillStyle = '#ffd700';
+  ctx.font = 'bold 10px Consolas';
+  ctx.fillText('SFS+ CRYSTALLIZATION CENTRIFUGE', w * 0.1, h * 0.95);
+
+  ctx.restore();
+}
+
+// ── MAIN ANIMATION RENDER LOOP ──
+function render() {
+  ctx.clearRect(0, 0, width, height);
+  drawGrid();
+
+  const secW = width / 3;
+  const secH = height - 40;
+  const secY = 30;
+
+  // Draw 3 Stages
+  drawShredder(10, secY, secW - 20, secH);
+  drawDistillationLab(secW + 10, secY, secW - 20, secH);
+  drawGoldenSpinner(secW * 2 + 10, secY, secW - 20, secH);
+
+  // Sparks update
+  for (let i = sparks.length - 1; i >= 0; i--) {
+    const s = sparks[i];
+    s.x += s.vx;
+    s.y += s.vy;
+    s.life -= 0.03;
+    if (s.life <= 0) { sparks.splice(i, 1); continue; }
+    ctx.fillStyle = s.color;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.life * 3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Vapor update
+  for (let i = vaporParticles.length - 1; i >= 0; i--) {
+    const v = vaporParticles[i];
+    v.x += v.vx;
+    v.y += v.vy;
+    v.life -= 0.02;
+    if (v.life <= 0) { vaporParticles.splice(i, 1); continue; }
+    ctx.fillStyle = `rgba(0, 229, 255, ${v.life * 0.4})`;
+    ctx.beginPath();
+    ctx.arc(v.x, v.y, v.r * (2 - v.life), 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  if (isSpinning) {
+    shredderAngle += 0.08;
+    spinnerAngle += 0.18;
+  }
+
+  requestAnimationFrame(render);
+}
+requestAnimationFrame(render);
+
+// External Bridge API called from Python GUI
+window.setSpinState = function(spinning, currentProgress, layerIdx, total) {
+  isSpinning = spinning;
+  progress = currentProgress || 0;
+  currentLayer = layerIdx || 0;
+  totalLayers = total || 32;
+
+  const stageLbl = document.getElementById('stage-lbl');
+  const telem = document.getElementById('telemetry-lbl');
+
+  if (isSpinning) {
+    const ratio = (1.0 + (progress / 100) * 2.3).toFixed(2);
+    stageLbl.innerText = `STAGE: ACTIVE DECOMPOSITION & SFS+ RESPIN (LAYER ${currentLayer}/${totalLayers} - ${progress}%)`;
+    telem.innerText = `VORTEX: 3,450 RPM | DISTILLATION TEMP: 82°C | COMPRESSION: ${ratio}x`;
+  } else {
+    stageLbl.innerText = progress >= 100 ? 'STAGE: 100% COMPLETE - SFS+ MODEL READY' : 'STAGE: IDLE (AWAITING MODEL DECOMPOSITION)';
+    telem.innerText = 'VORTEX: 0 RPM | DISTILLATION TEMP: 24°C | COMPRESSION: 1.0x';
+  }
+};
+
+// Auto demo preview on load
+window.setSpinState(true, 42, 14, 32);
+</script>
+</body>
+</html>

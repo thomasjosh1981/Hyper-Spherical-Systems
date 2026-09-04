@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌌 Mathematical Invariants, Arithmetical Forcing & Data Scrambling Compendium</title>
+    <style>
+        :root {
+            --bg: #050811;
+            --surface: #0a1120;
+            --surface-accent: #101c33;
+            --border: rgba(0, 212, 255, 0.25);
+            --gold: #ffd700;
+            --gold-bright: #ffe066;
+            --gold-dark: #b38f00;
+            --cyan: #00d4ff;
+            --emerald: #10b981;
+            --purple: #c084fc;
+            --red: #f87171;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            line-height: 1.6;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: linear-gradient(135deg, #181303 0%, #2e2406 50%, #0c1626 100%);
+            border: 2px solid var(--gold);
+            border-radius: 12px;
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 32px rgba(255, 215, 0, 0.15);
+        }
+
+        h1 {
+            color: var(--gold);
+            font-size: 26px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .subtitle {
+            color: var(--cyan);
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 6px;
+        }
+
+        .intro-desc {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-top: 12px;
+            line-height: 1.5;
+        }
+
+        /* ── Controls & Filter Bar ── */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 24px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 280px;
+            padding: 10px 14px;
+            background: #04070d;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+        }
+        .search-box:focus { border-color: var(--gold); }
+
+        .btn-filter {
+            background: #111a2e;
+            color: var(--cyan);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-filter:hover, .btn-filter.active {
+            background: var(--gold);
+            color: #000;
+            border-color: var(--gold-bright);
+        }
+
+        /* ── Spreadsheet Table ── */
+        .table-wrap {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            margin-bottom: 36px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+            background: var(--surface);
+        }
+
+        th {
+            background: linear-gradient(180deg, #162238 0%, #0d1627 100%);
+            color: var(--gold);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            padding: 14px 16px;
+            border-bottom: 2px solid var(--gold-dark);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            vertical-align: top;
+        }
+
+        tr:hover td {
+            background: rgba(0, 212, 255, 0.04);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .badge-age { background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid #f59e0b; }
+        .badge-addr { background: rgba(6, 182, 212, 0.18); color: #22d3ee; border: 1px solid #06b6d4; }
+        .badge-name { background: rgba(168, 85, 247, 0.18); color: #c084fc; border: 1px solid #a855f7; }
+        .badge-phone { background: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid #10b981; }
+        .badge-attractor { background: rgba(239, 68, 68, 0.18); color: #f87171; border: 1px solid #ef4444; }
+        .badge-crypto { background: rgba(255, 215, 0, 0.18); color: #ffd700; border: 1px solid #ffd700; }
+
+        .trick-name {
+            font-weight: 800;
+            color: #fff;
+            font-size: 14px;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .math-expr {
+            font-family: 'Consolas', 'Courier New', monospace;
+            background: #04070d;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 3px 6px;
+            border-radius: 4px;
+            color: var(--cyan);
+            font-size: 12px;
+            display: inline-block;
+            margin-top: 4px;
+        }
+
+        .step-list {
+            padding-left: 18px;
+            margin: 4px 0;
+            color: var(--text-main);
+        }
+        .step-list li {
+            margin-bottom: 3px;
+        }
+
+        .crypto-box {
+            background: rgba(255, 215, 0, 0.03);
+            border-left: 3px solid var(--gold);
+            padding: 6px 10px;
+            font-size: 12px;
+            color: #cbd5e1;
+            border-radius: 0 4px 4px 0;
+        }
+
+        /* ── Summary Stats ── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        .stat-num {
+            color: var(--gold);
+            font-size: 24px;
+            font-weight: 900;
+            font-family: Consolas;
+        }
+        .stat-lbl {
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>🌌 THE UNABRIDGED MATHEMAGIC & DATA SCRAMBLING COMPENDIUM</h1>
+        <div class="subtitle">Mathematical Invariants, Personal Data Scramblers & UUIDv7.4 Trapdoor Architecture</div>
+        <p class="intro-desc">
+            An exhaustive engineering reference cataloging arithmetic forcing functions, universal attractors, algebraic variable-canceling identities, and place-value shift matrices. Designed for personal data scrambling, zero-knowledge validation, and 3D UUIDv7.4 cubic winding.
+        </p>
+    </header>
+
+    <!-- Summary Stats -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-num">24</div>
+            <div class="stat-lbl">Documented Invariants</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num">6</div>
+            <div class="stat-lbl">Primary Categories</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num">100%</div>
+            <div class="stat-lbl">Deterministic Accuracy</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num">38-Char</div>
+            <div class="stat-lbl">UUIDv7.4 Key Integration</div>
+        </div>
+    </div>
+
+    <!-- Search & Filters -->
+    <div class="controls">
+        <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search by name, category, formula, or keyword..." onkeyup="filterTable()">
+        <button class="btn-filter active" onclick="setCategory('all')">All Formulas (24)</button>
+        <button class="btn-filter" onclick="setCategory('age')">Age & Birth</button>
+        <button class="btn-filter" onclick="setCategory('address')">Address & Numbers</button>
+        <button class="btn-filter" onclick="setCategory('name')">Name & Letter Counts</button>
+        <button class="btn-filter" onclick="setCategory('phone')">Phone & Identifiers</button>
+        <button class="btn-filter" onclick="setCategory('attractor')">Universal Attractors</button>
+        <button class="btn-filter" onclick="setCategory('crypto')">UUIDv7.4 Cryptography</button>
+    </div>
+
+    <!-- Spreadsheet Table -->
+    <div class="table-wrap">
+        <table id="tricksTable">
+            <thead>
+                <tr>
+                    <th style="width: 5%;">ID</th>
+                    <th style="width: 22%;">Name & Category</th>
+                    <th style="width: 38%;">Step-by-Step Execution Instructions</th>
+                    <th style="width: 15%;">The Mathematical Secret</th>
+                    <th style="width: 20%;">UUIDv7.4 & Sovereign Application</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 1. Address & Age -->
+                <tr data-category="address age">
+                    <td>01</td>
+                    <td>
+                        <span class="trick-name">The Address & Age Dual Mind Reader</span>
+                        <span class="badge badge-addr">Address</span>
+                        <span class="badge badge-age">Age</span>
+                        <div class="math-expr">H·100 + A = [House][Age]</div>
+                    </td>
+                    <td>
+                        <ol class="step-list">
+                            <li>Enter House Number <code>H</code> (e.g. <code>420</code>).</li>
+                            <li>Multiply by 2 <code>(840)</code>.</li>
+                            <li>Add 5 <code>(845)</code>.</li>
+                            <li>Multiply by 50 <code>(42,250)</code>.</li>
+                            <li>Add Age <code>A</code> (e.g. <code>38</code> &rarr; <code>42,288</code>).</li>
+                            <li>Add days in a year: 365 <code>(42,653)</code>.</li>
+                            <li>Subtract 615 &rarr; <strong>Result: <code>42,038</code></strong>.</li>
+                        </ol>
+                        <em>First digits = House Number (420), Last two digits = Age (38)!</em>
+                    </td>
+                    <td>
+                        <code>2 × 50 = 100</code> shifts <code>H</code> into the hundreds place. Adding 5 (which gets multiplied by 50 &rarr; 250) + 365 = 615. Subtracting 615 cancels the camouflage completely.
+                    </td>
+                    <td class="crypto-box">
+                        <strong>Unhyphenated Metadata Packing</strong>: Packs 2-digit Dimension Code <code>D</code> and 2-digit Octant Mask <code>M</code> into a single 4-digit block without delimiters.
+                    </td>
+                </tr>
+
+                <!-- 2. Birthday Exact Reconstruct -->
+                <tr data-category="age">
+                    <td>02</td>
+                    <td>
+                        <span class="trick-name">The Exact Birthday MMDD Invariant</span>
+                        <span class="badge badge-age">Birthday</span>
+                        <div class="math-expr">M·100 + D = MMDD</div>
+                    </td>
+                    <td>
+                        <ol class="step-list">
+                            <li>Take Birth Month <code>M</code> (e.g. Aug = <code>8</code>).</li>
+                            <li>Multiply by 5 <code>(40)</code> &rarr; Add 6 <code>(46)</code>.</li>
+                            <li>Multiply by 4 <code>(184)</code> &rarr; Add 9 <code>(193)</code>.</li>
+                            <li>Multiply by 5 <code>(965)</code>.</li>
+                            <li>Add Birth Day <code>D</code> (e.g. <code>24</code> &rarr; <code>989</code>).</li>
+                            <li>Subtract 165 &rarr; <strong>Result: <code>824</code></strong> (Aug 24th).</li>
+                        </ol>
+                    </td>
+                    <td>
+                        <code>5 × 4 × 5 = 100</code> shifts Month <code>M</code> to hundreds place. Camouflage constant: <code>(6 × 4 + 9) × 5 = 165</code>. Subtraction cancels exactly.
+                    </td>
+                    <td class="crypto-box">
+                        <strong>Date-Stamp Steganography</strong>: Embeds creation timestamp Month/Day into the UUIDv7.4 low-order entropy bits cleanly.
+                    </td>
+                </tr>
+
+                <!-- 3. Shoe Size & Age -->
+                <tr data-category="age">
+                    <td>03</td>
+                    <td>
+                        <span class="trick-name">The Shoe Size & Age Encoder</span>
+                        <span class="badge badge-age">Shoe & Age</span>
+                        <div class="math-expr">S·100 + Age = [Size][Age]</div>
+                    </td>
+                    <td>
+                        <ol class="step-list">
+                            <li>Take Shoe Size <code>S</code> (e.g. <code>11</code>).</li>
+                            <li>Multiply by 5 <code>(55)</code> &rarr; Add 50 <code>(105)</code>.</li>
+                            <li>Multiply by 20 <code>(2,100)</code>.</li>
+                            <li>Add 1026 (for year 2026) <code>(3,126)</code>.</li>
+                            <li>Subtract Birth Year (e.g. <code>1988</code>) &rarr; <strong>Result: <code>1138</code></strong>.</li>
+                        </ol>
+                        <em>First digits = Shoe Size (11), Last digits = Age (38)!</em>
+                    </td>
+                    <td>
+                        <code>5 × 20 = 100</code> shifts Shoe Size. <code>50 × 20 = 1000</code> + 1026 = 2026 (current year). <code>2026 - BirthYear = Age</code>.
+                    </td>
+                    <td class="crypto-box">
+                        <strong>Dual Dimension Coordinate Binding</strong>: Encodes grid slice width + offset in a single integer for 4D vortex lookups.
+                    </td>
+                </tr>
+
+                <!-- 4. Phone Number Reconstructor -->
+                <tr data-category="phone">
+                    <td>04</td>
+                    <td>
+                        <span class="trick-name">The 7-Digit Phone Number Revealer</span>
+                        <span class="badge badge-phone">Phone Number</span>
+                        <div class="math-expr">Prefix·10,000 + Line = Phone</div>
+                    </td>
+                    <td>
+                        <ol class="step-list">
+                            <li>Take first 3 digits of phone number (e.g. <code>555</code>).</li>
+                            <li>Multiply by 80 <code>(44,400)</code> &rarr; Add 1 <code>(44,401)</code>.</li>
+                            <li>Multiply by 250 <code>(11,100,250)</code>.</li>
+                            <li>Add last 4 digits of phone <code>1234</code> <em>TWICE</em> <code>(11,102,718)</code>.</li>
+                            <li>Subtract 250 <code>(11,102,468)</code>.</li>
+                            <li>Divide by 2 &rarr; <strong>Result: <code>5,551,234</code> (555-1234)!</strong></li>
+                        </ol>
+                    </td>
+                    <td>
+                        <code>(80 × 250) / 2 = 10,000</code>, shifting the 3-digit prefix 4 places left. Adding the 4 digits twice and dividing by 2 isolates the exact 7-digit number.
+                    </td>
+                    <td class="crypto-box">
+                        <strong>High-Precision Key Slicing</strong>: Scrambles 8-byte cryptographic keys across high/low registers with zero information loss.
+                    </td>
+                </tr>
+
+                <!-- 5. Name Length & Letter Count -->
+                <tr data-category="name">
+                    <td>05</td>
+                    <td>
+                        <span class="trick-name">The Name Length / Letter-Count Force</span>
+                        <span class="badge badge-name">Name / Word</span>
+                        <div class="math-expr">N·2 + K - N = K</div>
+                    </td>
+                    <td>
+                        <ol class="step-list">
+                            <li>Count letters in your First Name <code>L</code> (e.g. "Alexander" = <code>9</code>).</li>
+                            <li>Multiply by 2 <code>(18)</code>.</li>
+                            <li>Add 14 (or any chosen even constant <code>2K</code>) <code>(32)</code>.</li>
+                            <li>Divide by 2 <code>(16)</code>.</li>
+                            <li>Subtract your original letter count <code>L</code> (9) &rarr; <strong>Result: ALWAYS <code>7</code>!</strong></li>
+                        </ol>
+                    </td>
+                    <td>
+                        Algebraic cancellation: <code>(2L + 2K)/2 - L = L + K - L = K</code>. The personal letter count disappears entirely, leaving the target invariant.
+                    </td>
+                    <td class="crypto-box">
+                        <strong>Zero-Knowledge Identity Prover</strong>: Proves an agent knows a secret username/token length without exposing the actual string.
+                    </td>
+                </tr>
+
+                <!-- 6. Kaprekar 6174 Attractor -->
+                <tr data-category="attractor crypto">
+                    <td>06</td>
+                    <td>
+                        <span class="trick-name">Kaprekar's 4-Digit Attractor (6174)</span>
+                        <span class="badge badge-attractor">Black Hole</span>
+                        <span class="badge badge-crypto">Frame Lock</span>
+                        <div class="math-expr">Desc(D) - Asc(D) &rarr; 6174</div>
+                    </td>
+                    <td>
+                        <ol class="step-list">
+                            <li>Pick any 4-digit number with &ge; 2 distinct digits (e.g. <code>4848</code>).</li>
+                            <li>Sort digits descending (<code>8844</code>) minus ascending (<code>4488</code>) &rarr; <code>4356</code>.</li>
+                            <li>Repeat: <code>6543 - 3456 = 3087</code>.</li>
+                            <li>Repeat: <code>8730 - 0378 = 8352</code>.</li>
+                            <li>Repeat: <code>8532 - 2358 = 6174</code> &rarr; <strong>Trapped in 6174 forever!</strong></li>
+                        </ol>
+                    </td>
+                    <td>
+                        Kernel difference mapping over base-10 permutations forces all trajectories into the single fixed point <code>7641 - 1467 = 6174</code> in &le; 7 steps.
+                    </td>
+                    <td class="crypto-box">
+                        <strong>UUIDv7.4 Sentinel Framing</strong>: Places <code>61</code> at byte 0-1 and <code>74</code> at byte 36-37 as unforgeable structural anchor headers.
+                    </td>
+                </tr>
+
+                <!-- 7. Kaprekar 495 Attractor -->
+                <tr data-category="attractor crypto">
+                    <td>07</td>
+                    <td>
+                        <span class="trick-name">Kaprekar's 3-Digit Attractor (495)</span>
+                        <span class="badge badge-attractor">Black Hole</span>
+                        <div class="math-expr">Desc(3D) - Asc(3D) &rarr; 495</div>
+                    </td>
+                    <td>
+                        <ol class="step-list">
+                            <li>Pick any 3-digit number (e.g. <code>825</code>).</li>
+                            <li>Descending (<code>852</code>) - Ascending (<code>258</code>) = <code>594</code>.</li>
+                            <li>Descending (<code>954</code>) - Ascending (<code>459</code>) = <strong><code>495</code>!</strong></li>
+                        </ol>
+                    </td>
+                    <td>
+                        Every 3-digit number collapses to 495 within 6 iterations: <code>954 - 459 = 495</code>.
+                    </td>
+                    <td class="crypto-box">
+                        <strong>3-Hex Octant Direction Checksum</strong>: Validates 3D spatial coordinate vectors without needing bulky CRC checks.
+                    </td>
+                </tr>
+
+                <!-- 8. The 1089 Reversal Constant -->
+                <tr data-category="attractor crypto">
+                    <td>08</td>
+                    <td>
+                        <span class="trick-name">The 1089 Reversal Invariant</span>
+                        <span class="badge badge-attractor">Invariant</span>
+                        <div class="math-expr">XYZ + ZYX = 1089</div>
+                    </td>
+                    <td>
+                        <ol class="step-list">
+                            <li>Pick any 3-digit number with first & last digit difference &ge; 2 (e.g. <code>732</code>).</li>
+                            <li>Reverse it (<code>237</code>) and subtract: <code>732 - 237 = 495</code>.</li>
+                            <li>Reverse that answer (<code>594</code>).</li>
+                            <li>Add them together: <code>495 + 594</code> &rarr; <strong>ALWAYS <code>1089</code>!</strong></li>
+                        </ol>
+                    </td>
+                    <td>
+                        <code>(100a + 10b + c) - (100c + 10b + a) = 99(a-c)</code>. The reverse sum of <code>99k</code> for any single-digit <code>k</code> is mathematically guaranteed to equal 1089.
+                    </td>
+                    <td class="crypto-box">
+                        <strong>S-Box Matrix Invertibility Check</strong>: Proves a decryption matrix has been symmetrically reversed without corruption.
+                    </td>
+                </tr>
+
+                <!-- 9. Phoenix Cyclic Number 142857 -->
+                <tr data-category="crypto">
+                    <td>09</td>
+                    <td>
+                        <span class="trick-name">The Phoenix Cyclic Number (142857)</span>
+                        <span class="badge badge-crypto">Cyclic Ring</span>
+                        <div class="math-expr">142857 × k = Rotations(142857)</div>
+                    </td>
+                    <td>
+                        <ol class="step-list">
+                            <li>Multiply <code>142857</code> by 1 &rarr; <code>142857</code></li>
+                            <li>Multiply by 2 &rarr; <code>285714</code></li>
+                            <li>Multiply by 3 &rarr; <code>428571</code></li>
+                            <li>Multiply by 4 &rarr; <code>571428</code></li>
+                            <li>Multiply by 5 &rarr; <code>714285</code></li>
+                            <li>Multiply by 6 &rarr; <code>857142</code></li>
+                            <li>Multiply by 7 &rarr; <strong><code>999999</code>!</strong></li>
+                        </ol>
+                    </td>
+                    <td>
+                        Derived from the repetend period of <code>1/7</code> in base 10. The digits never change; they merely cycle across a 6-phase ring.
+                    </td>
+                    <td class="crypto-box">
+                        <strong>6-Stripe Vault Key Rotation</strong>: Governs rotating stripe indices in <code>matrix_daemon.py</code> honeypot vaults.
+                    </td>
+                </tr>
+
+                <!-- 10. Modulo 9 Missing Digit -->
+                <tr data-category="crypto">
+                    <td>10</td>
+                    <td>
+                        <span class="trick-name">The Modulo-9 Missing Digit Restorer</span>
+                        <span class="badge badge-crypto">Self-Healing</span>
+                        <div class="math-expr">N - Sum(N) ≡ 0 (mod 9)</div>
+                    </td>
+                    <td>
+                        <ol class="step-list">
+                            <li>Take any number (e.g. <code>8472</code>) &rarr; Sum digits = <code>21</code>.</li>
+                            <li>Subtract sum: <code>8472 - 21 = 8451</code>.</li>
+                            <li>Erase any one non-zero digit (e.g. erase <code>5</code> &rarr; leaves <code>8, 4, 1</code>).</li>
+                            <li>Sum remaining: <code>8 + 4 + 1 = 13</code>.</li>
+                            <li>Subtract from next multiple of 9 (18): <code>18 - 13 = 5</code> &rarr; <strong>Erased digit was 5!</strong></li>
+                        </ol>
+                    </td>
+                    <td>
+                        Casting out nines: Every integer is congruent to the sum of its digits modulo 9. Subtracting the sum yields an exact multiple of 9.
+                    </td>
+                    <td class="crypto-box">
+                        <strong>Self-Healing UUIDv7.4 Checksum</strong>: Automatically recovers single-byte transmission dropouts in unhyphenated strings.
+                    </td>
+                </tr>
+
+                <!-- 11. Collatz 3n+1 Orbit -->
+                <tr data-category="attractor crypto">
+                    <td>11</td>
+                    <td>
+                        <span class="trick-name">The Collatz Orbit (3n+1 Trapdoor)</span>
+                        <span class="badge badge-attractor">Universal</span>
+                        <div class="math-expr">Even: n/2 | Odd: 3n+1 &rarr; 4-2-1</div>
+                    </td>
+                    <td>
+                        <ol class="step-list">
+                            <li>Pick any integer <code>n</code> (e.g. <code>7</code>).</li>
+                            <li>If even divide by 2; if odd multiply by 3 and add 1.</li>
+                            <li>Sequence: <code>7 &rarr; 22 &rarr; 11 &rarr; 34 &rarr; 17 &rarr; 52 &rarr; 26 &rarr; 13 &rarr; 40 &rarr; 20 &rarr; 10 &rarr; 5 &rarr; 16 &rarr; 8 &rarr; 4 &rarr; 2 &rarr; 1</code>.</li>
+                            <li>Trapped in <code>4 &rarr; 2 &rarr; 1</code> infinite cycle.</li>
+                        </ol>
+                    </td>
+                    <td>
+                        Chaotic non-linear convergence attractor over the integers.
+                    </td>
+                    <td class="crypto-box">
+                        <strong>Non-Linear S-Box Permutation</strong>: Uses stopping time lengths as pseudo-random permutation seeds for 3D winding peels.
+                    </td>
+                </tr>
+
+                <!-- 12. 259 x 39 Age Tripler -->
+                <tr data-category="age">
+                    <td>12</td>
+                    <td>
+                        <span class="trick-name">The 259 × 39 Age Triplication Invariant</span>
+                        <span class="badge badge-age">Age Tripler</span>
+                        <div class="math-expr">259 × 39 × Age = [Age][Age][Age]</div>
+                    </td>
+                    <td>
+                        <ol class="step-list">
+                            <li>Take your Age (e.g. <code>38</code>).</li>
+                            <li>Multiply by <code>259</code> (<code>9,842</code>).</li>
+                            <li>Multiply by <code>39</code> &rarr; <strong>Result: <code>383838</code>!</strong></li>
+                        </ol>
+                    </td>
+                    <td>
+                        <code>259 × 39 = 10,101</code>. Multiplying any 2-digit number <code>xy</code> by <code>10,101</code> repeats it three times: <code>xyxyxy</code>.
+                    </td>
+                    <td class="crypto-box">
+                        <strong>Triple Redundancy ECC</strong>: Generates 3-way fault-tolerant mirror coordinates for cold storage data stripes.
+                    </td>
+                </tr>
+
+                <!-- 13. 73 x 137 Identity -->
+                <tr data-category="crypto">
+                    <td>13</td>
+                    <td>
+                        <span class="trick-name">The 73 × 137 Quad-Mirror Identity</span>
+                        <span class="badge badge-crypto">Mirror</span>
+                        <div class="math-expr">73 × 137 × ABCD = ABCDABCD</div>
+                    </td>
+                    <td>
+                        <ol class="step-list">
+                            <li>Pick any 4-digit number (e.g. <code>1984</code>).</li>
+                            <li>Multiply by <code>73</code> (<code>144,832</code>).</li>
+                            <li>Multiply by <code>137</code> &rarr; <strong>Result: <code>19841984</code>!</strong></li>
+                        </ol>
+                    </td>
+                    <td>
+                        <code>73 × 137 = 10,001</code>. Multiplying any 4-digit number <code>ABCD</code> by <code>10,001</code> perfectly mirrors it as <code>ABCDABCD</code>.
+                    </td>
+                    <td class="crypto-box">
+                        <strong>Dual-NVMe Striped Mirror Mask</strong>: Verifies twin mirror sectors across stripped NVMe buffers in parallel.
+                    </td>
+                </tr>
+
+                <!-- 14. Modulo 11 ISBN-10 Check -->
+                <tr data-category="crypto">
+                    <td>14</td>
+                    <td>
+                        <span class="trick-name">The Modulo-11 Weighted Parity Check</span>
+                        <span class="badge badge-crypto">Checksum</span>
+                        <div class="math-expr">Σ (i · d_i) ≡ 0 (mod 11)</div>
+                    </td>
+                    <td>
+                        <ol class="step-list">
+                            <li>Take 10-digit number.</li>
+                            <li>Multiply each digit <code>d_i</code> by its index <code>i</code> (1 to 10).</li>
+                            <li>Total sum must divide evenly by 11.</li>
+                        </ol>
+                    </td>
+                    <td>
+                        Linear congruence over prime modulus 11 catches 100% of single-digit errors and transposition errors.
+                    </td>
+                    <td class="crypto-box">
+                        <strong>Transposition Error Trap</strong>: Detects if two adjacent characters in a 38-char UUID were accidentally swapped.
+                    </td>
+                </tr>
+
+                <!-- 15. Pisano Modulo Periods -->
+                <tr data-category="crypto">
+                    <td>15</td>
+                    <td>
+                        <span class="trick-name">Pisano Period (Fibonacci Modulo Cycles)</span>
+                        <span class="badge badge-crypto">Lattice</span>
+                        <div class="math-expr">Fib(n) mod M = Periodic(π(M))</div>
+                    </td>
+                    <td>
+                        <ol class="step-list">
+                            <li>Compute Fibonacci sequence modulo 16.</li>
+                            <li>Remainders repeat in an exact cycle of length 24.</li>
+                        </ol>
+                    </td>
+                    <td>
+                        Fibonacci sequences taken modulo any integer <code>M</code> form a strictly periodic sequence.
+                    </td>
+                    <td class="crypto-box">
+                        <strong>4D Fibonacci Vortex Coordinates</strong>: Generates repeating, reproducible parameter orbits along hyperspherical blades.
+                    </td>
+                </tr>
+
+                <!-- 16. The 10-20 Card Force -->
+                <tr data-category="name">
+                    <td>16</td>
+                    <td>
+                        <span class="trick-name">The 10-to-20 Positional Card Force</span>
+                        <span class="badge badge-name">Card Force</span>
+                        <div class="math-expr">(10+n) - (1+n) = 9</div>
+                    </td>
+                    <td>
+                        <ol class="step-list">
+                            <li>Pick any number between 10 and 20 (e.g. <code>16</code>).</li>
+                            <li>Deal 16 cards to table.</li>
+                            <li>Add digits (<code>1 + 6 = 7</code>).</li>
+                            <li>Count 7 cards into pile &rarr; <strong>ALWAYS lands on 9th card from top of original deck!</strong></li>
+                        </ol>
+                    </td>
+                    <td>
+                        <code>(10 + n) - (1 + n) = 9</code>. The variable <code>n</code> cancels out completely for every number in the teens.
+                    </td>
+                    <td class="crypto-box">
+                        <strong>Fixed-Offset Key Extraction</strong>: Pulls deterministic entropy slices from multi-layered memory buffers.
+                    </td>
+                </tr>
+
+                <!-- 17. Kruskal's Count Convergence -->
+                <tr data-category="attractor">
+                    <td>17</td>
+                    <td>
+                        <span class="trick-name">Kruskal's Count (The Probability Attractor)</span>
+                        <span class="badge badge-attractor">Coupling</span>
+                        <div class="math-expr">P(Merge) &rarr; 1.0</div>
+                    </td>
+                    <td>
+                        <ol class="step-list">
+                            <li>Lay out a card spread. Hop forward by card value.</li>
+                            <li>Regardless of starting card, different paths converge into the exact same key card within 5 hops.</li>
+                        </ol>
+                    </td>
+                    <td>
+                        Markov chain path coupling phenomenon over discrete integer step distributions.
+                    </td>
+                    <td class="crypto-box">
+                        <strong>Predictive Token Stream Prefetching</strong>: Merges divergent attention paths into dominant predicted execution heads.
+                    </td>
+                </tr>
+
+                <!-- 18. The Birthday Year 2026 Force -->
+                <tr data-category="age">
+                    <td>18</td>
+                    <td>
+                        <span class="trick-name">The Calendar Year Age Extraction Formula</span>
+                        <span class="badge badge-age">Birth Year</span>
+                        <div class="math-expr">(2X + 5)·50 + 1776 - Birth = X[Age]</div>
+                    </td>
+                    <td>
+                        <ol class="step-list">
+                            <li>Pick secret number 1-10 (e.g. <code>7</code>).</li>
+                            <li>Multiply by 2 <code>(14)</code> &rarr; Add 5 <code>(19)</code>.</li>
+                            <li>Multiply by 50 <code>(950)</code>.</li>
+                            <li>Add 1776 (for 2026) <code>(2,726)</code>.</li>
+                            <li>Subtract Birth Year (e.g. <code>1988</code>) &rarr; <strong>Result: <code>738</code></strong>.</li>
+                        </ol>
+                        <em>First digit = Chosen Number (7), Last two digits = Exact Age (38)!</em>
+                    </td>
+                    <td>
+                        <code>(2X + 5) × 50 = 100X + 250</code>. <code>250 + 1776 = 2026</code>. <code>100X + (2026 - BirthYear) = 100X + Age</code>.
+                    </td>
+                    <td class="crypto-box">
+                        <strong>Dual-Layer Nonce Construction</strong>: Embeds client instance ID + session expiration epoch in a single 32-bit field.
+                    </td>
+                </tr>
+
+                <!-- 19. The 3-Dice Secret Sum -->
+                <tr data-category="address">
+                    <td>19</td>
+                    <td>
+                        <span class="trick-name">The 3-Dice Place Value Stacker</span>
+                        <span class="badge badge-addr">Place Value</span>
+                        <div class="math-expr">2·D1 + 5)·5 + D2)·10 + D3 - 250</div>
+                    </td>
+                    <td>
+                        <ol class="step-list">
+                            <li>Roll 3 dice secretly: <code>[D1, D2, D3]</code> (e.g. <code>3, 5, 2</code>).</li>
+                            <li>Multiply 1st die by 2 <code>(6)</code> &rarr; Add 5 <code>(11)</code>.</li>
+                            <li>Multiply by 5 <code>(55)</code> &rarr; Add 2nd die <code>(60)</code>.</li>
+                            <li>Multiply by 10 <code>(600)</code> &rarr; Add 3rd die <code>(602)</code>.</li>
+                            <li>Subtract 250 &rarr; <strong>Result: <code>352</code> (the 3 dice in order)!</strong></li>
+                        </ol>
+                    </td>
+                    <td>
+                        Base-10 expansion: <code>(2(D1) + 5) × 5 × 10 = 100(D1) + 250</code>. Adding D2 × 10 and D3 creates <code>100(D1) + 10(D2) + D3 + 250</code>. Subtracting 250 leaves <code>D1D2D3</code>.
+                    </td>
+                    <td class="crypto-box">
+                        <strong>3D Voxel Coordinate Compactor</strong>: Compacts discrete <code>(X, Y, Z)</code> cube indices into a single contiguous scalar offset.
+                    </td>
+                </tr>
+
+                <!-- 20. Nicomachus's Cube Sum -->
+                <tr data-category="crypto">
+                    <td>20</td>
+                    <td>
+                        <span class="trick-name">Nicomachus's Consecutive Cube Identity</span>
+                        <span class="badge badge-crypto">Cubic Math</span>
+                        <div class="math-expr">Σ k³ = (Σ k)²</div>
+                    </td>
+                    <td>
+                        <ol class="step-list">
+                            <li>Sum of cubes: <code>1³ + 2³ + 3³ + 4³ = 1 + 8 + 27 + 64 = 100</code>.</li>
+                            <li>Square of sum: <code>(1 + 2 + 3 + 4)² = 10² = 100</code>.</li>
+                        </ol>
+                    </td>
+                    <td>
+                        Fundamental algebraic identity mapping 3-dimensional cubic volumes directly onto 2-dimensional squared lattices.
+                    </td>
+                    <td class="crypto-box">
+                        <strong>3D-to-2D Planar Unwinding</strong>: Powers the 3D spiral planar peel in <code>encrypted_key_manager.py</code>.
+                    </td>
+                </tr>
+
+                <!-- 21. Alphabet Numerical Modulo -->
+                <tr data-category="name">
+                    <td>21</td>
+                    <td>
+                        <span class="trick-name">Alphabet Place Value Digital Root</span>
+                        <span class="badge badge-name">Name String</span>
+                        <div class="math-expr">Sum(A_i) mod 9</div>
+                    </td>
+                    <td>
+                        <ol class="step-list">
+                            <li>Convert name letters to numbers (A=1, B=2 ... Z=26).</li>
+                            <li>Sum all values &rarr; reduce to single digital root.</li>
+                            <li>Permutations of the same letters preserve the exact invariant root.</li>
+                        </ol>
+                    </td>
+                    <td>
+                        Digital root invariance under anagram permutation.
+                    </td>
+                    <td class="crypto-box">
+                        <strong>Homophonic Cipher Clustering</strong>: Maps character confusion clusters <code>[C, K, S]</code> to identical homophonic bins.
+                    </td>
+                </tr>
+
+                <!-- 22. Full-Period Prime Generators -->
+                <tr data-category="crypto">
+                    <td>22</td>
+                    <td>
+                        <span class="trick-name">Full-Period Prime Hex Generators</span>
+                        <span class="badge badge-crypto">Hex Wheel</span>
+                        <div class="math-expr">1/p mod 16 (Period p-1)</div>
+                    </td>
+                    <td>
+                        <ol class="step-list">
+                            <li>Prime numbers where 1/p yields maximum length repeating period in hexadecimal.</li>
+                        </ol>
+                    </td>
+                    <td>
+                        Artin's primitive root conjecture over Galois field extensions.
+                    </td>
+                    <td class="crypto-box">
+                        <strong>High-Entropy Pseudo-Random Whitening</strong>: Whitens cold-storage data stripes against statistical frequency analysis.
+                    </td>
+                </tr>
+
+                <!-- 23. Zip Code & Age Splicer -->
+                <tr data-category="address age">
+                    <td>23</td>
+                    <td>
+                        <span class="trick-name">The 5-Digit Zip Code & Age Splicer</span>
+                        <span class="badge badge-addr">Zip Code</span>
+                        <span class="badge badge-age">Age</span>
+                        <div class="math-expr">ZIP·100 + Age = ZIPAGE</div>
+                    </td>
+                    <td>
+                        <ol class="step-list">
+                            <li>Enter 5-digit Zip Code <code>Z</code> (e.g. <code>90210</code>).</li>
+                            <li>Multiply by 2 <code>(180,420)</code> &rarr; Add 5 <code>(180,425)</code>.</li>
+                            <li>Multiply by 50 <code>(9,021,250)</code>.</li>
+                            <li>Add Age <code>A</code> (e.g. <code>38</code> &rarr; <code>9,021,288</code>).</li>
+                            <li>Subtract 250 &rarr; <strong>Result: <code>90,210,38</code> (Zip: 90210, Age: 38)!</strong></li>
+                        </ol>
+                    </td>
+                    <td>
+                        Direct base-100 place value injection.
+                    </td>
+                    <td class="crypto-box">
+                        <strong>Dual Geographic / Session Timestamp Binding</strong>: Binds location hash + node lifetime into one unbroken token.
+                    </td>
+                </tr>
+
+                <!-- 24. Always-7 Algebraic Mind Force -->
+                <tr data-category="attractor">
+                    <td>24</td>
+                    <td>
+                        <span class="trick-name">The Universal "Always 7" Algebraic Force</span>
+                        <span class="badge badge-attractor">Universal Force</span>
+                        <div class="math-expr">(2X + 14)/2 - X = 7</div>
+                    </td>
+                    <td>
+                        <ol class="step-list">
+                            <li>Think of any number <code>X</code> in the universe.</li>
+                            <li>Double it &rarr; Add 14.</li>
+                            <li>Divide by 2 &rarr; Subtract original number <code>X</code>.</li>
+                            <li><strong>Result: ALWAYS 7!</strong></li>
+                        </ol>
+                    </td>
+                    <td>
+                        Linear variable elimination: <code>(2X + 14)/2 - X = X + 7 - X = 7</code>.
+                    </td>
+                    <td class="crypto-box">
+                        <strong>Sanity Check Sentinel Handshake</strong>: Handshake protocol verifying that math processing pipelines are operating with 100% precision.
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function filterTable() {
+        const input = document.getElementById("searchInput").value.toLowerCase();
+        const rows = document.querySelectorAll("#tricksTable tbody tr");
+
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            row.style.display = text.includes(input) ? "" : "none";
+        });
+    }
+
+    function setCategory(cat) {
+        document.querySelectorAll(".btn-filter").forEach(b => b.classList.remove("active"));
+        event.target.classList.add("active");
+
+        const rows = document.querySelectorAll("#tricksTable tbody tr");
+        rows.forEach(row => {
+            if (cat === "all") {
+                row.style.display = "";
+            } else {
+                const cats = row.getAttribute("data-category") || "";
+                row.style.display = cats.includes(cat) ? "" : "none";
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

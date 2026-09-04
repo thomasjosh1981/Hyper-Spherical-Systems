@@ -3,6 +3,7 @@
 <img src="docs/hypersphere_health_report.md" alt="" width="0"/>
 
 # 🌌 Hyper-Spherical Systems — HypeS
+
 ### *Next-Generation Local AI Engine*
 
 [![Release](https://img.shields.io/badge/release-v0.9.8--alpha-cyan?style=flat-square)](https://github.com/thomasjosh1981/Hyper-Spherical-Systems/releases)
@@ -23,9 +24,10 @@ It works with **any GGUF, SFS, or SFS+** model and connects to **any OpenAI-comp
 
 | What HypeS does | How |
 |---|---|
-| Runs 70B+ models on 12 GB VRAM | VRAM/RAM/NVMe 3-tier virtual VRAM illusion |
-| Saves up to 10× cloud API tokens | SISSI + Homophonic + CCTM Ultra compression |
+| Runs 70B+ models on 12 GB VRAM | VRAM/RAM/NVMe 3-tier virtual VRAM illusion with Dual-NVMe Striping |
+| Saves up to 10× cloud API tokens | ISSI + Homophonic + CCTM Ultra compression |
 | Lets models learn and grow permanently | BMRAD Brain Director + HardcodedKnowledgeBase |
+| Protects your key & offline data | Zero-cloud recovery + Local HypeS Security CHIP (`.chip`) File Export |
 | Protects your conversations end-to-end | AES-256 + 5+1 Homophonic ephemeral session cipher |
 | Enables models to teach each other | SFS+ InteropBus GROW_FROM / GROW_WITH |
 | Gives your AI a voice and a face | 4ID Avatar — real-time STT/TTS + 4D animated entity |
@@ -34,17 +36,18 @@ It works with **any GGUF, SFS, or SFS+** model and connects to **any OpenAI-comp
 
 ## 🚀 Quick Start
 
-### Windows (Installer)
+### Windows (Installer & Setup)
 
-1. Download **`HyperSpherical_Installer.exe`** from the [Releases page](https://github.com/thomasjosh1981/Hyper-Spherical-Systems/releases).
-2. Run the installer — it will:
-   - Detect your hardware (VRAM, RAM, NVMe)
-   - Install binaries to `C:\Program Files\HyperSpherical\`
-   - Create Desktop + Start Menu shortcuts
+1. Download **`HypeS_Setup.exe`** from the [Releases page](https://github.com/thomasjosh1981/Hyper-Spherical-Systems/releases).
+2. Run the installer (requires Administrator elevation) — it will:
+   - Auto-detect Windows logged-in user credentials and hardware topology
+   - Prompt for custom **Installation Directory** & **SFS/SFS+ Model Archive Drive**
+   - Configure **Primary NVMe** and optional **Secondary Stripe NVMe** for ultra-fast VRAM streaming
+   - Allow exporting/backing up your **HypeS Security CHIP File (`.chip`)**
+   - Install binaries to your configured directory
+   - Create Desktop folder (`Hyper-Spherical Systems Suite`) with 6 direct-module shortcut icons
    - Register an uninstaller in *Add/Remove Programs*
-3. Launch **HypeS** from your Desktop shortcut or Start Menu.
-4. Complete the **First-Run Onboarding Wizard** (drive selection, HuggingFace token, baseline benchmark).
-5. Point HypeS at your model file and start chatting.
+3. Double-click any shortcut (e.g. **HypeS Control Center**, **Pirate Proxy**, **Golden Candy Spinner**) to open that module directly.
 
 > See **[HOWTO.md](docs/HOWTO.md)** for the full step-by-step guide with screenshots.
 
@@ -71,10 +74,10 @@ chmod +x release/launch_hypes_linux.sh
 |---|---|---|
 | **Tesseract Memory Engine** | `pirate_core.exe` | Virtual VRAM illusion — 3-tier layer streaming (VRAM → RAM → NVMe) |
 | **BMRAD Brain Director** | `pirate_core.exe` | Autonomous attention pruner, loop detector, recursive self-improvement |
-| **SISSI Compression** | `pirate_core.exe` | Phrase-code substitution — reduces prompts by up to 10× tokens |
+| **ISSI Compression** | `pirate_core.exe` | Phrase-code substitution — reduces prompts by up to 10× tokens |
 | **CCTM Ultra** | `pirate_core.exe` | Cloud Token Compression Module — semantic deduplication + AES-256 |
 | **SFS+ Interop Bus** | `pirate_core.exe` | Cross-model skill borrowing, GROW_FROM, GROW_WITH |
-| **Pirate Llama Proxy** | `pirate_llama.exe` | OpenAI-compatible HTTP proxy with live SISSI compression |
+| **Pirate Llama Proxy** | `pirate_llama.exe` | OpenAI-compatible HTTP proxy with live ISSI compression |
 | **Golden Candy Spinner** | `golden_candy_spinner.exe` | `.hscc` 4D vortex model packager |
 | **NVMe Benchmark** | `nvme_benchmark.exe` | Drive throughput characterization (GB/s, IOPS) |
 | **4ID Avatar** | embedded | Real-time voice STT/TTS + procedural 4D animated entity |

@@ -27,22 +27,33 @@ This guide provides step-by-step instructions for installing, configuring, and u
 
 ---
 
-## 🚀 Step 2: First-Run Onboarding Wizard
+## 🚀 Step 2: First-Run Onboarding Wizard & Sovereign Key Provisioning
 
-When HypeS launches for the first time, the **Onboarding Wizard** will walk you through system setup:
+When HypeS launches for the first time, the **Onboarding Wizard** (`installer/hypes_installer_gui.py` or `python launch_hypes.py --installer`) guides you through complete setup:
 
-1. **Storage Drive Selection**:
-   - **NVMe / SSD**: Select 1 or 2 high-speed drives for active model layer streaming.
-   - **HDD**: Select a large storage drive (HDD ≥ 4 TB recommended) for cold SFS model archives.
-2. **Crypto & Key Derivation**:
-   - Choose key order preference (**Username-first** or **Password-first**).
-   - Enter your credentials. *Note: Credentials are hashed with bcrypt/Argon2 and never saved in plaintext.*
-3. **HuggingFace API Integration (Optional)**:
-   - Enter your HuggingFace API token to enable automatic model card fetching and online brain model recommendations.
-4. **Baseline Benchmark**:
-   - HypeS runs a quick hardware throughput test to measure NVMe read/write speed (GB/s) and random IOPS.
-5. **Brain Model Setup**:
-   - Select a local model file (`.sfs`, `.sfs+`, `.hscc`, or `.gguf`) or download a recommended model from HuggingFace.
+1. **Account & Hardware Identity Derivation**:
+   - Enter your Username, Email, Phone Number, and a secure password ($\ge 2$ uppercase, $\ge 2$ lowercase, $\ge 2$ numbers, $\ge 2$ special characters).
+   - HypeS extracts your CPU ID, Motherboard UUID, and volume serial to derive a 100% local, hardware-bound cryptographic master key via Argon2id & native SHA-256.
+
+2. **Sovereign Recovery Stash & De-Obfuscation Backup**:
+   - **Critical Asset Directive**: HypeS generates 1–2 recovery files (`HypeS_Crypt_Key` and `HypeS_CHIP_*.chip` / `HypeS_Recovery_Stash.txt`) containing the 3D Cube Homophonic Recovery Phrase. These keys are required to **de-obfuscate / unobfuscate and decrypt** your sovereign conversation matrix (`.snb`), model weights, and license assets if your machine is ever rebuilt or wiped.
+   - **Recommended Media Targets (1–2 Redundant Copies)**:
+     - **1 or 2 SD / MicroSD Cards**: Insert into your device card reader for offline cold storage.
+     - **2 External USB Removable Drives**: Keep redundant copies on separate USB thumb drives / external SSDs.
+     - **Encrypted Cloud Backup**: Store an encrypted copy in Google Drive, OneDrive, ProtonDrive, iCloud, or Dropbox.
+   - *Zero-Cloud Privacy Guarantee*: We never store or transmit a copy of your keys to any server.
+
+3. **Module & Add-On Feature Store**:
+   - Select your desired runtime components: **Base Root Engine (.snb Memory Vault)**, **Golden Candy Spinner (.hscc 4D Vortex)**, **ISSI 10x Token Optimizer**, **4ID Avatar & Living Spirit**, **Dual-NVMe DirectStorage Streamer**, and **Enterprise Suite**.
+
+4. **Storage Architecture Selection**:
+   - **Dual-NVMe Stripe**: Configure 1 or 2 high-speed NVMe/SSD drives for real-time 4D quaternionic weight streaming.
+   - **Cold HDD Archive**: Designate high-capacity storage ($\ge 4\text{ TB}$) for inactive `.sfs+` model archives.
+
+5. **Universal Transparent Interceptor & Auto-Seek**:
+   - Set up the zero-config gateway (ports `8000` / `11434`).
+   - Use the **Auto-Seek** engine to scan and hook open browser chat tabs (ChatGPT, Claude, Gemini, Perplexity), IDEs (Cursor, VS Code), and terminal TUIs (Ollama, Aider) with 1 click.
+
 
 ---
 

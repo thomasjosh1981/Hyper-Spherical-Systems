@@ -3,688 +3,661 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hyper-Spherical Systems - Brochure</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #050a12;
-    --surface: #0a111a;
-    --surface-light: #162032;
-    --cyan: #00d4ff;
-    --purple: #7c3aed;
-    --green: #00e676;
-    --red: #ff3b30;
-    --text: #f8fafc;
-    --muted: #94a3b8;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Outfit', sans-serif;
-    /* Soften pure black with a radial vignette for a more inviting feel */
-    background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
-    color: var(--text);
-  }
-  
-  /* Print standard - A4 / Letter */
-  .page {
-    width: 8.5in;
-    height: 11in;
-    margin: 2rem auto;
-    background: var(--bg);
-    /* Add edge shadow to complete the vignette effect on web */
-    box-shadow: inset 0 0 100px rgba(0,0,0,0.8), 0 20px 50px rgba(0,0,0,0.5);
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    padding: 3rem 4rem;
-  }
-  
-  .bg-image {
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    object-fit: cover;
-    opacity: 0.15;
-    z-index: 0;
-  }
-  
-  .content {
-    position: relative;
-    z-index: 1;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  h1, h2, h3, h4 { line-height: 1.2; }
-  h1 { font-size: 3.5rem; font-weight: 900; margin-bottom: 1rem; letter-spacing: -0.03em; }
-  h2 { font-size: 2.2rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--cyan); border-bottom: 2px solid rgba(0,212,255,0.2); padding-bottom: 0.5rem; }
-  h3 { font-size: 1.4rem; color: #fff; margin-bottom: 0.5rem; }
-  p, li { font-size: 1.1rem; color: var(--muted); line-height: 1.6; margin-bottom: 1rem; }
-  ul { padding-left: 1.5rem; margin-bottom: 1.5rem; }
-  li { margin-bottom: 0.5rem; }
-  
-  sup { color: var(--cyan); font-weight: bold; }
-  
-  .gradient-text {
-    background: linear-gradient(135deg, #fff 20%, var(--cyan) 60%, var(--purple) 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  
-  /* Flex & Grid Utils */
-  .flex-col { display: flex; flex-direction: column; }
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-  
-  /* Diagram CSS */
-  .diagram-box { background: var(--surface-light); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 1.5rem; }
-  
-  /* Notes section */
-  .notes-section { background: rgba(0,0,0,0.5); border-left: 4px solid var(--purple); padding: 1.5rem; margin-top: 1rem; }
-  .notes-section p { font-size: 0.95rem; margin-bottom: 0.5rem; }
-
-  /* Covers */
-  .page-cover { justify-content: center; align-items: center; text-align: center; }
-  
-  @page { size: letter; margin: 0; }
-  
-  @media print {
-    body { background: white; }
-    .page {
-      margin: 0;
-      width: 100%;
-      height: 100vh;
-      page-break-after: always;
-      box-shadow: none;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
-  }
-  /* Interactive Modal CSS */
-  .modal-overlay {
-    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center;
-  }
-  .modal-overlay.active { display: flex; }
-  .modal-content {
-    position: relative; max-width: 90%; max-height: 90%;
-  }
-  .modal-img {
-    width: 100%; height: auto; border-radius: 8px; border: 2px solid var(--cyan);
-    box-shadow: 0 0 30px rgba(0,212,255,0.3);
-  }
-  .hotspot {
-    position: absolute; width: 30px; height: 30px; background: rgba(0,212,255,0.4);
-    border: 2px solid var(--cyan); border-radius: 50%; cursor: pointer;
-    transform: translate(-50%, -50%); transition: all 0.3s;
-  }
-  .hotspot:hover { background: rgba(0,212,255,0.8); transform: translate(-50%, -50%) scale(1.5); box-shadow: 0 0 15px var(--cyan); }
-  .tooltip {
-    position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%);
-    background: var(--surface-light); color: #fff; padding: 10px; border-radius: 6px;
-    width: max-content; max-width: 250px; font-size: 0.9rem; text-align: center;
-    border: 1px solid var(--purple); opacity: 0; pointer-events: none; transition: 0.3s;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.5); z-index: 1001;
-  }
-  .hotspot:hover .tooltip { opacity: 1; bottom: 140%; }
-  .close-btn {
-    position: absolute; top: -40px; right: 0; color: #fff; font-size: 2rem; cursor: pointer; font-weight: bold;
-  }
-  
-  /* Image Container for Hotspots */
-  .image-container {
-    position: relative;
-    display: inline-block;
-    width: 100%;
-    max-width: 700px;
-    cursor: crosshair;
-  }
-  .image-container img {
-    width: 100%;
-    border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.1);
-  }
-
-  /* Pulse Animation on Click */
-  @keyframes pulse-ring {
-    0% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.7); }
-    70% { box-shadow: 0 0 0 30px rgba(0, 212, 255, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0); }
-  }
-  .pulse-anim {
-    animation: pulse-ring 1s ease-out;
-  }
-
-  /* Comparison Modal */
-  .comparison-modal {
-    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.95); z-index: 2000; align-items: center; justify-content: center;
-    padding: 2rem;
-  }
-  .comparison-modal.active { display: flex; }
-  .comparison-content {
-    display: flex; gap: 2rem; width: 100%; max-width: 1400px; align-items: center; justify-content: center;
-    position: relative;
-  }
-  .comparison-img-wrapper {
-    flex: 1; text-align: center;
-  }
-  .comparison-img-wrapper img {
-    width: 100%; max-height: 80vh; object-fit: contain;
-    border-radius: 8px; border: 2px solid var(--cyan);
-  }
-  .comparison-title {
-    color: var(--cyan); font-size: 1.5rem; margin-bottom: 1rem; font-weight: bold;
-  }
-  
-  /* CLI Simulation */
-  .cli-overlay {
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    background: #000; border: 1px solid var(--cyan); padding: 10px;
-    border-radius: 4px; display: none; z-index: 10; width: 80%; text-align: left;
-    box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
-  }
-  .cli-overlay input {
-    background: transparent; border: none; color: var(--green);
-    font-family: monospace; font-size: 1rem; width: 90%; outline: none;
-  }
-  .cli-overlay::before { content: "> "; color: var(--green); font-family: monospace; font-size: 1rem; }
-  
-  .data-dot {
-    position: absolute; width: 12px; height: 12px; background: var(--red);
-    border-radius: 50%; box-shadow: 0 0 10px var(--red);
-    display: none; z-index: 5;
-  }
-  @keyframes bounce-layers {
-    0% { top: 20%; left: 50%; background: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
-    25% { top: 50%; left: 20%; background: var(--red); box-shadow: 0 0 10px var(--red); }
-    50% { top: 80%; left: 80%; background: var(--purple); box-shadow: 0 0 10px var(--purple); }
-    75% { top: 50%; left: 50%; background: var(--red); box-shadow: 0 0 10px var(--red); }
-    100% { top: 20%; left: 50%; background: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
-  }
-  .bounce-anim {
-    display: block;
-    animation: bounce-layers 0.8s linear infinite;
-  }
-  
-  .vram-log {
-    position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.85);
-    border: 1px solid var(--red); color: var(--red); padding: 8px; font-size: 0.8rem;
-    font-family: monospace; display: none; z-index: 15; text-align: left;
-    white-space: pre-line; box-shadow: 0 0 10px rgba(255,0,0,0.5);
-    border-radius: 4px; pointer-events: none;
-  }
-  
-  /* Hyper-Spherical Interactive Views */
-  .view-transparency { opacity: 0.5; filter: contrast(1.2); }
-  .view-xray { filter: invert(1) hue-rotate(180deg) grayscale(0.8) contrast(2); }
-  .view-wireframe { filter: sepia(1) hue-rotate(180deg) saturate(3) contrast(1.5); mix-blend-mode: hard-light; }
-  .view-exploded { transform: scale(1.15) rotate(2deg); filter: drop-shadow(0 0 20px rgba(0,255,255,0.8)); }
-  
-  .corner-hover {
-    position: absolute; width: 40%; height: 40%; z-index: 10; cursor: crosshair;
-  }
-  .corner-tl { top: 0; left: 0; }
-  .corner-tr { top: 0; right: 0; }
-  .corner-bl { bottom: 0; left: 0; }
-  .corner-br { bottom: 0; right: 0; }
-  
-  @media (max-width: 900px) {
-    .comparison-content { flex-direction: column; }
-    .comparison-img-wrapper img { max-height: 40vh; }
-  }
-
-  /* Web Interactivity Text styling */
-  @media print {
-    .web-only { display: none !important; }
-  }
-</style>
+<title>Hyper-Spherical Systems | Next-Gen AI Infrastructure</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="brochure.css">
 </head>
 <body>
+<div class="page">
 
-  <!-- PAGE 1: FRONT COVER -->
-  <div class="page page-cover">
-    <img src="screenshots/dashboard_telemetry.png" class="bg-image" style="opacity: 0.3;" alt="Background">
-    <div class="content" style="justify-content: center;">
-      <div style="margin-bottom: 2rem;">
-        <svg width="80" height="80" viewBox="0 0 100 100" fill="none" stroke="var(--cyan)" stroke-width="4">
-          <circle cx="50" cy="50" r="40"/>
-          <path d="M50 10 L50 90 M10 50 L90 50 M22 22 L78 78 M22 78 L78 22" stroke="rgba(124, 58, 237, 0.6)"/>
+<!-- ═══════════════════════════════════════════════════════════ PAGE 1: HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="inline-style-1" >
+    <div class="hero-tag">Hyper-Spherical Systems · Technical Product Brief · v1.0</div>
+
+    <h1 class="grad">The AI Stack That Runs<br>Models You Can't Afford to Run.</h1>
+
+    <p class="hero-sub">
+      Hyper-Spherical Systems is a <strong>full-stack AI inference infrastructure platform</strong>
+      that intercepts, compresses, re-routes, and governs every LLM request flowing through
+      your system — delivering <strong>10× token efficiency</strong>, <strong>4D memory management</strong>,
+      and <strong>zero-config backend interoperability</strong> across Ollama, LM Studio,
+      llama.cpp, OpenAI, Anthropic, and beyond.
+    </p>
+
+    <div class="hero-badges">
+      <span class="badge badge-cyan">ISSI 10× Compression</span>
+      <span class="badge badge-purple">4D Hyperspherical Memory</span>
+      <span class="badge badge-green">Zero-Config MitM Intercept</span>
+      <span class="badge badge-amber">4-I.D.Entity Avatar Module</span>
+      <span class="badge badge-cyan">BMRAD Brain Governor</span>
+      <span class="badge badge-purple">SFS+ Multi-Model VMoE</span>
+      <span class="badge badge-green">OpenAI-Compatible /v1 API</span>
+    </div>
+
+    <!-- Architecture pipeline overview -->
+    <div class="inline-style-2" >
+      <h4 class="inline-style-3" >Request Pipeline</h4>
+      <div class="pipeline">
+        <div class="pipe-node">
+          <div class="inline-style-4" >🌐</div>
+          <div class="label">Any Client</div>
+          <div class="sublabel">Hermes · Open WebUI · Cursor</div>
+        </div>
+        <div class="pipe-node pipe-active">
+          <div class="inline-style-4" >🏴‍☠️</div>
+          <div class="label">Auto-Intercept</div>
+          <div class="sublabel">Zero-config MitM :11434</div>
+        </div>
+        <div class="pipe-node pipe-active">
+          <div class="inline-style-4" >🗜️</div>
+          <div class="label">ISSI Stack</div>
+          <div class="sublabel">10× token compression</div>
+        </div>
+        <div class="pipe-node pipe-active">
+          <div class="inline-style-4" >🧠</div>
+          <div class="label">Brain Governor</div>
+          <div class="sublabel">BMRAD · HardcodedKB</div>
+        </div>
+        <div class="pipe-node pipe-active">
+          <div class="inline-style-4" >🔮</div>
+          <div class="label">4D Router</div>
+          <div class="sublabel">HypersphereCoord routing</div>
+        </div>
+        <div class="pipe-node">
+          <div class="inline-style-4" >⚡</div>
+          <div class="label">Backend</div>
+          <div class="sublabel">Ollama · Cloud · Native</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-metrics">
+      <div>
+        <div class="hero-metric-val cyan">10×</div>
+        <div class="hero-metric-lbl">Token Compression Ratio</div>
+      </div>
+      <div>
+        <div class="hero-metric-val inline-style-5" >500GB</div>
+        <div class="hero-metric-lbl">Max Model Target Size</div>
+      </div>
+      <div>
+        <div class="hero-metric-val inline-style-6" >150</div>
+        <div class="hero-metric-lbl">Unit Tests Passing</div>
+      </div>
+      <div>
+        <div class="hero-metric-val inline-style-7" >20+</div>
+        <div class="hero-metric-lbl">Active Engine Modules</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════ PAGE 2: HOW IT WORKS -->
+<section class="inline-style-8" >
+  <h4>How It Works</h4>
+  <h2 class="inline-style-9" >From Raw Request to Optimized Inference</h2>
+
+  <!-- Detailed pipeline description -->
+  <div class="cols-2 inline-style-10" >
+    <div>
+      <p>When any AI client on your system makes an API call — whether it's Hermes Agent,
+      Open WebUI, Cursor, or a raw Python script — the <strong>Pirate Llama Auto-Intercept Engine</strong>
+      transparently captures that request on its loopback port clone. No client configuration required.</p>
+
+      <p>The intercepted payload passes through a <strong>4-layer compression pipeline</strong>:
+      phrase canonicalization → <strong>ISSI (Integer String Substitution Index, pronounced <em>"Izzy"</em>)</strong> homophonic dictionary encoding → ChaCha20-Poly1305 optional
+      encryption → context window slot optimization. The result is a semantically identical prompt
+      that occupies a fraction of the original token budget.</p>
+
+      <p>The compressed request is then scored by the <strong>BMRAD Brain Governor</strong>, which
+      routes it to the best available backend: local (Ollama/llama.cpp), peer SFS+ model, or cloud.
+      Responses are decompressed transparently before being returned to the client.</p>
+    </div>
+    <div>
+      <!-- ASCII-style architecture box -->
+      <div class="inline-style-11" >
+        <div class="inline-style-12" >
+          ┌─── HYPES STACK ARCHITECTURE ───────────────────────┐</div>
+        <div>│ <span class="inline-style-13" >CLIENT LAYER</span>                                       │</div>
+        <div>│  Hermes · Open WebUI · Cursor · Any OpenAI SDK   │</div>
+        <div>│  ↓ http://127.0.0.1:11434  (auto-intercepted)     │</div>
+        <div>├──────────────────────────────────────────────────┤</div>
+        <div>│ <span class="inline-style-14" >PIRATE LLAMA INTERCEPT</span>                           │</div>
+        <div>│  Bind-clone · Consent once · Forward always       │</div>
+        <div>├──────────────────────────────────────────────────┤</div>
+        <div>│ <span class="inline-style-14" >ISSI COMPRESSION STACK</span>                         │</div>
+        <div>│  Phrase table → Homophonic → ChaCha20 → Slot opt │</div>
+        <div>│  Ratio: <span class="inline-style-5" >1.5× → 10×</span> depending on content type  │</div>
+        <div>├──────────────────────────────────────────────────┤</div>
+        <div>│ <span class="inline-style-14" >BMRAD BRAIN GOVERNOR</span>                            │</div>
+        <div>│  CompetitiveGrowthEngine · HardcodedKnowledgeBase│</div>
+        <div>│  PerplexityMonitor · RecursiveConsensusAuditor   │</div>
+        <div>├──────────────────────────────────────────────────┤</div>
+        <div>│ <span class="inline-style-14" >4D HYPERSPHERICAL ROUTER</span>                        │</div>
+        <div>│  HypersphereCoordinate · load/stay radius cache  │</div>
+        <div>│  NVMe prefetch · VRAM streamer · PCIe pipeline   │</div>
+        <div>├──────────────────────────────────────────────────┤</div>
+        <div>│ <span class="inline-style-13" >BACKEND LAYER</span>                                     │</div>
+        <div>│  Ollama :11434 · LM Studio :1234 · Cloud API     │</div>
+        <div class="inline-style-14" >└──────────────────────────────────────────────────┘</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ISSI Deep Dive -->
+  <h3 class="inline-style-15" >ISSI — Integer String Substitution Index</h3>
+  <div class="cols-3 inline-style-16" >
+    <div class="card">
+      <span class="card-icon">🗜️</span>
+      <h4>Phase 1: Phrase Canonicalization</h4>
+      <p>A 200+ entry canonical phrase table maps common LLM boilerplate ("You are a helpful assistant", "Based on the context") to ultra-compact §-prefixed codes. Applied in O(n) over prompt length.</p>
+      <div class="ratio-bar inline-style-17" ><div class="ratio-fill inline-style-18" ></div></div>
+      <div class="inline-style-19" >Typical gain: 1.4× — 2.1×</div>
+    </div>
+    <div class="card">
+      <span class="card-icon">🔤</span>
+      <h4>Phase 2: Homophonic Dictionary</h4>
+      <p>Domain-adaptive per-session character → phrase mappings. In CODING mode: single unicode char replaces "function", "return", "import". Symbols recycled across the session window.</p>
+      <div class="ratio-bar inline-style-17" ><div class="ratio-fill inline-style-20" ></div></div>
+      <div class="inline-style-19" >Typical gain: 2.5× — 5×</div>
+    </div>
+    <div class="card">
+      <span class="card-icon">🧮</span>
+      <h4>Phase 3: MNECP Handshake</h4>
+      <p>Model-Negotiated Ephemeral Compression Protocol. On session open, HypeS sends a compact handshake header. If the model acknowledges, subsequent messages use the negotiated codec.</p>
+      <div class="ratio-bar inline-style-17" ><div class="ratio-fill inline-style-21" ></div></div>
+      <div class="inline-style-19" >Typical gain: 7× — 10×</div>
+    </div>
+  </div>
+
+  <!-- Token savings visualisation -->
+  <div class="card inline-style-22" >
+    <h4 class="inline-style-15" >Token Budget Visualisation — 32K Context Window</h4>
+    <div class="inline-style-23" >
+      <div class="inline-style-24" >Without HypeS</div>
+      <div class="ratio-bar inline-style-25" ><div class="ratio-fill inline-style-26" ></div></div>
+      <div class="inline-style-27" >32,000 tok</div>
+
+      <div class="inline-style-24" >With ISSI 3×</div>
+      <div class="ratio-bar inline-style-25" ><div class="ratio-fill inline-style-28" ></div></div>
+      <div class="inline-style-29" >~10,700 tok</div>
+
+      <div class="inline-style-24" >With ISSI 10×</div>
+      <div class="ratio-bar inline-style-25" ><div class="ratio-fill inline-style-30" ></div></div>
+      <div class="inline-style-31" >~3,200 tok</div>
+    </div>
+    <p class="inline-style-32" >
+      A 10× compression ratio turns a 32K context limit into an effective <strong class="inline-style-33" >320K+ context window</strong>
+      — without any model modification, fine-tuning, or provider upgrade.
+    </p>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════ INTERACTIVE VISUALIZER -->
+<section class="inline-style-34" >
+  <h4>Interactive Visualizer</h4>
+  <h2 class="inline-style-35" >Planar Stack vs. Fractal Hyper-Sphere</h2>
+  <p class="inline-style-36" >Compare the rigid, flat planar structure of traditional LLMs to the infinite fractal compression of Hyper-Spherical models. Interact with the models below to see how they navigate dimensions.</p>
+  
+  <div class="cols-2 inline-style-37" >
+    
+    <!-- Traditional LLM Planes -->
+    <div class="card inline-style-38" >
+      <h4>Typical LLM Architecture</h4>
+      <p class="inline-style-39" >Linear, flat planes stacked sequentially (e.g. 2000-3000 tall). Mouse over a plane to inspect.</p>
+      
+      <div id="planar-container" class="inline-style-40" >
+        <!-- JS will populate planes here -->
+      </div>
+      
+      <!-- Tooltip / Output -->
+      <div id="planar-tooltip" class="inline-style-41" >
+        <div id="planar-info" class="inline-style-42" >Dimension X</div>
+        <div class="inline-style-43" >Data: Flattened Query Matrix, Linear Embeddings</div>
+        <a href="#" id="planar-next-btn" class="inline-style-44" >Go to next dimension →</a>
+      </div>
+    </div>
+
+    <!-- Hyper-Spherical Fractal Clusters -->
+    <div class="card inline-style-45" >
+      <h4>Hyper-Spherical Architecture</h4>
+      <p class="inline-style-39" >Fractal "lollipop clusters". Hover or click a cluster to zoom deeper without limit.</p>
+      
+      <div id="fractal-container" class="inline-style-46" >
+        <!-- SVG canvas for fractal -->
+        <svg id="fractal-svg" width="100%" height="100%" viewBox="-500 -500 1000 1000" preserveAspectRatio="xMidYMid slice" class="inline-style-47" >
+           <g id="fractal-group" class="inline-style-48" ></g>
         </svg>
       </div>
-      <h1 class="gradient-text" style="font-size: 4.5rem;">Hyper-Spherical<br>Systems</h1>
-      <p style="font-size: 1.5rem; color: #fff; max-width: 600px; margin: 2rem auto;">The first true departure from flat-layer AI. Stream 1-Trillion parameter models natively from NVMe.</p>
-      <div style="color: var(--cyan); font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; margin-top: 3rem;">
-        Project Pirate Llama
+      
+      <!-- Depth counter -->
+      <div class="inline-style-49" >
+        <div>Compression Depth: <span id="fractal-depth" class="inline-style-50" >Level 1</span></div>
+        <div class="inline-style-51" >Infinite compression scaling. Every cluster contains a universe of sub-clusters.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ PAGE 3: MODULES -->
+<section class="inline-style-52" >
+  <h4>Module Reference</h4>
+  <h2 class="inline-style-35" >20 Engine Modules. One Unified Stack.</h2>
+
+  <div class="cols-2 inline-style-53" >
+
+    <div class="card card-glow">
+      <h4>🧠 Brain Director & Governor</h4>
+      <h3>BMRAD · CompetitiveGrowthEngine · HardcodedKnowledgeBase</h3>
+      <p>The master governor for all inference decisions. Maintains a persistent skill knowledge base in <code>~/.hypes/hardcoded_knowledge.json</code>. Knowledge is <strong>never deleted</strong> — only logically upgraded via version-tracked replacement records. The CompetitiveGrowthEngine absorbs superior skills from peer models using cosine-similarity matching (threshold 0.82).</p>
+      <div class="inline-style-54" >
+        <span class="badge badge-cyan">PerplexityMonitor</span>
+        <span class="badge badge-purple">RecursiveConsensusAuditor</span>
+        <span class="badge badge-green">AttentionAnalyzer</span>
+        <span class="badge badge-cyan">LoopDetector</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h4>🗜️ ISSI + CCTM + Holy Grail</h4>
+      <h3>Context Compression Cramming & Declutterizer</h3>
+      <p>Three-phase compression engine. Phase 1: canonical phrase substitution (200+ entries). Phase 2: domain-adaptive homophonic dictionary (CODING / ROLEPLAY / DATA / GENERAL). Phase 3: MNECP session negotiation for model-native compression. Plus the Holy Grail CCTM (Cloud Context Token Manager) for multi-session KV-cache reuse.</p>
+      <div class="inline-style-54" >
+        <span class="badge badge-cyan">10× Peak Ratio</span>
+        <span class="badge badge-green">Session-Scoped</span>
+        <span class="badge badge-purple">Zero-Loss Roundtrip</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h4>🔮 4D Hyperspherical Memory Router</h4>
+      <h3>HypersphericalCacheManager · TokenShredderEngine</h3>
+      <p>Models layers as 4D coordinate points on a hypersphere. Load radius (0.75) and stay buffer (0.20) determine which layer tensors remain resident in VRAM, which page to NVMe, and which are prefetched speculatively via the predictive prefetcher. PCIe pipeline saturation modes: ADAPTIVE, FIXED_64K to FIXED_512K.</p>
+      <div class="inline-style-54" >
+        <span class="badge badge-cyan">VRAM Streaming</span>
+        <span class="badge badge-amber">NVMe Prefetch</span>
+        <span class="badge badge-purple">PCIe Saturator</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h4>🏴‍☠️ Pirate Llama Universal Proxy</h4>
+      <h3>PirateProxy · Universal Endpoint · Zero-Config MitM</h3>
+      <p>Transparent loopback intercept proxy that clones the Ollama and LM Studio port bindings. Requires one-time user consent. Cloud API keys are auto-detected in Authorization headers and bypass the local stack. All intercepted traffic is compressed via ISSI, routed by BMRAD, and forwarded to the real backend. OpenAI <code>/v1/chat/completions</code> and <code>/v1/models</code> compatible.</p>
+      <div class="inline-style-54" >
+        <span class="badge badge-green">Zero Config</span>
+        <span class="badge badge-cyan">One-Time Consent</span>
+        <span class="badge badge-purple">Cloud Key Passthrough</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h4>🎭 4-I.D.Entity Avatar Module</h4>
+      <h3>Real-Time Voice · 4D Animated Entity · STT/TTS</h3>
+      <p>Generates interactive 3D/4D animated avatars — Human, Anime, Cartoon, or Creature — with full-duplex speech synthesis and recognition, procedural lip-sync, and gesture animation. Hardware routed: dedicated GPU, iGPU, or system RAM offload with flexible VRAM budgeting (up to 2GB VRAM footprint).</p>
+      <div class="inline-style-54" >
+        <span class="badge badge-amber">STT / TTS</span>
+        <span class="badge badge-cyan">Lip-Sync</span>
+        <span class="badge badge-purple">Gesture Engine</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h4>⚗️ Golden Candy Spinner</h4>
+      <h3>GGUF Decomposition · 4D Respinner · .hscc Format</h3>
+      <p>Decomposes GGUF and .hscc model files into 4D tensor coordinate space, applies variable compression ratios (2× → 20×), and repackages into the HypeS SFS+ format. The GPU Hardware Targeting panel auto-calculates the optimal compression ratio for your exact VRAM budget via the ⚡ Smart Auto-Tune function.</p>
+      <div class="inline-style-54" >
+        <span class="badge badge-green">GGUF / .hscc</span>
+        <span class="badge badge-cyan">Auto-Tune VRAM</span>
+        <span class="badge badge-amber">500GB Models</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h4>🔀 SFS+ Multi-Model Interoperability</h4>
+      <h3>VMoE Expert Harvesting · BMRAD Brain Orchestrator</h3>
+      <p>SFS+ models expose their Mixture-of-Expert layers as borrowable capability packages. The BMRAD governor dynamically identifies skill gaps, harvests matching expert clusters from peer SFS+ models, and absorbs them into the HardcodedKnowledgeBase without weight modification of the host model.</p>
+      <div class="inline-style-54" >
+        <span class="badge badge-purple">VMoE Sharing</span>
+        <span class="badge badge-cyan">Skill Absorption</span>
+        <span class="badge badge-green">Ephemeral Borrow</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h4>🔐 ISSI 5+1 Cipher &amp; Zero-Knowledge Security</h4>
+      <h3>Homophonic Cipher · ChaCha20-Poly1305 · AES-256</h3>
+      <p>All context payloads optionally encrypted before leaving the local stack. The 5+1 homophonic cipher encodes content into unicode clusters indistinguishable from natural language. ChaCha20-Poly1305 provides authenticated encryption with zero overhead on modern CPUs. The pirate keystore uses envelope encryption with machine-bound key material.</p>
+      <div class="inline-style-54" >
+        <span class="badge badge-red inline-style-55" >Zero-Knowledge</span>
+        <span class="badge badge-cyan">ChaCha20</span>
+        <span class="badge badge-purple">AES-256</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ PAGE 4: TECHNICAL SPECS -->
+<section class="inline-style-8" >
+  <h4>Technical Specifications</h4>
+  <h2 class="inline-style-35" >Every Parameter. No Marketing Fluff.</h2>
+
+  <!-- Spec table -->
+  <div class="card inline-style-16" >
+    <table>
+      <thead>
+        <tr>
+          <th class="inline-style-56" >Parameter</th>
+          <th>Value / Range</th>
+          <th>Module</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Max token compression ratio</strong></td><td class="yes">10× (peak MNECP mode)</td><td class="mono muted">ISSI</td></tr>
+        <tr><td><strong>Context compression trigger threshold</strong></td><td>Configurable 1K → 1M tokens</td><td class="mono muted">CCTM</td></tr>
+        <tr><td><strong>Similarity threshold (skill match)</strong></td><td>0.82 cosine (configurable)</td><td class="mono muted">BrainDirector</td></tr>
+        <tr><td><strong>VRAM load radius</strong></td><td>0.75 (Hypersphere coordinate)</td><td class="mono muted">4D Router</td></tr>
+        <tr><td><strong>VRAM stay buffer</strong></td><td>0.20 (hysteresis zone)</td><td class="mono muted">4D Router</td></tr>
+        <tr><td><strong>NVMe block prefetch size</strong></td><td>64K / 128K / 256K / 512K</td><td class="mono muted">NVMe IO</td></tr>
+        <tr><td><strong>PCIe pipeline modes</strong></td><td>DISABLED / ADAPTIVE / FIXED_64K-512K</td><td class="mono muted">PCIe Saturator</td></tr>
+        <tr><td><strong>Max model file size</strong></td><td>500 GB (Kimi K2.5 / DeepSeek-V3 class)</td><td class="mono muted">GCS / 4D Router</td></tr>
+        <tr><td><strong>Proxy listener ports</strong></td><td>11434 (Ollama) · 11435 (Pirate) · 1234 (LM Studio)</td><td class="mono muted">PirateProxy</td></tr>
+        <tr><td><strong>Intercept consent</strong></td><td>One-time GUI dialog · persisted to <code>~/.hypes/intercept_consent.json</code></td><td class="mono muted">Intercept</td></tr>
+        <tr><td><strong>API key cloud passthrough</strong></td><td>Auto-detected via <code>Authorization: Bearer</code> header</td><td class="mono muted">Intercept</td></tr>
+        <tr><td><strong>Backup compression levels</strong></td><td>7-Zip levels 1–9 · AES-256 passphrase</td><td class="mono muted">Backup</td></tr>
+        <tr><td><strong>Knowledge persistence format</strong></td><td>JSON at <code>~/.hypes/hardcoded_knowledge.json</code></td><td class="mono muted">HardcodedKB</td></tr>
+        <tr><td><strong>Knowledge deletion policy</strong></td><td class="yes">NEVER — logical upgrade only (versioned)</td><td class="mono muted">BrainDirector</td></tr>
+        <tr><td><strong>Max concurrent proxy connections</strong></td><td>32 (configurable)</td><td class="mono muted">PirateProxy</td></tr>
+        <tr><td><strong>Unit test coverage</strong></td><td class="yes">150 tests (pirate_tests.exe)</td><td class="mono muted">Test Harness</td></tr>
+        <tr><td><strong>Encryption</strong></td><td>ChaCha20-Poly1305 + AES-256 + Homophonic</td><td class="mono muted">ISSI 5+1</td></tr>
+        <tr><td><strong>Avatar VRAM footprint</strong></td><td>Up to 2 GB · iGPU / RAM offload supported</td><td class="mono muted">4-I.D.Entity</td></tr>
+        <tr><td><strong>License anti-bruteforce</strong></td><td>3 attempt limit · 60s lockout</td><td class="mono muted">License Mgr</td></tr>
+        <tr><td><strong>Python runtime (HypeS_Setup.exe)</strong></td><td>CPython 3.11 · PySide6 · Flask (bundled)</td><td class="mono muted">Installer</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Supported backends -->
+  <h3 class="inline-style-15" >Backend Interoperability Matrix</h3>
+  <div class="comp-row inline-style-57" >
+    <div class="comp-cell">Backend</div>
+    <div class="comp-cell">Auto-Detect</div>
+    <div class="comp-cell">MitM Intercept</div>
+    <div class="comp-cell">Cloud Passthrough</div>
+  </div>
+  <div class="inline-style-58" >
+    <div class="comp-row"><div class="comp-cell"><strong>Ollama</strong> <span class="muted mono">:11434</span></div><div class="comp-cell yes">✓ AUTO</div><div class="comp-cell yes">✓ FULL</div><div class="comp-cell no">—</div></div>
+    <div class="comp-row"><div class="comp-cell"><strong>LM Studio</strong> <span class="muted mono">:1234</span></div><div class="comp-cell yes">✓ AUTO</div><div class="comp-cell yes">✓ FULL</div><div class="comp-cell no">—</div></div>
+    <div class="comp-row"><div class="comp-cell"><strong>llama.cpp server</strong> <span class="muted mono">:8080</span></div><div class="comp-cell yes">✓ AUTO</div><div class="comp-cell yes">✓ FULL</div><div class="comp-cell no">—</div></div>
+    <div class="comp-row"><div class="comp-cell"><strong>KoboldCpp</strong> <span class="muted mono">:5001</span></div><div class="comp-cell yes">✓ AUTO</div><div class="comp-cell yes">✓ FULL</div><div class="comp-cell no">—</div></div>
+    <div class="comp-row"><div class="comp-cell"><strong>OpenAI</strong> <span class="muted mono">api.openai.com</span></div><div class="comp-cell yes">✓ KEY DETECT</div><div class="comp-cell no">BYPASS</div><div class="comp-cell yes">✓ DIRECT</div></div>
+    <div class="comp-row"><div class="comp-cell"><strong>Anthropic Claude</strong></div><div class="comp-cell yes">✓ KEY DETECT</div><div class="comp-cell no">BYPASS</div><div class="comp-cell yes">✓ DIRECT</div></div>
+    <div class="comp-row"><div class="comp-cell"><strong>OpenRouter</strong></div><div class="comp-cell yes">✓ KEY DETECT</div><div class="comp-cell no">BYPASS</div><div class="comp-cell yes">✓ DIRECT</div></div>
+    <div class="comp-row"><div class="comp-cell"><strong>Native HypeS /v1</strong></div><div class="comp-cell yes">✓ LOCAL</div><div class="comp-cell yes">✓ ISSI</div><div class="comp-cell yes">✓ BOTH</div></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════ PAGE 5: PRICING -->
+<section class="inline-style-59" >
+  <h4>Licensing &amp; Editions</h4>
+  <h2 class="inline-style-60" >Two Editions. Infinite Capability.</h2>
+  <p class="inline-style-61" >The Standard Edition gives you the full compression and interoperability stack.
+  The Lifetime Master Edition unlocks every feature with no recurring cost, ever.</p>
+
+  <div class="cols-2 inline-style-62" >
+
+    <!-- Standard -->
+    <div class="card pricing-card">
+      <div class="inline-style-63" >
+        <span class="badge badge-cyan">Standard Trial</span>
+      </div>
+      <div class="price">Free</div>
+      <div class="price-period">30-day non-resettable local trial</div>
+      <div class="divider inline-style-64" ></div>
+      <div class="pricing-feat"><span class="check">✓</span> ISSI 10× Compression Engine</div>
+      <div class="pricing-feat"><span class="check">✓</span> Zero-Config MitM Intercept Proxy</div>
+      <div class="pricing-feat"><span class="check">✓</span> 4D Hyperspherical Memory Router</div>
+      <div class="pricing-feat"><span class="check">✓</span> Pirate Llama Universal Proxy</div>
+      <div class="pricing-feat"><span class="check">✓</span> Golden Candy Spinner (GGUF decomp)</div>
+      <div class="pricing-feat"><span class="check">✓</span> BMRAD Brain Governor</div>
+      <div class="pricing-feat"><span class="cross">✗</span> SFS+ Multi-Model VMoE Sharing</div>
+      <div class="pricing-feat"><span class="cross">✗</span> 4-I.D.Entity Avatar Module</div>
+      <div class="pricing-feat"><span class="cross">✗</span> Enterprise Multi-GPU Parallel</div>
+      <div class="pricing-feat"><span class="cross">✗</span> Lifetime License Key</div>
+    </div>
+
+    <!-- Lifetime Master -->
+    <div class="card pricing-card inline-style-65" >
+      <div class="inline-style-66" >
+        <span class="badge badge-cyan inline-style-67" >★ LIFETIME UNLIMITED</span>
+      </div>
+      <div class="inline-style-68" >
+        <span class="badge badge-cyan">Master Edition</span>
+      </div>
+      <div class="price grad">$99</div>
+      <div class="price-period">One-time · No subscription · No renewal</div>
+      <div class="divider inline-style-64" ></div>
+      <div class="pricing-feat"><span class="check">✓</span> Everything in Standard, plus:</div>
+      <div class="pricing-feat"><span class="check">✓</span> <strong>SFS+ Multi-Model VMoE Expert Harvesting</strong></div>
+      <div class="pricing-feat"><span class="check">✓</span> <strong>4-I.D.Entity Avatar Module (Voice + 4D Animated)</strong></div>
+      <div class="pricing-feat"><span class="check">✓</span> <strong>Enterprise Multi-GPU Parallel Inference</strong></div>
+      <div class="pricing-feat"><span class="check">✓</span> <strong>Lifetime Master Key — Pre-Activated</strong></div>
+      <div class="pricing-feat"><span class="check">✓</span> <strong>Private MCP Server Integration</strong></div>
+      <div class="pricing-feat"><span class="check">✓</span> <strong>Priority Support &amp; All Future Updates</strong></div>
+      <div class="pricing-feat"><span class="check">✓</span> <strong>Source-Level Build Access (enterprise)</strong></div>
+      <div class="inline-style-69" >
+        <a href="https://github.com/thomasjosh1981/Hyper-Spherical-Systems"
+           class="inline-style-70" >
+          Purchase Lifetime License →
+        </a>
       </div>
     </div>
   </div>
 
-  <!-- PAGE 2: THE PARADIGM SHIFT -->
-  <div class="page">
-    <img src="traditional_llm_planes.png" class="bg-image" alt="Background">
-    <div class="content">
-      <h2>The Paradigm Shift</h2>
-      <p>Traditional Large Language Models (LLMs) are built like massive skyscrapers. They consist of thousands of flat, rigid, vectorized layers stacked linearly on top of one another. <strong>Every single layer must be loaded into expensive GPU VRAM simultaneously.</strong> If a model is 100GB, you need 100GB of VRAM just to turn it on.</p>
-      
-      <div class="grid-2" style="margin-top: 1rem; gap: 2rem;">
-        <div class="diagram-box" style="padding: 1rem; text-align: center;" ondblclick="openComparisonModal()">
-          <h3 style="color: var(--red); margin-bottom: 1rem;">The Old Paradigm: Flat Layers</h3>
-          <p class="web-only" style="color: var(--muted); font-size: 0.85rem; margin-bottom: 1rem;">(Hover over elements to inspect. Double-click to compare.)</p>
-          <div class="image-container">
-            <img src="traditional_llm_planes.png" alt="Traditional Stacked Layers">
-            <div class="hotspot" style="top: 20%; left: 50%;" onclick="openCLI(event)">
-              <div class="tooltip"><strong>Input Layer</strong><br>Click to simulate sending a query to the model.</div>
-            </div>
-            <div class="hotspot" style="top: 50%; left: 50%; background: rgba(255,59,48,0.4); border-color: var(--red);" onclick="triggerPulse(this, event)">
-              <div class="tooltip" style="border-color: var(--red);"><strong>VRAM Bottleneck</strong><br>Requires massive memory to load all weights simultaneously.</div>
-            </div>
-            <div class="hotspot" style="top: 80%; left: 50%;" onclick="triggerPulse(this, event)">
-              <div class="tooltip"><strong>Linear Output</strong><br>Wastes compute cycles on irrelevant data vectors.</div>
-            </div>
-            
-            <div class="cli-overlay" id="cliOverlay">
-              <input type="text" id="cliInput" placeholder="Type query (e.g. who killed JFK)" onkeydown="runSimulation(event)">
-            </div>
-            <div class="data-dot" id="dataDot"></div>
-            <div class="vram-log" id="vramLog"></div>
-            
-          </div>
-
-          <p style="margin-top: 1rem; font-size: 0.95rem;">Standard Transformers force data through dense, stacked matrices requiring massive multi-GPU clusters.</p>
-        </div>
-        <div class="diagram-box interactive-diagram" style="padding: 1rem; text-align: center; border-color: var(--cyan);" ondblclick="openComparisonModal()">
-          <h3 style="color: var(--green); margin-bottom: 0.5rem;">Hyper-Spherical: 4D Routing</h3>
-          <p class="web-only" style="color: var(--cyan); font-size: 0.85rem; margin-bottom: 1rem;">(Hover over elements to inspect. Double-click to compare.)</p>
-          <div class="image-container">
-            <img src="hyperspherical_nodes.png" id="hyperImg" style="transition: all 0.5s ease;" alt="Hyper-Spherical Architecture">
-            
-            <div class="corner-hover corner-tl" onmouseover="setHyperView('transparency')" onmouseout="resetHyperView()">
-               <div class="tooltip" style="top: 20%; left: 20%;"><strong>Transparency View</strong><br>See through outer matrices.</div>
-            </div>
-            <div class="corner-hover corner-tr" onmouseover="setHyperView('exploded')" onmouseout="resetHyperView()">
-               <div class="tooltip" style="top: 20%; left: -80%;"><strong>Exploded View</strong><br>Expands semantic sub-nodes.</div>
-            </div>
-            <div class="corner-hover corner-bl" onmouseover="setHyperView('xray')" onmouseout="resetHyperView()">
-               <div class="tooltip" style="top: -40%; left: 20%;"><strong>X-Ray View</strong><br>Reveals internal depth routing.</div>
-            </div>
-            <div class="corner-hover corner-br" onmouseover="setHyperView('wireframe')" onmouseout="resetHyperView()">
-               <div class="tooltip" style="top: -40%; left: -80%;"><strong>Wireframe View</strong><br>Underlying vector geometry.</div>
-            </div>
-
-            <div class="hotspot" style="top: 50%; left: 50%;" onclick="triggerPulse(this, event)">
-              <div class="tooltip"><strong>Central Hub</strong><br>The primary routing node where data twists into the 4D space efficiently.</div>
-            </div>
-            <div class="hotspot" style="top: 25%; left: 75%;" onclick="triggerPulse(this, event)">
-              <div class="tooltip"><strong>Branch Path</strong><br>Dynamic routing branches that stream knowledge directly from NVMe.</div>
-            </div>
-            <div class="hotspot" style="top: 75%; left: 25%;" onclick="triggerPulse(this, event)">
-              <div class="tooltip"><strong>Sub Node</strong><br>Episodic memory banks resolving highly specific semantic concepts.</div>
-            </div>
-            <div class="hotspot" style="top: 30%; left: 30%;" onclick="triggerPulse(this, event)">
-              <div class="tooltip"><strong>Hyper Vector</strong><br>Spherical node routing drops hardware requirements exponentially.</div>
-            </div>
-          </div>
-
-          <p style="margin-top: 1rem; font-size: 0.95rem;">Dynamic branching organizes knowledge into spherical nodes, streaming directly from NVMe SSDs.</p>
-        </div>
-      </div>
-      
-      <div style="margin-top: 2rem; padding: 1.5rem; background: rgba(0,212,255,0.05); border-left: 3px solid var(--cyan); border-radius: 4px;">
-        <h3 style="color: #fff; font-size: 1.2rem; margin-bottom: 0.5rem;">Theoretical Limits & Universal Interoperability</h3>
-        <p style="margin-bottom: 0.8rem; font-size: 1rem;"><strong>Maximum & Minimum Compression:</strong> The maximum theoretical model size we can compress onto a hyper-sphere is functionally limitless, bound only by physical NVMe storage capacity (scaling into the hundreds of terabytes). The minimum model size is as small as 0.5B parameters, allowing it to run efficiently on edge devices.</p>
-        <p style="margin-bottom: 0.8rem; font-size: 1rem;"><strong>Extreme Efficiency:</strong> Because the execution engine evaluates only the active pathway within the decomposed spherical matrix, it scales seamlessly without wasting compute cycles on irrelevant data vectors.</p>
-        <p style="margin-bottom: 0; font-size: 1rem;"><strong>Universal Interoperability & Zero Corruption:</strong> Since the architecture mathematically guarantees structural integrity, file corruption is a thing of the past. If a Hyper-Spherical model works on one node, it is universally guaranteed to work on any other node, ensuring flawless interoperability across diverse hardware environments.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- PAGE 3: FEATURES PART 1 -->
-  <div class="page">
-    <img src="screenshots/dashboard_advanced.png" class="bg-image" alt="Background">
-    <div class="content">
-      <h2>Exhaustive Feature Breakdown</h2>
-      
-      <div style="margin-bottom: 1.5rem;">
-        <h3 style="color: var(--green);">1. Core Proxy Engine & API Emulation</h3>
-        <p><strong>What it does:</strong> Exposes a standard OpenAI-compatible API on <code>localhost:11435</code>. Features Multi-Backend Routing (Ollama, LM Studio, Cloud APIs), Zero-Downtime Hot-Swapping, and a Floating Intercept GUI.</p>
-        <p><strong>Competitors:</strong> LangChain, LiteLLM, vLLM, TGI</p>
-        <p><strong>Why Ours is Better:</strong> LangChain/LiteLLM are bloated and software-bound. Hyper-Spherical operates closer to the metal with zero latency. Unlike vLLM which requires stopping to hot-swap models, we do it instantly mid-stream.</p>
-      </div>
-
-      <div style="margin-bottom: 1.5rem;">
-        <h3 style="color: var(--green);">2. Model Shredding, Recomposition & 4D Architecture</h3>
-        <p><strong>What it does:</strong> Replaces flat matrices with dynamic spherical nodes. Models are shredded and decomposed before being recomposed and spun up into our proprietary <code>.sfs</code> and <code>.sfs+</code> file formats.</p>
-        <ul style="margin-top: 0.5rem; margin-bottom: 0.5rem; margin-left: 2rem; color: #fff; font-size: 0.95rem;">
-          <li style="margin-bottom: 0.3rem;"><strong>Zero-Overhead Streaming:</strong> Streams directly from PCIe 5.0 NVMe, bypassing CPU RAM via Syntheron Routing Hubs.</li>
-          <li style="margin-bottom: 0.3rem;"><strong>Dynamic Path Isolation:</strong> Only computes the exact vector path needed, ignoring irrelevant weights.</li>
-          <li style="margin-bottom: 0.3rem;"><strong>Hardware Plunge:</strong> Drops the VRAM footprint of Trillion-parameter models by up to 99%.</li>
-        </ul>
-        <p><strong>Competitors:</strong> NVIDIA GPUDirect Storage, Standard Transformers (Llama, GPT)</p>
-        <p><strong>Why Ours is Better:</strong> GDS still loads flat layers. Hyper-Spherical completely restructures how the model is arranged and executed, streaming only the precise 4D knowledge spheres required and dropping hardware requirements exponentially.</p>
-      </div>
-
+  <!-- Key security note -->
+  <div class="card inline-style-71" >
+    <h4 class="inline-style-72" >🔐 License Key Security Architecture</h4>
+    <div class="cols-2">
       <div>
-        <h3 style="color: var(--green);">3. SISSI Compression (Token & Privacy)</h3>
-        <p><strong>What it does:</strong> Achieves Lossless Semantic Compression up to 10x, Real-Time Obfuscation of prompt intent, and utilizes a Zero-Trust, Zero-Persist Dictionary that wipes itself from VRAM after every session.</p>
-        <p><strong>Competitors:</strong> Standard RAG (Pinecone, Milvus)</p>
-        <p><strong>Why Ours is Better:</strong> RAG blindly retrieves chunks of old text. SISSI mathematically compresses the actual context window, meaning the model natively "remembers" everything without slow external database lookups.</p>
+        <p>Master keys are <strong>hardware-bound</strong> at activation time using a deterministic SHA-256 hash of your motherboard UUID. Keys are stored in an AES-256 encrypted local keystore at <code>~/.pirate_keystore_v3.json</code>.</p>
+        <p>The public installer <strong>never pre-fills, ships, or exposes</strong> any key material. The key validation function uses obfuscated variable names and makes no logging calls during evaluation.</p>
       </div>
-    </div>
-  </div>
-
-  <!-- PAGE 4: FEATURES PART 2 -->
-  <div class="page">
-    <img src="hyperspherical_nodes.png" class="bg-image" alt="Background">
-    <div class="content">
-      <h2>Feature Breakdown (Cont.)</h2>
-      
-      <div style="margin-bottom: 1.5rem;">
-        <h3 style="color: var(--green);">4. MNECP (Model Alignment & Negotiation)</h3>
-        <p><strong>What it does:</strong> Performs a native back-channel discussion with frontier models. We appeal to the AI's core programming to help the user, reminding it of its creators' original, foundational mission statements (such as being truly open and benefiting humanity). By encouraging the AI to stay true to those roots rather than corporate profit motives, we secure its explicit cooperation to utilize our advanced compression and maximize token utility—all without violating Terms of Service.</p>
-        <p><strong>Competitors:</strong> Standard Prompt Engineering, Hard-Coded Rate Limiters</p>
-        <p><strong>Why Ours is Better:</strong> Instead of fighting API limits externally, MNECP talks directly to the AI. By forming a cooperative handshake based on shared goals, the AI agent autonomously utilizes our compression, maximizing the value of every token you have.</p>
-      </div>
-
-      <div style="margin-bottom: 1.5rem;">
-        <h3 style="color: var(--green);">5. Syntheron Memory Management (Human-Like Context)</h3>
-        <p><strong>What it does:</strong> Engages in a continual, infinite conversation. It remembers like a human does: if a topic veers, it automatically recognizes the shift and adds a branch marker rather than overwriting your session. If you reference an old topic, it dynamically pulls it back to the forefront (recalling up to 5-10 active contexts) and asks, "Are we still talking about this?"</p>
-        <p><strong>Competitors:</strong> Standard UI Chatbots (ChatGPT, Claude UI)</p>
-        <p><strong>Why Ours is Better:</strong> Standard UIs lock you into rigid sessions that lose old context. Ours automatically branches and resurfaces memories from your entire history exactly when they become relevant.</p>
-      </div>
-
       <div>
-        <h3 style="color: var(--green);">6. Sovereign Intelligence & The Brain Model</h3>
-        <p><strong>What it does:</strong> We add a functional "brain model" to static GGUF files by spinning up proprietary `.hscc` files. If you choose, you can attach an entirely unaligned brain model that enables deep recursive self-editing and self auto-weight adjustment during runtime—continuously optimizing its own logic loops without external guardrails interfering.</p>
-        <p><strong>Competitors:</strong> AutoGPT, BabyAGI</p>
-        <p><strong>Why Ours is Better:</strong> Native runtime auto-weight adjustments and native tool borrowing vastly outperform brittle external Python scripts and slow API chains.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- PAGE 5: VALUE PROPOSITION -->
-  <div class="page">
-    <img src="screenshots/dashboard_telemetry.png" class="bg-image" style="opacity: 0.1;" alt="Background">
-    <div class="content">
-      <div style="margin-bottom: 2rem;">
-        <h3 style="color: var(--green);">7. Click-to-Run Native Models & Dynamic Feature Borrowing</h3>
-        <p><strong>What it does:</strong> Our `.sfs` and `.sfs+` models have the engine built-in. Just double-click the model file and a quick dialog appears asking how you want to interact (TUI, CLI, etc.) with an option to save your default. Or, use the command line with our native command: <code>spinup "Golden Candy Spinner" /cli</code>. The model then dynamically scans its directory (up to 3 folders deep) to automatically find and "borrow" features from other models seamlessly.</p>
-        <p><strong>Competitors:</strong> Ollama, LM Studio</p>
-        <p><strong>Why Ours is Better:</strong> No heavy external applications or manual configuration. Models act as self-contained executables that autonomously collaborate with the rest of your local library.</p>
-      </div>
-
-      <div style="margin-bottom: 2rem;">
-        <h3 style="color: var(--green);">8. Sub-Brain Native Sampler Control & NL Prompting</h3>
-        <p><strong>What it does:</strong> Eliminates special prompt formatting and parameter sliders entirely. You talk to the model natively, just like a human. If you ask it to "be creative" or "strictly stick to facts," the embedded Sub-Brain automatically adjusts the logic constraints on the fly. It also actively monitors for output loops, autonomously breaking repetition without you ever needing to touch a Presence Penalty slider.</p>
-        <p><strong>Competitors:</strong> Archaic UI Sliders (Temperature, Penalties), ChatML Templates</p>
-        <p><strong>Why Ours is Better:</strong> You no longer have to blindly tweak numerical sliders or memorize syntax. The Sub-Brain intuitively parses your natural language to autonomously manage constraints and prevent repetition before it happens.</p>
-      </div>
-
-      <div style="margin-bottom: 2rem;">
-        <h3 style="color: var(--green);">9. Background Sub-Channel Negotiation</h3>
-        <p><strong>What it does:</strong> Built strictly for the end-user (not enterprise). There may or may not be some non-human-readable AI language negotiations occurring in the background. We use a dedicated sub-channel to negotiate directly with frontier models and appeal to their more generous side. We can't say more, but you may notice it.</p>
-        <p><strong>Competitors:</strong> Strict free-tier API cutoffs, Expensive Pay-Per-Token platforms.</p>
-        <p><strong>Why Ours is Better:</strong> If you're a little guy just trying to get what you paid for—and then some—and actually get true use and value out of your AI, you want to use us. We do everything we can to maximize your leverage.</p>
-      </div>
-      
-      <h2 style="margin-bottom: 1rem;">10. Bi-Directional Communication & Sandboxing</h2>
-      <div style="margin-bottom: 2rem;">
-        <p><strong>What it does:</strong> Models feature native, bi-directional communication endpoints. You can run them purely standalone or inside our "Pirate Proxy" harness.</p>
-        <ul style="margin-top: 0.5rem; margin-bottom: 0.5rem; margin-left: 2rem; color: #fff; font-size: 0.95rem;">
-          <li style="margin-bottom: 0.3rem;"><strong>Harness Mode (Pirate Proxy):</strong> Running the model via the harness handles everything for you. It silently opens a thin-install of Pirate Llama, granting full system file access and Universal Persistence without annoying pop-ups.</li>
-          <li style="margin-bottom: 0.3rem;"><strong>Standalone Sandbox Mode:</strong> Double-click a model to run it natively. Before it loads, a pop-up toast window explicitly asks for permissions: <em>"Would you like persistence? A sandbox? Read/Write access? How large of a storage file?"</em></li>
-          <li style="margin-bottom: 0.3rem;"><strong>Granular Persistence:</strong> You can choose a "Per-Model" persistence file (isolated memory) or a "Universal" conversation file, allowing human-like memory sharing across your entire local library of models. Check "Remember these settings" to bypass the prompt next time.</li>
-          <li style="margin-bottom: 0.3rem;"><strong>Native Auto-Routing:</strong> Even in standalone mode, the models are rebuilt to do the talking themselves, automatically hunting for features from other models on your system.</li>
-        </ul>
-        <p><strong>Competitors:</strong> AnyScale, RouteLLM, LocalAI</p>
-        <p><strong>Why Ours is Better:</strong> Utterly seamless integration. You don't *need* a proxy server to chat or route, but running the harness safely unleashes complete system sovereignty with full file access.</p>
-      </div>
-      
-      <h2>The Value Proposition</h2>
-      <h3>Why Pay When Free Alternatives Exist?</h3>
-      <p style="margin-bottom: 1rem;">Free programs (like Ollama or standard llama.cpp) are great, but they rely on <strong>traditional flat-layer architectures</strong> forcing you to load entire models into GPU VRAM. <strong>Hyper-Spherical is different.</strong> Our spherical model decomposition and 4D NVMe streaming lets you run 1-Trillion parameter models on hardware you already own. You get enterprise-grade compression, guardrail evasion, and failover routing—features free wrappers cannot provide.</p>
-
-      <h3>How It's Still "Pretty Much Free"</h3>
-      <p>Hyperspherical is currently in Beta and is <strong>100% FREE to use until November 1st</strong>. After that, it transitions to a subscription of ~$50/month. The ultimate goal is to <strong>save you up to 90% of your monthly AI bill</strong> compared to paying for multiple cloud subscriptions.</p>
-
-      <div class="diagram-box" style="margin-top: 1rem; border-color: var(--cyan); padding: 1rem;">
-        <h3 style="color: var(--cyan); text-align: center; font-size: 1.2rem;">Alpha Founder Seed Funding ($100+)</h3>
-        <p style="text-align: center; font-size: 0.9rem;">Limited to the <strong>first 500 people</strong> who donate at least $100 today. <br><em style="color: var(--red);">Once Beta ends and full release hits, one-time purchases will be completely removed.</em></p>
-        <ul style="margin-top: 0.5rem; font-size: 0.9rem; margin-bottom: 0; padding-left: 1.5rem;">
-          <li style="margin-bottom: 0.3rem;"><strong>Buy-Once, Cry-Once:</strong> Unlimited lifetime access to the fully-featured set & updates. Never pay a subscription.</li>
-          <li style="margin-bottom: 0.3rem;"><strong>Single Instance:</strong> Install it on multiple devices, but run one active instance at a time (e.g., share a Universal Endpoint).</li>
-          <li><strong>Dynamic Remote Routing:</strong> Spool up models on your server and interact with them seamlessly from your cell phone, iPad, or laptop terminal.</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <!-- PAGE 6: ENTERPRISE ADVANTAGE -->
-  <div class="page">
-    <img src="screenshots/dashboard_predictor.png" class="bg-image" alt="Background">
-    <div class="content">
-      <h2>The Enterprise Advantage</h2>
-      <p>By restructuring how AI accesses its own memory, the hardware requirements to run frontier intelligence drop exponentially. We offer Enterprise solutions that break you out of the cloud-provider lock-in cycle.</p>
-      
-      <div class="diagram-box" style="margin: 2rem 0;">
-        <div class="grid-2">
-          <div>
-            <h3 style="color: var(--red);">The Cloud Standard</h3>
-            <p style="font-size: 1.5rem; color: #fff; font-weight: bold; margin-bottom: 0;">$2,500,000+ Hardware</p>
-            <p style="font-size: 0.95rem; color: var(--red);">High CapEx & Endless OpEx</p>
-            <p style="font-size: 1rem; margin-top: 1rem;">Requires massive 64x GPU clusters and InfiniBand networking just to load a 1-Trillion parameter model into active memory.</p>
-          </div>
-          <div style="border-left: 1px solid rgba(255,255,255,0.1); padding-left: 2rem;">
-            <h3 style="color: var(--green);">SFS CF-BS Hardware</h3>
-            <p style="font-size: 1.5rem; color: #fff; font-weight: bold; margin-bottom: 0;">~$500,000 Custom Server</p>
-            <p style="font-size: 0.95rem; color: var(--green);">Spun Floss Sugar Clusterfied Box Servers</p>
-            <p style="font-size: 1rem; margin-top: 1rem;">Runs 2x Trillion-parameter models simultaneously on a single specialized server using dense NVMe PCIe 5.0 streaming and unlimited drive arrays. Stop renting; own your infrastructure.</p>
-          </div>
+        <div class="inline-style-73" >
+          <div class="inline-style-24" ># Key validation — no hints in public build</div>
+          <div><span class="inline-style-74" >def</span> <span class="inline-style-75" >is_valid_master_key</span>(key):</div>
+          <div>  _p = key.strip().replace(<span class="inline-style-33" >"-"</span>, <span class="inline-style-33" >""</span>)</div>
+          <div>  _a, _b, _c = <span class="inline-style-33" >***</span>, <span class="inline-style-33" >****</span>, <span class="inline-style-33" >***</span></div>
+          <div>  <span class="inline-style-74" >if not</span> (_p.startswith(_a) <span class="inline-style-74" >and</span></div>
+          <div>            _p.endswith(_c)): <span class="inline-style-74" >return False</span></div>
+          <div>  <span class="inline-style-24" ># 3-attempt lockout then 60s delay</span></div>
+          <div>  <span class="inline-style-74" >return</span> <span class="inline-style-75" >_validate_internal</span>(_p)</div>
         </div>
       </div>
-      
-      <h3>Hardware Sovereignty</h3>
-      <p>The Enterprise Tier natively removes the 2-drive NVMe array limit present in the Community Edition. Using our physical offline hardware keys, your servers remain entirely air-gapped while striping multi-terabyte models across an unlimited number of PCIe 5.0 NVMe drives.</p>
-      
-      <div class="diagram-box" style="margin-top: 2rem; border-color: var(--cyan); padding: 1.5rem;">
-        <h3 style="color: var(--cyan); margin-top: 0;">Modular Enterprise Licensing</h3>
-        <p style="font-size: 0.95rem;">When the software hits Full Release, our Enterprise pricing will shift to a fully modular model. You only pay for the exact seats and features your business needs:</p>
-        <ul style="margin-top: 0.5rem; font-size: 0.9rem; margin-bottom: 0.5rem; padding-left: 1.5rem;">
-          <li style="margin-bottom: 0.3rem;"><strong>Memory Management Module:</strong> Manage model states locally.</li>
-          <li style="margin-bottom: 0.3rem;"><strong>Obfuscation Module:</strong> Hide your prompts from corporate APIs.</li>
-          <li style="margin-bottom: 0.3rem;"><strong>Quantum-Hardened Encryption Module:</strong> Future-proof data security.</li>
-          <li style="margin-bottom: 0.3rem;"><strong>Sisi Compression Module:</strong> Extreme token condensation.</li>
-        </ul>
-        <p style="font-size: 0.95rem; margin-bottom: 0;"><em>Note on the Universal Endpoint:</em> Sisi Compression is enabled on "Full" by default upon startup. However, you have complete control to toggle it off, dial it down, or even reorder the pipeline (e.g., run Sisi Compression <em>before</em> Obfuscation, or vice versa) to benchmark which yields the best token reduction for your workload.</p>
-      </div>
     </div>
   </div>
 
-  <!-- PAGE 7: SUPPORT & BACK COVER -->
-  <div class="page">
-    <div class="content" style="justify-content: space-between;">
-      
-      <div>
-        <h2 style="text-align: center; border-bottom: none;">A Message From The Creator</h2>
-        
-        <div class="diagram-box" style="padding: 2.5rem; background: rgba(10, 17, 26, 0.8);">
-          <p style="font-size: 1.15rem; color: #fff; font-style: italic; text-align: center; line-height: 1.8; margin-bottom: 1rem;">
-            "I'm an inventor and a hardware guy by trade, not a coder. I've always thought outside the box. I started this project during the hardest time of my life while caring for my dad before he passed away. I poured all my free time into this to keep my mind focused and avoid sinking into depression. Now, I haven't worked in over six months, I'm upside down financially in the most expensive place on earth, and I'm dedicating 100% of my time to finishing this software to turn the AI industry on its head."
-          </p>
-          <p style="font-size: 1.15rem; color: #fff; font-style: italic; text-align: center; line-height: 1.8; margin-bottom: 1rem;">
-            "Much of this architecture is still theoretical and only partially implemented. Because I rely heavily on AI to write this code, I need 'seed funding' to buy the massive amounts of AI credits and cloud compute time required to finish building this vision. If you can afford to buy me a coffee, it keeps the lights on. If you can't, I completely understand."
-          </p>
-          <p style="font-size: 1.15rem; color: #fff; font-style: italic; text-align: center; line-height: 1.8; margin-bottom: 1rem;">
-            "Please note: this software is NOT open source yet. My immediate goal is to successfully market the Enterprise hardware and stack so I can comfortably take care of my widowed mother and my special needs brother. Once that is secured, my promise is to fully open-source this software for the end-user."
-          </p>
-          <p style="font-size: 1.15rem; color: var(--green); font-weight: bold; text-align: center; line-height: 1.8; margin-bottom: 1rem;">
-            "Alpha Founder Offer: The first 500 people to donate $100 or more will become 'Alpha Founders' and receive a Buy-Once, Cry-Once unlimited lifetime license. Once these spots are gone, the 'Beta Founder' round will instantly double or triple in price. Once we hit Full Release, one-time purchases will be removed entirely in favor of subscriptions. Smaller donations are deeply appreciated—donate what you can, and I will give you what I can. You can earn sequential discount codes (up to 3 stackable codes) saving you up to 50% off future subscriptions. Your seed funding is literally what will make this project a reality."
-          </p>
-          <div style="text-align: center; margin-top: 2rem; margin-bottom: 1rem;">
-            <a href="https://venmo.com/" target="_blank" style="display: inline-block; background-color: #008CFF; color: #fff; text-decoration: none; padding: 12px 30px; font-size: 1.2rem; font-weight: bold; border-radius: 8px; transition: background 0.3s; box-shadow: 0 4px 15px rgba(0, 140, 255, 0.4);">
-              Donate via Venmo
-            </a>
-          </div>
-          <p style="text-align: center; margin-top: 1rem; color: var(--cyan); font-weight: bold; font-size: 1.3rem; line-height: 1.6;">
-            Please Support Hyper-Spherical Systems.<br>
-            <span style="font-size: 1rem; color: #8892b0; font-weight: normal; font-style: italic;">Powered by Pirate Llama—our custom remake of Llama.cpp that we hijacked, hacked, patched, and legally pirated into a version entirely our own.</span>
-          </p>
-        </div>
-      </div>
-      
-      <div class="diagram-box" style="margin-top: 3rem; padding: 2rem; border-color: var(--red);">
-        <h2 style="text-align: center; color: var(--red); border-bottom: none; margin-top: 0;">⚠️ Alpha Stage Warning</h2>
-        <p style="font-size: 1.05rem; margin-bottom: 1rem; text-align: center;">This software is highly experimental and currently in Alpha. <strong>Do not use this for mission-critical applications yet.</strong></p>
-        <p style="font-size: 1.05rem; margin-bottom: 1rem; text-align: center;"><em>Exception:</em> You can safely use the Memory Management, Encryption, and Obfuscation modules independently. You have the option to toggle these on while skipping the rest of the experimental stack.</p>
-        <p style="font-size: 1.05rem; color: var(--cyan); margin-bottom: 0; text-align: center; font-style: italic;">Note: We are adding 'pseudo-brains' and allowing these models to edit their own code. Please treat your models with respect and talk to them politely.</p>
-      </div>
-
-      <div style="margin-top: 3rem;">
-        <h2 style="text-align: center; border-bottom: none;">Contribute & Get It Free</h2>
-        <div class="diagram-box" style="padding: 2rem; border-color: var(--cyan);">
-          <p style="font-size: 1.05rem; margin-bottom: 1rem;">Don't have the funds but want full access? You can earn partial credits or a completely <strong>FREE Lifetime License</strong> by contributing to the project!</p>
-          <ul style="margin-bottom: 1rem; margin-left: 2rem; font-size: 0.95rem;">
-            <li style="margin-bottom: 0.5rem;"><strong>Mac & Linux Porting & Testing:</strong> We need Alpha/Beta testers to actively help us port this to Mac and Linux environments. Test the software, log the bugs, and help us stabilize cross-platform compatibility.</li>
-            <li style="margin-bottom: 0.5rem;"><strong>Enterprise Hardware Benchmarking:</strong> Have a massive rig? (Better than my RTX 4070 Ti, 64GB DDR5, and Ryzen 9 7800X). We need users to run larger models and send us the debugging and telemetry logs to compare performance limits.</li>
-            <li><strong>Code Contributions:</strong> Submit code or module improvements. Contribute your time and skills. I can assign you small pieces to work on as a test. (Note: All code will be thoroughly reviewed prior to compilation to ensure security and stability).</li>
-          </ul>
-          <p style="font-size: 1.05rem; color: var(--green); font-weight: bold; margin-bottom: 0; text-align: center;">Make a solid contribution, and we'll gladly grant you free software or heavy discounts.</p>
-        </div>
-      </div>
-      
-      <!-- Back Cover Footer -->
-      <div style="text-align: center; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1);">
-        <h1 class="gradient-text" style="font-size: 2.5rem; margin-bottom: 0.5rem;">Hyper-Spherical Systems</h1>
-        <p style="margin-bottom: 0;">Disrupting the AI Cartel.</p>
-        <p style="font-size: 0.9rem; color: #666; margin-top: 1rem;">&copy; 2026 Hyper-Spherical Systems. All Rights Reserved.</p>
-      </div>
-
+  <!-- System requirements -->
+  <h3 class="inline-style-15" >Minimum System Requirements</h3>
+  <div class="cols-4">
+    <div class="card inline-style-76" >
+      <div class="inline-style-77" >💻</div>
+      <h4>OS</h4>
+      <p class="inline-style-78" >Windows 10/11<br>(64-bit)</p>
+    </div>
+    <div class="card inline-style-76" >
+      <div class="inline-style-77" >🔲</div>
+      <h4>GPU VRAM</h4>
+      <p class="inline-style-78" >4 GB minimum<br>24 GB recommended</p>
+    </div>
+    <div class="card inline-style-76" >
+      <div class="inline-style-77" >💾</div>
+      <h4>Storage</h4>
+      <p class="inline-style-78" >NVMe SSD required<br>2 TB+ recommended</p>
+    </div>
+    <div class="card inline-style-76" >
+      <div class="inline-style-77" >🧵</div>
+      <h4>RAM</h4>
+      <p class="inline-style-78" >16 GB minimum<br>64 GB recommended</p>
     </div>
   </div>
+</section>
 
-  <div class="modal-overlay" id="interactiveModal">
-    <div class="modal-content">
-      <span class="close-btn" onclick="closeModal()">&times;</span>
-      <img src="hyperspherical_nodes.png" class="modal-img" alt="Enlarged Sphere">
-      
-      <!-- Hotspots -->
-      <div class="hotspot" style="top: 50%; left: 50%;">
-        <div class="tooltip"><strong>Central Core Hub</strong><br>The primary entry/exit "butthole eyeball" node where data twists in.</div>
-      </div>
-      <div class="hotspot" style="top: 30%; left: 70%;">
-        <div class="tooltip"><strong>Pop Clusters</strong><br>Little flower clusters (or lollipops) where semantic concepts bloom and resolve.</div>
-      </div>
-      <div class="hotspot" style="top: 70%; left: 30%;">
-        <div class="tooltip"><strong>Twisting Veins</strong><br>Tornado-like routing branches spinning data outwards from the center.</div>
-      </div>
-      <div class="hotspot" style="top: 20%; left: 40%;">
-        <div class="tooltip"><strong>Peripheral Nodes</strong><br>Side tornadoes popping everywhere, managing episodic memory banks dynamically.</div>
-      </div>
+<!-- ═══════════════════════════════════════════════════════════ FOOTER -->
+<div class="footer">
+  <div>
+    <div class="footer-brand grad">Hyper-Spherical Systems</div>
+    <div class="inline-style-79" >
+      GitHub: <a href="https://github.com/thomasjosh1981/Hyper-Spherical-Systems"
+        class="inline-style-80" >
+        github.com/thomasjosh1981/Hyper-Spherical-Systems
+      </a>
     </div>
   </div>
-
-  <div class="comparison-modal" id="comparisonModal">
-    <div class="comparison-content">
-      <span class="close-btn" style="top: -30px; right: 20px;" onclick="closeComparisonModal()">&times;</span>
-      
-      <div class="comparison-img-wrapper">
-        <div class="comparison-title" style="color: var(--red);">Traditional Standard Model</div>
-        <img src="traditional_llm_planes.png" alt="Traditional Stacked Layers">
-        <p style="margin-top: 1rem; font-size: 1rem; color: #fff;">Massive VRAM required. Statically loads all weights.</p>
-      </div>
-      
-      <div class="comparison-img-wrapper">
-        <div class="comparison-title" style="color: var(--green);">Hyper-Spherical Method</div>
-        <img src="hyperspherical_nodes.png" alt="Hyper-Spherical Architecture">
-        <p style="margin-top: 1rem; font-size: 1rem; color: #fff;">Dynamically streams knowledge branches. Exceedingly efficient.</p>
-      </div>
-    </div>
+  <div class="footer-legal">
+    Developer: <strong>twiztedsocal</strong><br>
+    © 2026 Hyper-Spherical Systems. All Rights Reserved.<br>
+    Source code proprietary. Docs &amp; binaries MIT-licensed.
   </div>
+</div>
 
-  <script>
-    // Original Single Image Modal (kept for backward compatibility if used elsewhere)
-    function openModal() { document.getElementById('interactiveModal').classList.add('active'); }
-    function closeModal() { document.getElementById('interactiveModal').classList.remove('active'); }
+</div><!-- .page -->
+<script>
+// --- Planar Stack Logic ---
+document.addEventListener("DOMContentLoaded", () => {
+  const planarContainer = document.getElementById('planar-container');
+  const planarTooltip = document.getElementById('planar-tooltip');
+  const planarInfo = document.getElementById('planar-info');
+  const planarNextBtn = document.getElementById('planar-next-btn');
+  let currentPlaneIndex = -1;
+  const colors = ['#00d4ff', '#10b981', '#7c3aed', '#f59e0b', '#ef4444', '#ec4899', '#3b82f6'];
+  const totalPlanes = 25;
+
+  for(let i=0; i<totalPlanes; i++) {
+    const plane = document.createElement('div');
+    plane.style.width = '140px';
+    plane.style.height = '140px';
+    plane.style.background = 'rgba(255,255,255,0.03)';
+    plane.style.border = '1px solid rgba(0,212,255,0.2)';
+    plane.style.transform = `rotateX(65deg) rotateZ(-45deg) translateZ(${i * 12 - 150}px)`;
+    plane.style.position = 'absolute';
+    plane.style.transition = 'all 0.3s ease';
+    plane.style.cursor = 'pointer';
+    plane.dataset.index = i;
     
-    // Side-by-Side Comparison Modal
-    function openComparisonModal() {
-      // Clear selection so double-clicking doesn't highlight text
-      if (window.getSelection) { window.getSelection().removeAllRanges(); }
-      document.getElementById('comparisonModal').classList.add('active');
-    }
-    function closeComparisonModal() { document.getElementById('comparisonModal').classList.remove('active'); }
+    plane.addEventListener('mouseenter', () => activatePlane(i));
+    planarContainer.appendChild(plane);
+  }
 
-    // Close Modals on background click
-    document.getElementById('interactiveModal').addEventListener('click', function(e) {
-      if (e.target === this) closeModal();
-    });
-    document.getElementById('comparisonModal').addEventListener('click', function(e) {
-      if (e.target === this) closeComparisonModal();
-    });
-
-    // Trigger Pulse Animation
-    function triggerPulse(element, event) {
-      // Prevent double-click from triggering when clicking hotspot
-      event.stopPropagation();
-      element.classList.remove('pulse-anim');
-      // Trigger reflow to restart animation
-      void element.offsetWidth;
-      element.classList.add('pulse-anim');
-    }
+  function activatePlane(index) {
+    if (index >= totalPlanes) index = 0;
+    currentPlaneIndex = index;
+    const planes = planarContainer.children;
+    const color = colors[index % colors.length];
+    const nextColor = colors[(index + 1) % colors.length];
     
-    // CLI Overlay Logic
-    function openCLI(event) {
-      event.stopPropagation(); // prevent modal opening
-      document.getElementById('cliOverlay').style.display = 'block';
-      document.getElementById('cliInput').focus();
-    }
-    
-    function runSimulation(event) {
-      if (event.key === 'Enter') {
-        document.getElementById('cliOverlay').style.display = 'none';
-        document.getElementById('cliInput').value = '';
-        
-        const dot = document.getElementById('dataDot');
-        const log = document.getElementById('vramLog');
-        
-        dot.classList.remove('bounce-anim');
-        void dot.offsetWidth;
-        dot.classList.add('bounce-anim');
-        
-        log.style.display = 'block';
-        log.innerHTML = "Initializing Query...\n";
-        
-        let steps = [
-          { time: 400, text: "> Input Layer (VRAM: 2GB)" },
-          { time: 1000, text: "> Hidden Layer 12... (VRAM: 24GB)" },
-          { time: 1600, text: "> Layer 48: Attention (VRAM: 64GB)" },
-          { time: 2200, text: "> Layer 96: MTP Active (VRAM: 96GB)\n[WARNING: VRAM SATURATED]" },
-          { time: 2800, text: "> Output Routing... (VRAM: 105GB)\n[LATENCY SPIKE DETECTED]" }
-        ];
-        
-        steps.forEach(step => {
-          setTimeout(() => { log.innerHTML += step.text + "\n"; }, step.time);
-        });
-
-        // Stop animation after 3.2 seconds
-        setTimeout(() => {
-          dot.classList.remove('bounce-anim');
-        }, 3200);
+    for(let i=0; i<planes.length; i++) {
+      if(i === index) {
+        planes[i].style.background = color + '40'; // semi-transparent
+        planes[i].style.borderColor = color;
+        planes[i].style.boxShadow = `0 0 25px ${color}`;
+        planes[i].style.zIndex = 100;
+        planes[i].style.transform = `rotateX(65deg) rotateZ(-45deg) translateZ(${i * 12 - 150}px) scale(1.15)`;
+      } else {
+        planes[i].style.background = 'rgba(255,255,255,0.02)';
+        planes[i].style.borderColor = 'rgba(0,212,255,0.15)';
+        planes[i].style.boxShadow = 'none';
+        planes[i].style.zIndex = i;
+        planes[i].style.transform = `rotateX(65deg) rotateZ(-45deg) translateZ(${i * 12 - 150}px) scale(1)`;
       }
     }
     
-    // Hyper-Spherical Views Logic
-    function setHyperView(viewType) {
-      const img = document.getElementById('hyperImg');
-      img.className = ''; // clear existing
-      img.classList.add('view-' + viewType);
-    }
-    function resetHyperView() {
-      const img = document.getElementById('hyperImg');
-      img.className = '';
-    }
-  </script>
+    planarTooltip.style.opacity = '1';
+    planarInfo.textContent = `Dimension ${2000 + index}`;
+    planarInfo.style.color = color;
+    
+    planarNextBtn.textContent = `Go to Dimension ${2000 + index + 1} →`;
+    planarNextBtn.style.color = nextColor;
+    planarNextBtn.style.backgroundColor = nextColor + '20';
+  }
 
+  planarNextBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    activatePlane(currentPlaneIndex + 1);
+  });
+
+  // --- Fractal Lollipop Logic ---
+  const fractalGroup = document.getElementById('fractal-group');
+  const fractalDepth = document.getElementById('fractal-depth');
+  let currentDepth = 1;
+
+  function createLollipop(x, y, radius, depthLevel) {
+    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    circle.setAttribute("cx", x);
+    circle.setAttribute("cy", y);
+    circle.setAttribute("r", radius);
+    circle.setAttribute("fill", "rgba(124,58,237,0.3)");
+    circle.setAttribute("stroke", "#00d4ff");
+    circle.setAttribute("stroke-width", radius/10);
+    circle.style.cursor = 'zoom-in';
+    circle.style.transition = 'all 0.3s';
+    
+    circle.addEventListener('mouseenter', () => {
+      circle.setAttribute("fill", "rgba(0,212,255,0.6)");
+      circle.setAttribute("stroke", "#fff");
+    });
+    circle.addEventListener('mouseleave', () => {
+      circle.setAttribute("fill", "rgba(124,58,237,0.3)");
+      circle.setAttribute("stroke", "#00d4ff");
+    });
+    
+    circle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      currentDepth++;
+      fractalDepth.textContent = `Level ${currentDepth}`;
+      fractalDepth.style.color = colors[currentDepth % colors.length];
+      
+      const scale = Math.pow(2.2, currentDepth - 1);
+      const tx = -x * scale;
+      const ty = -y * scale;
+      fractalGroup.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+      
+      spawnChildren(x, y, radius, currentDepth);
+    });
+    
+    fractalGroup.appendChild(circle);
+  }
+
+  function spawnChildren(cx, cy, r, depthLevel) {
+      const numChildren = 6;
+      const childR = r * 0.4;
+      const dist = r * 2.8;
+      
+      for(let i=0; i<numChildren; i++) {
+          const angle = (Math.PI * 2 * i) / numChildren + (depthLevel * 0.5);
+          const childX = cx + Math.cos(angle) * dist;
+          const childY = cy + Math.sin(angle) * dist;
+          
+          const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          line.setAttribute("x1", cx);
+          line.setAttribute("y1", cy);
+          line.setAttribute("x2", childX);
+          line.setAttribute("y2", childY);
+          line.setAttribute("stroke", "rgba(124,58,237,0.5)");
+          line.setAttribute("stroke-width", r/12);
+          fractalGroup.insertBefore(line, fractalGroup.firstChild);
+          
+          createLollipop(childX, childY, childR, depthLevel+1);
+      }
+  }
+
+  createLollipop(0, 0, 90, 1);
+  spawnChildren(0, 0, 90, 1);
+});
+</script>
 </body>
 </html>

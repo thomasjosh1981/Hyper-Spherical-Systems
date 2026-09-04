@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>👑 Hyper-Spherical Gold Token HUD</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="hud-outer-wrapper">
+    <div class="gold-container" id="goldContainer">
+      
+      <!-- 1. Header Drag Bar -->
+      <header class="drag-header">
+        <div class="header-left">
+          <span class="crown-icon">👑</span>
+          <span class="hud-title">HYPES TOKEN TELEMETRY</span>
+          <span class="live-badge" id="liveBadge">● LIVE</span>
+        </div>
+        <div class="header-controls no-drag">
+          <button class="ctrl-btn pin-btn" id="btnPin" title="Toggle Always On Top">📌 PINNED</button>
+          <button class="ctrl-btn test-btn" id="btnTest" title="Manual Burst Test">⚡ TEST</button>
+          <button class="ctrl-btn min-btn" id="btnMin" title="Minimize">─</button>
+          <button class="ctrl-btn close-btn" id="btnClose" title="Close">✕</button>
+        </div>
+      </header>
+
+      <!-- 2. Scrolling Ticker Marquee — URL, Model, Log Path, Compression -->
+      <div class="ticker-wrapper">
+        <div class="ticker-content" id="tickerText">
+          🟢 HYPES TOKEN TELEMETRY ONLINE &nbsp;✦&nbsp; GATEWAY: http://127.0.0.1:8000/v1 &nbsp;✦&nbsp; AWAITING LIVE REQUESTS &nbsp;✦&nbsp; HARDWARE OPTIMIZATION ACTIVE &nbsp;✦&nbsp;
+        </div>
+      </div>
+
+      <!-- 3. The 3 Digital LCD Windows -->
+      <section class="lcd-windows-grid">
+        <!-- Window 1: Raw Before -->
+        <div class="lcd-card lcd-amber">
+          <div class="lcd-header">1. RAW BEFORE</div>
+          <div class="lcd-value" id="valPre">0</div>
+          <div class="lcd-subtext">Original Tokens</div>
+        </div>
+
+        <!-- Window 2: Compressed Sent -->
+        <div class="lcd-card lcd-cyan">
+          <div class="lcd-header">2. SENT AFTER</div>
+          <div class="lcd-value" id="valPost">0</div>
+          <div class="lcd-subtext">M2M + ISSI Compressed</div>
+        </div>
+
+        <!-- Window 3: Tokens Conserved -->
+        <div class="lcd-card lcd-green">
+          <div class="lcd-header">3. CONSERVED</div>
+          <div class="lcd-value" id="valSaved">0</div>
+          <div class="lcd-subtext">Tokens Saved & Kept</div>
+        </div>
+      </section>
+
+      <!-- 4. Savings Percentage & Compression Ratio Golden Banner -->
+      <section class="gold-banner">
+        <div class="banner-left">
+          <span class="pct-saved" id="pctSaved">0.0% SAVINGS</span>
+        </div>
+        <div class="banner-right">
+          <span class="ratio-badge" id="ratioBadge">1.0× COMPRESSION</span>
+        </div>
+      </section>
+
+      <!-- 5. 24-Hour Session Ledger Total Bar -->
+      <section class="session-bar">
+        <div class="session-info">
+          <span class="session-text" id="sessionText">24h Session: 0 tokens saved (0.0% conserved · 1.0× total)</span>
+        </div>
+        <button class="reset-btn no-drag" id="btnReset" title="Reset Session Totals">↺ Reset</button>
+      </section>
+
+      <!-- 6. Real-Time Live History Graph Canvas -->
+      <section class="graph-section">
+        <div class="graph-title-row">
+          <span class="graph-title">REAL-TIME LIVE TOKEN HISTORY GRAPH</span>
+          <div class="graph-legend">
+            <span class="leg-item leg-amber">■ RAW</span>
+            <span class="leg-item leg-cyan">■ SENT</span>
+            <span class="leg-item leg-green">■ SAVED</span>
+          </div>
+        </div>
+        <div class="canvas-container">
+          <canvas id="tokenGraphCanvas"></canvas>
+        </div>
+      </section>
+
+      <!-- 7. Hooked Models & Applications Live Telemetry Table -->
+      <section class="table-section">
+        <div class="table-title">HOOKED APPLICATIONS & MODEL TELEMETRY LOG</div>
+        <div class="table-scroll-container">
+          <table class="telemetry-table" id="telemetryTable">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Application / Client</th>
+                <th>Target Model</th>
+                <th>Raw</th>
+                <th>Sent</th>
+                <th>Saved</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody">
+              <!-- Dynamically populated rows -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Bottom Resize Grip Bar -->
+      <footer class="hud-footer">
+        <span class="footer-hint">Movable · Resizable · Always-on-top · Real-time</span>
+        <div class="resize-handle"></div>
+      </footer>
+
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

@@ -1,0 +1,457 @@
+/*
+ * electron_hud/styles.css
+ * Futuristic Gold Digital Cyber Aesthetics for Hyper-Spherical Electron Token HUD.
+ */
+
+:root {
+  --gold-primary: #ffd700;
+  --gold-metallic: #d4af37;
+  --gold-dark: #8c6d1f;
+  --bg-dark: #050811;
+  --bg-card: #04070d;
+  --amber-val: #fbbf24;
+  --cyan-val: #22d3ee;
+  --green-val: #34d399;
+  --text-muted: #64748b;
+  --border-muted: rgba(212, 175, 55, 0.25);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+body {
+  background: transparent;
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+  color: #e2e8f0;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+}
+
+.hud-outer-wrapper {
+  height: 100%;
+  width: 100%;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Gold Metallic Surround Frame ────────────────────────────────────────── */
+.gold-container {
+  flex: 1;
+  background: var(--bg-dark);
+  border: 3px solid transparent;
+  border-image: linear-gradient(135deg, #ffe066 0%, #d4af37 35%, #8c6d1f 70%, #ffd700 100%) 1;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 20px rgba(212, 175, 55, 0.25);
+  display: flex;
+  flex-direction: column;
+  padding: 12px 14px;
+  gap: 8px;
+  overflow: hidden;
+}
+
+/* ── Drag Header ─────────────────────────────────────────────────────────── */
+.drag-header {
+  -webkit-app-region: drag;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border-muted);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.crown-icon {
+  font-size: 16px;
+}
+
+.hud-title {
+  color: var(--gold-primary);
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  font-family: 'Segoe UI', Consolas, sans-serif;
+}
+
+.live-badge {
+  color: #00ff88;
+  font-size: 9px;
+  font-weight: 800;
+  background: rgba(0, 255, 136, 0.15);
+  border: 1px solid #00ff88;
+  border-radius: 4px;
+  padding: 2px 6px;
+  letter-spacing: 0.5px;
+  animation: pulse-glow 2s infinite ease-in-out;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; box-shadow: 0 0 6px rgba(0, 255, 136, 0.4); }
+  50% { opacity: 0.6; box-shadow: 0 0 2px rgba(0, 255, 136, 0.1); }
+}
+
+.no-drag {
+  -webkit-app-region: no-drag;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ctrl-btn {
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  font-weight: 700;
+  transition: all 0.15s ease;
+}
+
+.pin-btn {
+  background: #1e1b0c;
+  color: var(--gold-primary);
+  border: 1px solid var(--gold-primary);
+  font-size: 9px;
+  padding: 3px 8px;
+}
+
+.pin-btn.unpinned {
+  background: rgba(255, 255, 255, 0.05);
+  color: #94a3b8;
+  border-color: #475569;
+}
+
+.pin-btn:hover {
+  background: var(--gold-metallic);
+  color: #000;
+}
+
+.test-btn {
+  background: #0284c7;
+  color: white;
+  border: 1px solid #38bdf8;
+  font-size: 9px;
+  padding: 3px 8px;
+}
+
+.test-btn:hover {
+  background: #0369a1;
+}
+
+.min-btn, .close-btn {
+  width: 22px;
+  height: 22px;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.min-btn {
+  background: rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+}
+
+.min-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.close-btn {
+  background: #2a0812;
+  color: #ff4d6d;
+  border: 1px solid #ff4d6d;
+}
+
+.close-btn:hover {
+  background: #ff4d6d;
+  color: white;
+}
+
+/* ── Scrolling Ticker ────────────────────────────────────────────────────── */
+.ticker-wrapper {
+  background: #03060c;
+  border: 1px solid var(--gold-primary);
+  border-radius: 4px;
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 5px 0;
+}
+
+.ticker-content {
+  display: inline-block;
+  color: var(--gold-primary);
+  font-family: Consolas, monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  animation: marquee-scroll 24s linear infinite;
+}
+
+@keyframes marquee-scroll {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+/* ── 3 Digital LCD Windows ───────────────────────────────────────────────── */
+.lcd-windows-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+.lcd-card {
+  background: var(--bg-card);
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.6);
+}
+
+.lcd-amber {
+  border: 2px solid #f59e0b;
+}
+
+.lcd-amber .lcd-header { color: #f59e0b; }
+.lcd-amber .lcd-value { color: var(--amber-val); text-shadow: 0 0 10px rgba(251, 191, 36, 0.4); }
+
+.lcd-cyan {
+  border: 2px solid #06b6d4;
+}
+
+.lcd-cyan .lcd-header { color: #06b6d4; }
+.lcd-cyan .lcd-value { color: var(--cyan-val); text-shadow: 0 0 10px rgba(34, 211, 238, 0.4); }
+
+.lcd-green {
+  border: 2px solid #10b981;
+}
+
+.lcd-green .lcd-header { color: #10b981; }
+.lcd-green .lcd-value { color: var(--green-val); text-shadow: 0 0 10px rgba(52, 211, 153, 0.4); }
+
+.lcd-header {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  font-family: 'Segoe UI', Consolas, sans-serif;
+}
+
+.lcd-value {
+  font-size: 26px;
+  font-weight: 900;
+  font-family: Consolas, 'Courier New', monospace;
+  padding: 2px 0;
+}
+
+.lcd-subtext {
+  font-size: 9px;
+  color: var(--text-muted);
+  font-weight: 700;
+  font-family: Consolas, monospace;
+}
+
+/* ── Gold Banner ─────────────────────────────────────────────────────────── */
+.gold-banner {
+  background: linear-gradient(90deg, #1a1506 0%, #292008 50%, #110e04 100%);
+  border: 2px solid var(--gold-metallic);
+  border-radius: 8px;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pct-saved {
+  color: var(--gold-primary);
+  font-size: 18px;
+  font-weight: 900;
+  font-family: 'Segoe UI', Consolas, sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.ratio-badge {
+  color: #4ade80;
+  font-size: 13px;
+  font-weight: 900;
+  font-family: Consolas, monospace;
+}
+
+/* ── Session Bar ─────────────────────────────────────────────────────────── */
+.session-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 4px;
+}
+
+.session-text {
+  color: #94a3b8;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: Consolas, monospace;
+}
+
+.reset-btn {
+  background: rgba(255, 255, 255, 0.06);
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  font-size: 9px;
+  padding: 2px 8px;
+  cursor: pointer;
+}
+
+.reset-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: white;
+}
+
+/* ── Graph Section ───────────────────────────────────────────────────────── */
+.graph-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.graph-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.graph-title {
+  color: var(--gold-metallic);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  font-family: Consolas, monospace;
+}
+
+.graph-legend {
+  display: flex;
+  gap: 8px;
+  font-size: 8px;
+  font-family: Consolas, monospace;
+  font-weight: 700;
+}
+
+.leg-amber { color: #f59e0b; }
+.leg-cyan { color: #06b6d4; }
+.leg-green { color: #10b981; }
+
+.canvas-container {
+  height: 120px;
+  width: 100%;
+  background: #04070e;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+#tokenGraphCanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ── Table Section ───────────────────────────────────────────────────────── */
+.table-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 110px;
+  overflow: hidden;
+}
+
+.table-title {
+  color: var(--gold-metallic);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  font-family: Consolas, monospace;
+}
+
+.table-scroll-container {
+  flex: 1;
+  background: #03050a;
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 6px;
+  overflow-y: auto;
+}
+
+.telemetry-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: Consolas, monospace;
+  font-size: 10px;
+  color: #e2e8f0;
+}
+
+.telemetry-table th {
+  background: #0b111f;
+  color: var(--gold-primary);
+  font-weight: 800;
+  text-align: left;
+  padding: 4px 6px;
+  position: sticky;
+  top: 0;
+  border-bottom: 1px solid #1e293b;
+}
+
+.telemetry-table td {
+  padding: 3px 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.saved-cell {
+  color: var(--green-val);
+  font-weight: 700;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: #03060c;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--gold-dark);
+  border-radius: 2px;
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+.hud-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 2px;
+}
+
+.footer-hint {
+  color: #475569;
+  font-size: 8px;
+  font-family: Consolas, monospace;
+}
+
+.resize-handle {
+  width: 12px;
+  height: 12px;
+  cursor: se-resize;
+  background: linear-gradient(135deg, transparent 50%, var(--gold-metallic) 50%);
+  border-radius: 1px;
+}
