@@ -22,7 +22,6 @@ scratch/
 src/
 include/
 gui/
-tools/
 installer/
 installer/hypes_admin_keygen.py
 keygen_server/
@@ -56,8 +55,20 @@ __pycache__/
 *.pyd
 *.obj
 *.spec
-*.bat
-*.ps1
+
+# Allow Open-Source Modules and Scripts
+!layer_streamer/**
+!issi_compression/**
+!tesseract_engine/**
+!synthuron_context/**
+!hypermem/**
+!tools/**
+!tools/*.py
+!tools/*.bat
+!common_identity.py
+!setup_all.bat
+!setup_all.ps1
+!uninstall_all.bat
 
 # Allow ONLY Public Releases, Installers, PDF/HTML Docs, Open-Source MitM, Universal Endpoint, Pirate Llama, and HUD
 !HypeS_Setup.exe

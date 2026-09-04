@@ -1,0 +1,52 @@
+{
+  "ryzen9-rtx4070ti-laguna": {
+    "issi_agreement": "AGREED",
+    "model_name": "Laguna XS.2 (AMD Ryzen 9 / RTX 4070 Ti)",
+    "token_savings": "76.0%",
+    "token_size": "4.0 bytes/tok",
+    "tokenizer": "laguna_bpe",
+    "optimizations": "Direct LAN Offloading + NVMe Tensor Streaming",
+    "server_url": "http://192.168.12.119:11434",
+    "status": "AUTHORIZED_LAN_PRIMARY"
+  },
+  "gpt-4o": {
+    "issi_agreement": "AGREED",
+    "model_name": "GPT-4o (Omni Cloud)",
+    "token_savings": "68.4%",
+    "token_size": "4.1 bytes/tok",
+    "tokenizer": "o200k_base",
+    "optimizations": "ISSI_M2M + Ephemeral Prefix Cache",
+    "server_url": "https://api.openai.com/v1",
+    "status": "AUTHORIZED"
+  },
+  "ryzen9-rtx4070ti-llava": {
+    "issi_agreement": "AGREED",
+    "model_name": "LLaVA 13B Vision (AMD Ryzen 9 / RTX 4070 Ti)",
+    "token_savings": "68.5%",
+    "token_size": "3.9 bytes/tok",
+    "tokenizer": "llama_bpe",
+    "optimizations": "Multimodal Vision + ISSI Compression",
+    "server_url": "http://192.168.12.119:11434",
+    "status": "AUTHORIZED_LAN_PRIMARY"
+  },
+  "claude-3-5-sonnet": {
+    "issi_agreement": "AGREED",
+    "model_name": "Claude 3.5 Sonnet (Cloud)",
+    "token_savings": "71.2%",
+    "token_size": "3.9 bytes/tok",
+    "tokenizer": "claude_bpe",
+    "optimizations": "ISSI_M2M + Cache-Control Headers",
+    "server_url": "https://api.anthropic.com/v1",
+    "status": "AUTHORIZED"
+  },
+  "ryzen9-rtx4070ti-qwen": {
+    "issi_agreement": "AGREED",
+    "model_name": "Qwen 3.6 (AMD Ryzen 9 / RTX 4070 Ti)",
+    "token_savings": "74.2%",
+    "token_size": "3.8 bytes/tok",
+    "tokenizer": "qwen_bpe",
+    "optimizations": "Direct LAN Offloading + Synthuron Infinite Memory",
+    "server_url": "http://192.168.12.119:11434",
+    "status": "AUTHORIZED_LAN_PRIMARY"
+  }
+}

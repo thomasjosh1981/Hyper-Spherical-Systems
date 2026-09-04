@@ -1,0 +1,29 @@
+[
+  {
+    "source_id": "e82d83f8",
+    "target_id": "f0187c0d",
+    "weight": 5.0,
+    "link_type": "arterial_trunk",
+    "decay_rate": 0.0,
+    "created_at": 1787336562.1177535,
+    "last_reinforced": 1787336562.1177535
+  },
+  {
+    "source_id": "f0187c0d",
+    "target_id": "87fe41cf",
+    "weight": 0.89,
+    "link_type": "tangent_bridge",
+    "decay_rate": 0.05,
+    "created_at": 1787336562.1187575,
+    "last_reinforced": 1787336562.1187575
+  },
+  {
+    "source_id": "87fe41cf",
+    "target_id": "46222d4a",
+    "weight": 0.52,
+    "link_type": "tangent_bridge",
+    "decay_rate": 0.05,
+    "created_at": 1787336562.1204443,
+    "last_reinforced": 1787336562.1204443
+  }
+]
