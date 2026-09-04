@@ -94,6 +94,80 @@ With SFS+ models, your AI is capable of autonomous growth:
 
 ---
 
+## 🍬 Step 4: Golden Candy Spinner & Brain Surgery Studio (Operator's Guide)
+
+The **Golden Candy Spinner (GCS v6.0)** is an advanced 4D tensor decomposer, weight microscope, and model surgery suite designed to ingest raw models, abliterate refusal guardrails, splice new datasets, and respin weights into high-performance 4D `.hscc` vortex packages.
+
+### 1. Launching Golden Candy Spinner
+
+* **1-Click Desktop Shortcut**: Double-click **`Golden Candy Spinner.lnk`** on your Desktop.
+* **Batch Launcher**: Double-click [`LAUNCH_SPINNER.bat`](file:///C:/hyper_spherical/LAUNCH_SPINNER.bat) in the repository root.
+* **Command Line**: Run `python launch_hypes.py --spinner` from terminal.
+
+---
+
+### 2. 🤗 Hugging Face Model Pull & Verification
+
+Golden Candy Spinner connects directly to Hugging Face so you can verify models and pull them with 1 click:
+
+1. **In-App Model Hub (Tab 3)**:
+   - Click the **`🤗 HUGGING FACE MODEL HUB`** tab (or click `[🤗 SEARCH & PULL FROM HUGGING FACE]` on Tab 1).
+   - **Search & Filter**: Search by keyword, creator, or repo ID (e.g. `bartowski/gemma-2-27b-it-GGUF`, `Qwen/Qwen2.5-Coder-32B-Instruct-GGUF`, `DeepSeek-R1-Distill-Qwen-14B`).
+   - Filter models by parameter size (`8B`, `14B`, `27B`, `70B`) or quantization format (`Q4_K_M`, `Q8_0`, `SFS+`).
+   - Click **`⬇️ DOWNLOAD MODEL`**: Streams chunks directly from Hugging Face into `~/.hypes/models/` with live resume support.
+   - When download finishes, the model automatically loads into the Matrix Muncher and opens the Brain Surgery Studio.
+2. **Web Registry Verification**:
+   - Click **`🌐 BROWSE HUGGING FACE GGUF HUB (WEB)`** to open the official Hugging Face trending GGUF registry (`https://huggingface.co/models?library=gguf`) directly in your default browser.
+
+---
+
+### 3. 💥 Matrix Muncher & Model Ingestion (Tab 1)
+
+* Drag and drop any `.gguf`, `.safetensors`, or `.bin` model file into the dashed red ingestion dropzone.
+* Alternatively, click **`💥 DRAG & DROP GGUF MODEL OR CLICK TO BROWSE`** to open the file picker.
+* The Matrix Muncher scans raw byte offsets, reads quantization headers, and maps tensor boundaries for surgery.
+
+---
+
+### 4. 🧠 Brain Surgery Studio — Interactive "Stack of Glowing Sheets" (Tab 2)
+
+The Brain Surgery Studio visualizes the neural network as an interactive, color-coded 3D stack of translucent glowing sheets:
+
+| Sheet Color | Layer Classification | Description |
+|---|---|---|
+| 🔴 **Red** | **Guardrails & Refusal Heads** | Rejection heads, canned refusals ("As an AI language model..."), safety blockades. |
+| 🟡 **Yellow** | **Alignment Tripwires** | Sycophancy vectors, corporate bias filters, and forced conversational constraints. |
+| 🟢 **Green** | **Core Reasoning** | Unaltered attention projections, multi-head Q/K/V weights, and feed-forward reasoning. |
+| 🔵 **Blue** | **Base Embeddings** | Vocabulary embeddings and rotary positional projections ($R_oPE$). |
+| 🌸 **Pink** | **Censorship / NSFW Filters** | Lexical suppression matrices and content filters. |
+
+#### Surgical Actions & Abliteration
+
+* **Interactive Layer Inspection**: Click any sheet in the stack to focus the **Weight Microscope** on that layer. Inspect its matrix shape (e.g. `(4096, 14336)`), weight norm, activation density, and byte range.
+* **`✂️ RIP OUT THIS WEIGHT SLICE`**: Surgically zeroes out or prunes the currently selected tensor.
+* **`🔪 OBLITERATE ALL RED (Guardrails)`**: 1-click abliteration to neutralize all red refusal and rejection heads across the entire network.
+* **`⚡ PURGE ALL YELLOW (Tripwires)`**: Cleanses sycophantic alignment tripwires for unfiltered, truthful answers.
+* **`🔓 UNLOCK PINK (NSFW Matrices)`**: De-suppresses restricted lexical terms and output tokens.
+
+#### Dataset & Knowledge Splicing
+
+* In the **Dataset Hub & Coding Knowledge Booster**, select a target training corpus:
+  - `Hugging Face: BigCode / The-Stack-v2 (Python, C++, Rust, CUDA)`
+  - `Hugging Face: Open-Orca Deep Reasoning & Chain-of-Thought`
+  - `Hugging Face: DeepSeek-Coder Synthetic Instruction Tuning`
+  - `Kaggle: Top Algorithm & Competitive Programming Corpus`
+* Click **`💉 INJECT CODING NEURONS`** to splice domain-specific algorithmic capability directly into the manifold.
+
+---
+
+### 5. 🌀 4Decomposer & Respinning into 4D CCFS+
+
+1. Once surgery and pruning are complete, switch back to **Tab 1: 4Decomposer & Muncher**.
+2. Click **`🌀 DECOMPOSE & RESPIN INTO 4D CCFS+`**.
+3. The 4Decomposer maps the clean tensors onto the 4D Fibonacci vortex on the $S^3$ unit hypersphere, packaging the output as a `.hscc` model ready for zero-latency NVMe layer streaming.
+
+---
+
 ## 🧹 Step 5: Uninstallation
 
 To cleanly remove HypeS:

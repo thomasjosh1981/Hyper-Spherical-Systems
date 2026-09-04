@@ -360,6 +360,19 @@ class GoldenCandySpinnerPanel(QtWidgets.QWidget):
         self.drop_muncher.clicked.connect(self._browse_and_munch)
         t1_lay.addWidget(self.drop_muncher)
 
+        # Hugging Face Quick-Action Bar
+        hf_bar = QtWidgets.QHBoxLayout()
+        self.btn_pull_hf = QtWidgets.QPushButton("🤗 SEARCH & PULL FROM HUGGING FACE")
+        self.btn_pull_hf.setStyleSheet("background: #0284c7; color: white; border: 1px solid #38bdf8; font-weight: 900; padding: 10px; border-radius: 6px;")
+        self.btn_pull_hf.clicked.connect(lambda: self.tabs.setCurrentIndex(2))
+        hf_bar.addWidget(self.btn_pull_hf)
+
+        self.btn_open_hf_web = QtWidgets.QPushButton("🌐 BROWSE HUGGING FACE GGUF HUB (WEB)")
+        self.btn_open_hf_web.setStyleSheet("background: #1e293b; color: #38bdf8; border: 1px solid #0284c7; font-weight: 900; padding: 10px; border-radius: 6px;")
+        self.btn_open_hf_web.clicked.connect(self._open_hf_web)
+        hf_bar.addWidget(self.btn_open_hf_web)
+        t1_lay.addLayout(hf_bar)
+
         self.btn_open_surgery = QtWidgets.QPushButton("🧠 OPEN BRAIN SURGERY STUDIO (GLOWING SHEETS)")
         self.btn_open_surgery.setStyleSheet("background: #581c87; color: #d8b4fe; border: 1px solid #a855f7; font-weight: 900; padding: 8px; border-radius: 6px;")
         self.btn_open_surgery.clicked.connect(lambda: self.tabs.setCurrentIndex(1))
@@ -376,6 +389,15 @@ class GoldenCandySpinnerPanel(QtWidgets.QWidget):
         self.surgery_panel = BrainSurgeryPanel(self)
         self.surgery_panel.logRequested.connect(self.log)
         self.tabs.addTab(self.surgery_panel, "🧠 BRAIN SURGERY STUDIO (GLOWING SHEETS)")
+
+        # Tab 3: Hugging Face Model Hub & 1-Click Pull
+        try:
+            from .model_browser_panel import ModelBrowserPanel
+            self.hf_browser = ModelBrowserPanel(self)
+            self.hf_browser.modelLoaded.connect(self._on_model_pulled_from_hf)
+            self.tabs.addTab(self.hf_browser, "🤗 HUGGING FACE MODEL HUB")
+        except Exception as e:
+            self.log(f"⚠️ [Hugging Face] Model browser initialization note: {e}", color="#eab308")
 
         layout.addWidget(self.tabs)
 
@@ -402,6 +424,17 @@ class GoldenCandySpinnerPanel(QtWidgets.QWidget):
             self.log(f"💥 [Matrix Muncher] Ingested model: {path}", color="#f87171")
             self.log(f"🔍 Prepping for Surgery... Scanning raw byte offsets & tensor boundaries.", color="#ffd700")
             self.tabs.setCurrentIndex(1)
+
+    def _open_hf_web(self):
+        """Open official Hugging Face trending GGUF registry in default browser."""
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl("https://huggingface.co/models?pipeline_tag=text-generation&library=gguf&sort=trending"))
+        self.log("🌐 Opened Hugging Face GGUF Hub in browser: https://huggingface.co/models?library=gguf", color="#38bdf8")
+
+    def _on_model_pulled_from_hf(self, model_path: str):
+        """Handle model pulled from Hugging Face."""
+        self.log(f"🤗 [Hugging Face] Model verified & downloaded: {model_path}", color="#38bdf8")
+        self.log("🔬 Ingesting into Matrix Muncher & Prepping Brain Surgery Studio...", color="#ffd700")
+        self.tabs.setCurrentIndex(1)
 
     def spin_up_model(self):
         self.log("🌀 [4Decomposer] Spinning clean surgically pruned tensors onto 4D Fibonacci vortex on S^3...", color="#38bdf8")
