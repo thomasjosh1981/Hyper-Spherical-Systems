@@ -210,12 +210,13 @@ class WizardDialog(QtWidgets.QDialog):
         license_box = QtWidgets.QGroupBox("User & Hardware License Identity")
         lic_grid = QtWidgets.QGridLayout(license_box)
         lic_grid.addWidget(QtWidgets.QLabel("Licensed Operator:"), 0, 0)
-        lic_user = QtWidgets.QLineEdit("TwistedSoCal (twistedsocal@gmail.com)")
+        detected_operator = os.environ.get("USERNAME", "Local Operator")
+        lic_user = QtWidgets.QLineEdit(f"{detected_operator} (Pending Onboarding Registration)")
         lic_user.setReadOnly(True)
         lic_grid.addWidget(lic_user, 0, 1)
 
         lic_grid.addWidget(QtWidgets.QLabel("Hardware Security Keystore:"), 1, 0)
-        lic_key = QtWidgets.QLineEdit("~/.hypes/HypeS_Crypt_Key (Verified SHA-256 Fingerprint)")
+        lic_key = QtWidgets.QLineEdit("Unbound — Configured during First-Run Hardware Setup")
         lic_key.setReadOnly(True)
         lic_grid.addWidget(lic_key, 1, 1)
 

@@ -11,14 +11,12 @@ from typing import Any, Dict
 class ConfigDict(dict):
     """Dictionary wrapper supporting attribute dot-access and complete defaults."""
     DEFAULTS: Dict[str, Any] = {
-        "wizard_completed": True,
+        "wizard_completed": False,
         "launch_mode": "native",
-        "user_name": "TwistedSoCal",
-        "user_email": "twistedsocal@gmail.com",
-        "user_phone": "7142807504",
-        # Password hash (SHA-256). Never stored as plaintext.
-        # Generated from the master installer password at first activation.
-        "user_password_hash": "ee9685610899ef16d9e8071eb7102a10e442fca150ba27b72678be98bb397a1a",
+        "user_name": "",
+        "user_email": "",
+        "user_phone": "",
+        "user_password_hash": "",
         "vram_limit_pct": 70,
         "ram_staging_pct": 50,
         "compression_enabled": True,
