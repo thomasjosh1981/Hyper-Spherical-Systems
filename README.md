@@ -35,6 +35,26 @@ It works with **any GGUF, SFS, or SFS+** model and connects to **any OpenAI-comp
 
 ---
 
+## 👑 Golden Token HUD (v7.0) & Search-&-Seek AI Radar
+
+The **Golden Token HUD** is a desktop telemetry overlay that docks cleanly to the top-right of your screen and tracks real-time token usage, compression ratios, and dollar savings across all connected AI sessions:
+
+* **🔍 SEARCH & SEEK AI Radar**: Automatically detects and suction-docks running desktop windows, IDEs (Cursor, VS Code, Antigravity IDE), terminal CLIs, local daemons (Ollama, LM Studio, llama.cpp), and mobile bridges.
+* **⚡ Google Antigravity IDE Live Link**: Embedded transcript sniffer continuously monitors active conversations and renders token optimization counters in real time.
+* **🪟 Windowless Instant Launch**: Double-click `LAUNCH_TOKEN_HUD.vbs` for a pure windowless launch (zero black console flash) docked on top of your workspace (`WindowStaysOnTopHint`).
+
+---
+
+## 🏴‍☠️ Pirate Llama Universal Model Aggregator & Dynamic Router
+
+Stop toggling between different ports and providers. Pirate Llama runs a transparent MITM proxy on port `8000`:
+
+* **Consolidated `/v1/models` & `/api/tags`**: Automatically aggregates models from local daemons (Ollama `:11434`, LM Studio `:1234`, llama.cpp `:8080`, KoboldCpp `:5001`), cloud providers (OpenAI, Anthropic, Gemini, Groq, OpenRouter), and Google Antigravity IDE into a single unified model list.
+* **Transparent Multi-Tier Fallback**: Point any AI interface (Cursor, WebUI, Aider, OpenClaw) to `http://localhost:8000/v1`. If an external backend drops offline, Pirate Llama dynamically routes requests to local Sovereign fallbacks so your client never hits a 500 error.
+* **ISSI 10× Compression**: Passes prompts through the Integer String Substitution Index to eliminate repetitive verbose tokens before sending them across the wire.
+
+---
+
 ## 🛠️ Open-Source Modules & Quickstart
 
 ### 1. Installation & Environment Setup
@@ -86,6 +106,15 @@ python tesseract_engine/demo_stripe_vault.py
 3. Double-click any shortcut (e.g. **HypeS Control Center**, **Pirate Proxy**, **Golden Candy Spinner**) to open that module directly.
 
 > See **[HOWTO.md](docs/HOWTO.md)** for the full step-by-step guide with screenshots.
+
+### Instant 1-Click Launch (From Cloned Repository)
+
+If you have cloned or downloaded this repository, you can launch components directly:
+
+* **👑 Golden Token HUD**: Double-click [`LAUNCH_TOKEN_HUD.vbs`](file:///C:/hyper_spherical/LAUNCH_TOKEN_HUD.vbs) (or run `LAUNCH_TOKEN_HUD.bat`). Docks immediately to the top-right of your screen with zero console window.
+* **🌐 Master Control Center**: Double-click [`LAUNCH_CONTROL_CENTER.bat`](file:///C:/hyper_spherical/LAUNCH_CONTROL_CENTER.bat) to boot the dashboard and multi-backend manager.
+* **🍬 Golden Candy Spinner**: Double-click [`LAUNCH_SPINNER.bat`](file:///C:/hyper_spherical/LAUNCH_SPINNER.bat) to launch the 4D vortex model packager.
+* **🔌 Pirate Llama Universal Proxy**: Run `python gui/server.py` to start the unified endpoint on `http://localhost:8000`.
 
 ### Windows (Portable / No Install)
 
@@ -189,8 +218,18 @@ release/
 - **No telemetry by default.** All data stays on your machine.
 - **AES-256 + ephemeral session cipher.** Cloud models never see uncompressed plaintext.
 - **Session teardown zeroes all key material.** Cloud cannot decode past sessions.
-- **Source code is proprietary and not distributed.** Only compiled binaries and docs are public.
+- **Source code is proprietary and not distributed.** Only compiled binaries, open proxy tools, HUDs, and docs are public.
 - **Control Flow Guard, ASLR, DEP, Anti-Debugging** on all Windows binaries.
+
+---
+
+## 💬 Community Feedback & Discussion (We Need Your Feedback!)
+
+We are actively welcoming community testers, benchmark reports, and developer feedback:
+
+* **🐛 Bug Reports & Feature Requests**: Please open an issue on the [GitHub Issues tab](https://github.com/thomasjosh1981/Hyper-Spherical-Systems/issues).
+* **📊 Benchmark Results**: Share your hardware specs, NVMe speeds, CPU layer streaming results, or token compression ratios in [GitHub Discussions](https://github.com/thomasjosh1981/Hyper-Spherical-Systems/discussions).
+* **📬 Direct Contact**: Connect directly with the developer via GitHub or email at `twistedsocal@gmail.com`.
 
 ---
 
