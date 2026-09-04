@@ -52,6 +52,21 @@ Stop toggling between different ports and providers. Pirate Llama runs a transpa
 * **Consolidated `/v1/models` & `/api/tags`**: Automatically aggregates models from local daemons (Ollama `:11434`, LM Studio `:1234`, llama.cpp `:8080`, KoboldCpp `:5001`), cloud providers (OpenAI, Anthropic, Gemini, Groq, OpenRouter), and Google Antigravity IDE into a single unified model list.
 * **Transparent Multi-Tier Fallback**: Point any AI interface (Cursor, WebUI, Aider, OpenClaw) to `http://localhost:8000/v1`. If an external backend drops offline, Pirate Llama dynamically routes requests to local Sovereign fallbacks so your client never hits a 500 error.
 * **ISSI 10× Compression**: Passes prompts through the Integer String Substitution Index to eliminate repetitive verbose tokens before sending them across the wire.
+* **⚓ SFS / SFS+ Runtime Requirement & LM Studio Routing**: To run SFS or SFS+ models, **Pirate Llama must be installed and functional** (manages container unpacking, layer streaming, and peer mesh). However, you can route them straight into **LM Studio** via the Universal Endpoint (`http://localhost:8000/v1`). Select your SFS model in LM Studio, and Pirate Llama transparently executes it under the hood while the Golden Token HUD monitors performance!
+* **🦙 Native GGUF Execution (Built on llama.cpp)**: Because Pirate Llama's inference core was ported directly from `llama.cpp`, it runs all standard `.gguf` models natively with zero external dependencies. You can use Pirate Llama directly as a complete drop-in replacement for `llama.cpp` while gaining ISSI 10× prompt compression, 4D loop breaking, and Golden HUD live monitoring.
+
+---
+
+## 🧠 Brain Director Model Maker (BMRAD Engine) & Model Guidelines
+
+The **BMRAD Engine** governs local multi-model topologies, speculative decoding, and autonomous routing:
+
+* **5GB–7GB Supervisory Sweet Spot:** Quantized supervisory models (e.g. Qwen-2.5-Coder-7B, Llama-3.1-8B, Gemma-2-9B) sit alongside primary models to verify logic, break repetitive degeneration loops, and orchestrate tools without consuming excessive VRAM.
+* **🚀 Dynamic Speculative Auto-Optimizer:** Speculative draft token depth ($K = 1 \dots 8$) auto-adjusts based on real-time verification acceptance rates and system latency. If latency spikes or draft passes are rejected, the auto-optimizer dynamically throttles drafting down to $K=1$, guaranteeing zero latency regression.
+* **SFS+ InteropBus Skill Borrowing:** Models borrow capabilities (`vision_api`, `python_repl`, `peer_mesh`) across local instances via `GROW_FROM` and `GROW_WITH` protocols.
+* **Multilingual Intent Normalizer:** Normalizes multilingual user queries into canonical semantic representations for domain-specific models.
+* **Pre-Run Model Inspector:** Double-click any model to configure temperature, draft token depth, supervisory brain binding, and 5D OCEAN personality traits before execution.
+* 📖 *Read the complete specification in **[docs/BRAIN_MODEL_GUIDELINES.md](docs/BRAIN_MODEL_GUIDELINES.md)**.*
 
 ---
 

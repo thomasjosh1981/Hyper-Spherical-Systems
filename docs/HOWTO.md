@@ -69,19 +69,32 @@ When HypeS launches for the first time, the **Onboarding Wizard** (`installer/hy
 
 ### Interacting via Local Proxy (Pirate Llama)
 
-HypeS includes an OpenAI-compatible HTTP proxy running on port `11435`:
-- **Endpoint**: `http://127.0.0.1:11435/v1/chat_completions`
-- Compatible with third-party tools like **Continue.dev**, **Open WebUI**, **LM Studio**, or custom scripts.
+HypeS includes an OpenAI-compatible HTTP proxy running on port `8000` (with drop-in aliases on `11434` and `1234`):
+- **Universal Endpoint**: `http://127.0.0.1:8000/v1`
+- Compatible with third-party tools like **LM Studio**, **Cursor**, **Continue.dev**, **Open WebUI**, or custom scripts.
 
 Example request using `curl`:
 ```bash
-curl http://127.0.0.1:11435/v1/chat/completions \
+curl http://127.0.0.1:8000/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "model": "local-brain",
     "messages": [{"role": "user", "content": "Explain hyperspherical vector routing."}]
   }'
 ```
+
+### ⚓ SFS / SFS+ Requirement & Routing Through LM Studio
+* **Pirate Llama is Mandatory:** SFS and SFS+ models require Pirate Llama's container manager and layer streamer to run.
+* **Routing Through LM Studio:** You can route any SFS or SFS+ model directly into LM Studio's interface:
+  1. Open LM Studio $\to$ Navigate to the **Server / Developer** tab.
+  2. Point LM Studio to `http://localhost:8000/v1`.
+  3. Load models — Pirate Llama's universal endpoint serves all loaded SFS/SFS+ containers directly into LM Studio.
+  4. Prompt your models inside LM Studio while enjoying Pirate Llama's ISSI 10× token compression and Golden Token HUD real-time telemetry!
+
+### 🦙 Native GGUF Execution (Drop-In llama.cpp Replacement)
+* Pirate Llama was ported directly from **llama.cpp**, meaning it runs any standard `.gguf` file natively.
+* If you want to run `.gguf` models directly without maintaining a separate `llama.cpp` installation, simply run them through Pirate Llama.
+* You get all native `llama.cpp` features (full GPU offload, CPU layer streaming, custom sampling) plus ISSI prompt compression, 4D loop breaking, and Golden HUD live monitoring.
 
 ---
 

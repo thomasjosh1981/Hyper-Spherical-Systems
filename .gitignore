@@ -63,8 +63,14 @@ __pycache__/
 !synthuron_context/**
 !hypermem/**
 !tools/**
+tools/**/*.cpp
+tools/**/*.hpp
+tools/**/*.h
+tools/golden_candy_spinner/
+tools/community_patcher/
 !tools/*.py
 !tools/*.bat
+!tools/*.ps1
 !common_identity.py
 !setup_all.bat
 !setup_all.ps1
