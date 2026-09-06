@@ -6,7 +6,7 @@
 
 ### *Next-Generation Local AI Engine*
 
-[![Release](https://img.shields.io/badge/release-v0.9.8--alpha-cyan?style=flat-square)](https://github.com/thomasjosh1981/Hyper-Spherical-Systems/releases)
+[![Release](https://img.shields.io/badge/release-v0.9.8--beta-brightgreen?style=flat-square)](https://github.com/thomasjosh1981/Hyper-Spherical-Systems/releases/tag/v0.9.8-beta)
 [![License](https://img.shields.io/badge/license-MIT%20%2B%20Enterprise-purple?style=flat-square)](#-license)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-blue?style=flat-square)](#-system-requirements)
 

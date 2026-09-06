@@ -21,6 +21,14 @@ import urllib.request
 import urllib.parse
 from pathlib import Path
 
+# Ensure UTF-8 output on Windows console
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 ROOT = Path("C:/hyper_spherical").resolve()
 DIST = ROOT / "dist_packages"
 DIST.mkdir(parents=True, exist_ok=True)
