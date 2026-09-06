@@ -247,7 +247,7 @@ We are actively welcoming community testers, benchmark reports, and developer fe
 
 * **🐛 Bug Reports & Feature Requests**: Please open an issue on the [GitHub Issues tab](https://github.com/thomasjosh1981/Hyper-Spherical-Systems/issues).
 * **📊 Benchmark Results**: Share your hardware specs, NVMe speeds, CPU layer streaming results, or token compression ratios in [GitHub Discussions](https://github.com/thomasjosh1981/Hyper-Spherical-Systems/discussions).
-* **📬 Direct Contact**: Connect directly with the developer via GitHub or email at `twistedsocal@gmail.com`.
+* **📬 Direct Contact**: Connect directly with the developer via GitHub ([@thomasjosh1981](https://github.com/thomasjosh1981) / [@twistedsocal](https://github.com/twistedsocal)) or email at [`twistedsocal@gmail.com`](mailto:twistedsocal@gmail.com).
 
 ---
 
@@ -261,7 +261,7 @@ Enterprise builds require a separate commercial agreement.
 
 <div align="center">
   <i>Experience the future of local AI inference. Grind down the limits.</i><br><br>
-  <b>Developed by twiztedsocal — Hyper-Spherical Systems © 2026</b>
+  <b>Developed by Thomas Joshua Hall ([@thomasjosh1981](https://github.com/thomasjosh1981)) & twistedsocal ([@twistedsocal](https://github.com/twistedsocal)) — <a href="mailto:twistedsocal@gmail.com">twistedsocal@gmail.com</a><br>Hyper-Spherical Systems © 2026</b>
 </div>
 
 
