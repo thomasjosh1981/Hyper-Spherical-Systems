@@ -19,15 +19,15 @@ SFS (Spherical Function System) and SFS+ models execute completely standalone on
 
 ```mermaid
 graph TD
-    A["Monolithic Model File (500GB Kimi K2.5 / 27B Gemma / 8B Llama)"] -->|Golden Candy Spinner (GCS v2.0)| B["4D Bladed Vortex Geometry & Built-In Embeddings"]
-    B --> C["NVIDIA CUDA / Tensor Cores (RTX 2060 -> 5090 / A6000 / H100)"]
+    A["Monolithic Model File (500GB Kimi K2.5 / 27B Gemma / 8B Llama)"] -->|"Golden Candy Spinner (GCS v2.0)"| B["4D Bladed Vortex Geometry and Built-In Embeddings"]
+    B --> C["NVIDIA CUDA / Tensor Cores (RTX 2060 to 5090 / A6000 / H100)"]
     B --> D["AMD ROCm / HIP + Vulkan SPIR-V (Radeon RX 7900 XTX / Instinct MI300X)"]
     B --> E["Apple Metal Performance Shaders (M1-M4 Max / Ultra)"]
     C --> F["SFS / SFS+ Dynamic Engine & BMRAD Brain Director"]
     D --> F
     E --> F
-    F --> G["SFS+ Inter-Model Skill Borrowing & Model Capability Index"]
-    F --> H["Dual-Tier Memory Persistence (shared_persistence.hscc + .hscc_memory)"]
+    F --> G["SFS+ Inter-Model Skill Borrowing and Model Capability Index"]
+    F --> H["Dual-Tier Memory Persistence (shared_persistence.hscc)"]
     F --> I["4-I.D.Entity_Avatar Module (Full-Duplex Voice + 4D Animated Entity)"]
 ```
 

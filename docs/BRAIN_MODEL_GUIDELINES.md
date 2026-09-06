@@ -43,11 +43,11 @@ To convert large monolithic models (14B–34B, 25GB+) into agile Brain Director 
 
 ```mermaid
 graph TD
-    A["Teacher Model (14B-34B / 25GB+)"] --> B["Step 1: Unsloth LoRA Distillation\n(Attention & Routing Extraction)"]
-    B --> C["Step 2: GCS 4D Vortex Layer Pruning\n(Remove redundant FFNs & Dead Heads)"]
-    C --> D["Step 3: Precision Quantization\n(Q4_K_M / Q5_K_M via llama.cpp core)"]
-    D --> E["Step 4: SFS+ Container Packaging\n(.sfs / .hscc format with InteropBus metadata)"]
-    E --> F["Operational Brain Director (5GB - 7GB)"]
+    A["Teacher Model (14B to 34B / 25GB+)"] --> B["Step 1: Unsloth LoRA Distillation (Attention and Routing Extraction)"]
+    B --> C["Step 2: GCS 4D Vortex Layer Pruning (Remove Redundant FFNs)"]
+    C --> D["Step 3: Precision Quantization (Q4_K_M / Q5_K_M via llama.cpp core)"]
+    D --> E["Step 4: SFS+ Container Packaging (.sfs / .hscc format with InteropBus)"]
+    E --> F["Operational Brain Director (5GB to 7GB)"]
 ```
 
 ### Step 1: Distillation of Attention & Routing
