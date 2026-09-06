@@ -10,8 +10,15 @@ import json
 from pathlib import Path
 from typing import List, Dict, Any
 
+def _get_snb_vault_dir() -> Path:
+    try:
+        return Path.home() / ".hypes" / "snb_vault"
+    except Exception:
+        user = os.environ.get("USERNAME", "twist")
+        return Path("C:/Users") / user / ".hypes" / "snb_vault"
+
 # Default storage directory for .snb perpetual conversation memory
-SNB_VAULT_DIR = Path.home() / ".hypes" / "snb_vault"
+SNB_VAULT_DIR = _get_snb_vault_dir()
 
 
 class SynthuronBridge:

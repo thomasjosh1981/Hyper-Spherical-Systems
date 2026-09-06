@@ -5,7 +5,7 @@ tools/hypes_mcp_server.py
 Hyper-Spherical Systems (HypeS) — Model Context Protocol (MCP) Server for Antigravity IDE.
 
 Exposes native HypeS capabilities directly to Antigravity agents:
-1. hypes_compress_prompt: ISSI token optimization and fluff pruning.
+1. hypes_compress_prompt: ISSI token optimization and conversational fluff pruning.
 2. hypes_inspect_model: Deep CCFS / GGUF model inspector (tensors, layers, weights, hidden dims).
 3. hypes_telemetry_status: Live HUD telemetry, token counters, and active endpoints.
 4. hypes_query_hypermem: 5-tier perpetual memory recall.
@@ -16,7 +16,24 @@ import os
 import json
 import time
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
+
+# Ensure USERPROFILE / HOME exist in environment for child processes
+if "USERPROFILE" not in os.environ and "HOME" not in os.environ:
+    user = os.environ.get("USERNAME", "twist")
+    user_dir = Path("C:/Users") / user
+    if user_dir.exists():
+        os.environ["USERPROFILE"] = str(user_dir)
+        os.environ["HOME"] = str(user_dir)
+        os.environ["HOMEDRIVE"] = "C:"
+        os.environ["HOMEPATH"] = f"\\Users\\{user}"
+
+def _get_hypes_dir() -> Path:
+    try:
+        return Path.home() / ".hypes"
+    except Exception:
+        user = os.environ.get("USERNAME", "twist")
+        return Path("C:/Users") / user / ".hypes"
 
 # Setup path imports
 REPO_ROOT = Path(__file__).parent.parent
@@ -24,18 +41,36 @@ sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(REPO_ROOT / "gui"))
 sys.path.insert(0, str(REPO_ROOT / "gui" / "pirate_gui"))
 
-from gui.issi_engine import ISSICompressionEngine as ISSIEngine
-from gui.pirate_gui.helipad_dock import PersistentTargetRegistry
+try:
+    from gui.issi_engine import ISSICompressionEngine as ISSIEngine
+except Exception:
+    ISSIEngine = None
+
+try:
+    from gui.pirate_gui.helipad_dock import PersistentTargetRegistry
+except Exception:
+    PersistentTargetRegistry = None
+
+from mcp.server.fastmcp import FastMCP
+
+# Initialize FastMCP server
+mcp = FastMCP("hyper-spherical")
 
 
-def get_telemetry_status() -> Dict[str, Any]:
-    hypes_dir = Path.home() / ".hypes"
-    live_file = hypes_dir / "live_telemetry.json"
-    status = {
+@mcp.tool()
+def hypes_telemetry_status() -> str:
+    """Fetches real-time status of Hyper-Spherical systems, token HUD savings, and active endpoints."""
+    hypes_dir = _get_hypes_dir()
+    live_file = hypes_dir / "hud_live.json"
+    status: Dict[str, Any] = {
         "status": "online",
         "hypes_version": "7.4.0",
         "engine": "Hyper-Spherical Systems (CCFS/ISSI)",
-        "active_endpoints": ["http://127.0.0.1:8000/v1 (HypeS Gateway)", "http://127.0.0.1:11434 (Ollama)", "http://127.0.0.1:1234 (LM Studio)"],
+        "active_endpoints": [
+            "http://127.0.0.1:8000/v1 (HypeS Gateway)",
+            "http://127.0.0.1:11434 (Ollama)",
+            "http://127.0.0.1:1234 (LM Studio)"
+        ],
         "locked_targets": PersistentTargetRegistry.load() if PersistentTargetRegistry else {},
         "timestamp": time.time()
     }
@@ -45,10 +80,14 @@ def get_telemetry_status() -> Dict[str, Any]:
             status["live_telemetry"] = live_data
         except Exception:
             pass
-    return status
+    return json.dumps(status, indent=2)
 
 
-def compress_text(text: str) -> Dict[str, Any]:
+@mcp.tool()
+def hypes_compress_prompt(text: str) -> str:
+    """Applies ISSI token optimization and conversational fluff pruning to reduce LLM token usage and cost.
+    Bridges live token savings directly into the floating Gold Token HUD.
+    """
     raw_chars = len(text)
     raw_est_tokens = max(1, raw_chars // 4)
     compressed_text = text
@@ -59,7 +98,6 @@ def compress_text(text: str) -> Dict[str, Any]:
             engine = ISSIEngine()
             compressed_text = engine.compress(text)
         except Exception:
-            # Fallback simple filler pruning
             fluff_words = ["please", "thank you", "thanks", "um", "uh", "could you kindly", "maybe"]
             for fw in fluff_words:
                 compressed_text = compressed_text.replace(f" {fw} ", " ")
@@ -70,12 +108,12 @@ def compress_text(text: str) -> Dict[str, Any]:
     ratio = round(raw_est_tokens / max(1, comp_est_tokens), 2)
     savings_pct = round((saved_tokens / max(1, raw_est_tokens)) * 100.0, 1)
 
-    # ── Real-Time HUD Telemetry Bridge ──
+    # Real-Time HUD Telemetry Bridge
     try:
-        hypes_dir = Path.home() / ".hypes"
+        hypes_dir = _get_hypes_dir()
         hypes_dir.mkdir(parents=True, exist_ok=True)
         live_file = hypes_dir / "hud_live.json"
-        
+
         cur_seq = 1
         if live_file.exists():
             try:
@@ -98,16 +136,15 @@ def compress_text(text: str) -> Dict[str, Any]:
         }
         live_file.write_text(json.dumps(stat_payload, indent=2), encoding="utf-8")
 
-        # Append to today's persistent ledger
         token_log_dir = hypes_dir / "token_logs"
         token_log_dir.mkdir(parents=True, exist_ok=True)
         today_file = token_log_dir / f"{time.strftime('%Y-%m-%d')}.jsonl"
         with open(today_file, "a", encoding="utf-8") as f:
             f.write(json.dumps(stat_payload) + "\n")
-    except Exception as e:
+    except Exception:
         pass
 
-    return {
+    result = {
         "raw_tokens": raw_est_tokens,
         "compressed_tokens": comp_est_tokens,
         "tokens_saved": saved_tokens,
@@ -115,20 +152,22 @@ def compress_text(text: str) -> Dict[str, Any]:
         "savings_percentage": f"{savings_pct}%",
         "compressed_text": compressed_text
     }
+    return json.dumps(result, indent=2)
 
 
-def inspect_model(model_path: str) -> Dict[str, Any]:
+@mcp.tool()
+def hypes_inspect_model(model_path: str) -> str:
+    """Deeply inspects CCFS / GGUF models for exact layer counts, tensor lists, weights, and hidden dimensions."""
     p = Path(model_path)
     if not p.exists():
-        return {"error": f"Model file not found: {model_path}"}
+        return json.dumps({"error": f"Model file not found: {model_path}"}, indent=2)
 
     file_size_gb = round(p.stat().st_size / (1024 ** 3), 3)
     ext = p.suffix.lower()
 
-    # Determine architecture heuristics
     is_ccfs = "ccfs" in ext or "sfs" in ext
     name_l = p.name.lower()
-    
+
     layer_count = 32
     hidden_dim = 4096
     heads = 32
@@ -152,7 +191,7 @@ def inspect_model(model_path: str) -> Dict[str, Any]:
 
     tensor_count = layer_count * 7 + 12
 
-    return {
+    info = {
         "model_file": p.name,
         "model_format": "CCFS+ (Clustered Candy File System)" if is_ccfs else "GGUF Binary Container",
         "file_size_gb": file_size_gb,
@@ -169,124 +208,31 @@ def inspect_model(model_path: str) -> Dict[str, Any]:
         "active_experts_in_vram": 4 if is_ccfs else "All",
         "golden_hash": f"HASH_{abs(hash(p.name)) % 10000:04d}_6174"
     }
+    return json.dumps(info, indent=2)
 
 
-def handle_rpc_request(req: Dict[str, Any]) -> Dict[str, Any]:
-    method = req.get("method")
-    req_id = req.get("id")
-    params = req.get("params", {})
-
-    if method == "initialize":
-        return {
-            "jsonrpc": "2.0",
-            "id": req_id,
-            "result": {
-                "protocolVersion": "2024-11-05",
-                "capabilities": {
-                    "tools": {}
-                },
-                "serverInfo": {
-                    "name": "hypes-mcp-server",
-                    "version": "7.4.0"
-                }
-            }
-        }
-    elif method == "tools/list":
-        return {
-            "jsonrpc": "2.0",
-            "id": req_id,
-            "result": {
-                "tools": [
-                    {
-                        "name": "hypes_compress_prompt",
-                        "description": "Applies ISSI token optimization and conversational fluff pruning to reduce LLM token usage and cost.",
-                        "inputSchema": {
-                            "type": "object",
-                            "properties": {
-                                "text": {"type": "string", "description": "The raw prompt or code block to compress."}
-                            },
-                            "required": ["text"]
-                        }
-                    },
-                    {
-                        "name": "hypes_inspect_model",
-                        "description": "Deeply inspects CCFS / GGUF models for exact layer counts, tensor lists, weights, and hidden dimensions.",
-                        "inputSchema": {
-                            "type": "object",
-                            "properties": {
-                                "model_path": {"type": "string", "description": "Path to the .ccfs+, .sfs+, or .gguf model file."}
-                            },
-                            "required": ["model_path"]
-                        }
-                    },
-                    {
-                        "name": "hypes_telemetry_status",
-                        "description": "Fetches real-time status of Hyper-Spherical systems, token HUD savings, and active endpoints.",
-                        "inputSchema": {
-                            "type": "object",
-                            "properties": {}
-                        }
-                    }
-                ]
-            }
-        }
-    elif method == "tools/call":
-        tool_name = params.get("name")
-        args = params.get("arguments", {})
-
-        if tool_name == "hypes_compress_prompt":
-            res = compress_text(args.get("text", ""))
-        elif tool_name == "hypes_inspect_model":
-            res = inspect_model(args.get("model_path", ""))
-        elif tool_name == "hypes_telemetry_status":
-            res = get_telemetry_status()
-        else:
-            return {
-                "jsonrpc": "2.0",
-                "id": req_id,
-                "error": {"code": -32601, "message": f"Unknown tool: {tool_name}"}
-            }
-
-        return {
-            "jsonrpc": "2.0",
-            "id": req_id,
-            "result": {
-                "content": [
-                    {
-                        "type": "text",
-                        "text": json.dumps(res, indent=2)
-                    }
-                ]
-            }
-        }
-    else:
-        return {
-            "jsonrpc": "2.0",
-            "id": req_id,
-            "result": {}
-        }
-
-
-def main():
-    """Stdio JSON-RPC loop for Antigravity MCP Integration."""
-    for line in sys.stdin:
-        line = line.strip()
-        if not line:
-            continue
-        try:
-            req = json.loads(line)
-            resp = handle_rpc_request(req)
-            sys.stdout.write(json.dumps(resp) + "\n")
-            sys.stdout.flush()
-        except Exception as e:
-            err_resp = {
-                "jsonrpc": "2.0",
-                "id": None,
-                "error": {"code": -32700, "message": f"Parse error: {str(e)}"}
-            }
-            sys.stdout.write(json.dumps(err_resp) + "\n")
-            sys.stdout.flush()
+@mcp.tool()
+def hypes_query_hypermem(query: str, top_k: int = 5) -> str:
+    """Queries the Synthuron 5-tier perpetual conversation memory (.snb archives) for relevant context."""
+    hypes_dir = _get_hypes_dir()
+    snb_dir = hypes_dir / "snb_vault"
+    matches = []
+    if snb_dir.exists():
+        for f in snb_dir.glob("*.snb"):
+            try:
+                data = json.loads(f.read_text(encoding="utf-8"))
+                if query.lower() in str(data).lower():
+                    matches.append({
+                        "file": f.name,
+                        "session_id": data.get("session_id", "unknown"),
+                        "timestamp": data.get("timestamp", 0)
+                    })
+                    if len(matches) >= top_k:
+                        break
+            except Exception:
+                pass
+    return json.dumps({"query": query, "matches_found": len(matches), "results": matches}, indent=2)
 
 
 if __name__ == "__main__":
-    main()
+    mcp.run(transport="stdio")
