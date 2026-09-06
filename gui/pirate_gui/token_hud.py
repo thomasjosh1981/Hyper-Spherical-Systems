@@ -595,8 +595,35 @@ class TokenHUD(QtWidgets.QMainWindow):
             "⚡ Port 5001: KoboldCpp API",
             "📱 Port 5555: Phone ADB Bridge"
         ])
-        self.combo_endpoints.currentIndexChanged.connect(self._on_endpoint_selection_changed)
         suite_row.addWidget(self.combo_endpoints)
+
+        # ── ISSI Compression Aggressiveness Governor ─────────────────────────
+        lbl_aggr = QtWidgets.QLabel("🎛️ ISSI:")
+        lbl_aggr.setStyleSheet("color: #34d399; font-size: 9px; font-weight: 900; margin-left: 6px;")
+        suite_row.addWidget(lbl_aggr)
+
+        self.combo_aggr = QtWidgets.QComboBox()
+        self.combo_aggr.setToolTip("Adjust ISSI Aggressiveness. Level 1: Strict Code Pure (compiler safe, zero preposition drop); Level 5: Ultra Vortex.")
+        self.combo_aggr.setStyleSheet("""
+            QComboBox {
+                background: #041f16; color: #34d399; border: 1px solid #10b981;
+                border-radius: 3px; font-size: 9px; font-weight: 700; padding: 2px 6px; min-width: 130px;
+            }
+            QComboBox::drop-down { border: none; }
+            QComboBox QAbstractItemView {
+                background: #041f16; color: #34d399; selection-background-color: #059669;
+                selection-color: #ffffff; border: 1px solid #10b981;
+            }
+        """)
+        self.combo_aggr.addItems([
+            "⚡ Level 3: Balanced (10×)",
+            "🛡️ Level 1: Code Pure (Safe)",
+            "🌿 Level 2: Mild (No Pleasantry)",
+            "🔥 Level 4: Aggressive (Trim)",
+            "🌀 Level 5: Ultra Vortex (12×)"
+        ])
+        self.combo_aggr.currentIndexChanged.connect(self._on_aggressiveness_changed)
+        suite_row.addWidget(self.combo_aggr)
 
         suite_row.addStretch()
         main_lay.addWidget(suite_box)
@@ -878,6 +905,32 @@ class TokenHUD(QtWidgets.QMainWindow):
             cfg_file.write_text(json.dumps(cfg_data, indent=2), encoding="utf-8")
         except Exception:
             pass
+
+    def _on_aggressiveness_changed(self, index: int) -> None:
+        """Handles manual tuning of compression aggressiveness from the HUD."""
+        aggr_map = {
+            0: (3, "Level 3: Balanced 10×"),
+            1: (1, "Level 1: Code Pure (Safe, No Prepositions Dropped)"),
+            2: (2, "Level 2: Mild (No Pleasantries)"),
+            3: (4, "Level 4: Aggressive (Trim Prepositions)"),
+            4: (5, "Level 5: Ultra Vortex (Max 12× AST)"),
+        }
+        level, desc = aggr_map.get(index, (3, "Level 3: Balanced"))
+        try:
+            cfg_file = _HYPES_DIR / "compression_settings.json"
+            cfg_data = {}
+            if cfg_file.exists():
+                try:
+                    cfg_data = json.loads(cfg_file.read_text(encoding="utf-8"))
+                except Exception:
+                    pass
+            cfg_data["aggressiveness_level"] = level
+            cfg_data["aggressiveness_desc"] = desc
+            cfg_file.write_text(json.dumps(cfg_data, indent=2), encoding="utf-8")
+        except Exception:
+            pass
+        if hasattr(self, "ticker"):
+            self.ticker.flash_dock_notice(f"ISSI GOVERNOR: {desc}")
 
     def _dock_external_window(self, target_meta: dict) -> None:
         """Handle target window docked event."""

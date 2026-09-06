@@ -214,6 +214,40 @@ with zipfile.ZipFile(pkg4_path, "w", zipfile.ZIP_DEFLATED) as z:
 print(f"  ✓ Created {pkg4_path.name} ({pkg4_path.stat().st_size / (1024*1024):.2f} MB)")
 
 
+# ── 5. Master Binary Suite Package (All Binaries + Installer, ~90-110 MB) ──
+pkg5_path = DIST / "HypeS-Master-Binary-Suite-v0.9.8-beta-win64.zip"
+print(f"\n[5/5] Assembling {pkg5_path.name} (Full Master Package)...")
+with zipfile.ZipFile(pkg5_path, "w", zipfile.ZIP_DEFLATED) as z:
+    # Full standalone installer
+    if (ROOT / "release" / "HypeS_Setup.exe").exists():
+        z.write(ROOT / "release" / "HypeS_Setup.exe", "HypeS_Setup.exe")
+    for bin_name in ["pirate_llama.exe", "pirate_core.exe", "golden_candy_spinner.exe", "pirate_bridge.exe", "nvme_benchmark.exe", "python_bridge.dll"]:
+        p = ROOT / "release" / bin_name
+        if p.exists():
+            z.write(p, bin_name)
+    # Launchers
+    for sc in ["LAUNCH_TOKEN_HUD.bat", "LAUNCH_TOKEN_HUD.vbs", "LAUNCH_TOKEN_HUD.py", "LAUNCH_TOKEN_HUD.pyw",
+               "LAUNCH_PIRATE_LLAMA.bat", "LAUNCH_PIRATE_LLAMA.vbs", "LAUNCH_SPINNER.bat", "LAUNCH_CONTROL_CENTER.bat",
+               "README.md", "ROADMAP.md"]:
+        p = ROOT / sc
+        if p.exists():
+            z.write(p, sc)
+    # Docs
+    for df in (ROOT / "docs").glob("*.md"):
+        z.write(df, f"docs/{df.name}")
+    # GUI
+    for gf in (ROOT / "gui").glob("*.py"):
+        z.write(gf, f"gui/{gf.name}")
+    for gf in (ROOT / "gui" / "pirate_gui").glob("*.*"):
+        if gf.suffix.lower() in (".py", ".ico", ".png", ".html", ".css", ".js"):
+            z.write(gf, f"gui/pirate_gui/{gf.name}")
+    # Tools
+    for tf in (ROOT / "tools").glob("*.py"):
+        z.write(tf, f"tools/{tf.name}")
+
+print(f"  ✓ Created {pkg5_path.name} ({pkg5_path.stat().st_size / (1024*1024):.2f} MB)")
+
+
 # ── 5. Obtain GitHub Auth Token & Tag Repository ──────────────────────────────
 print("\n" + "=" * 70)
 print("🔑 ACQUIRING GITHUB CREDENTIALS & TAGGING RELEASE")
@@ -340,6 +374,7 @@ packages_to_upload = [
     pkg2_path,
     pkg3_path,
     pkg4_path,
+    pkg5_path,
 ]
 
 # Add installer if present

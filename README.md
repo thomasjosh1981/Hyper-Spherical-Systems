@@ -180,20 +180,23 @@ chmod +x release/launch_hypes_linux.sh
 
 ---
 
-## 💰 Pricing & Availability
+## 💰 Beta Release Status, Freeware & Permanent Unlock Codes
 
-HypeS is currently in **Alpha/Beta** and **100% free** to use until v1.0 release.
+HypeS is officially in **Beta** (graduated from Alpha) and is **100% Freeware** until the major v1.0 release:
 
-| Tier | Price | What You Get |
-|---|---|---|
-| **Alpha/Beta** | Free | All features, no expiry — you are here |
-| **Community** | Free post-v1.0 | Base engine, 1 cloud backpack, 5 GB sandbox |
-| **Lifetime Unlimited** | $100 – $250* | All modules forever, all future updates, version lock |
-| **Module Bundle** | $149 | All 9 premium modules (SFS+, BMRAD, 4ID Avatar, CCTM, Cipher…) |
-| **Per-Module** | $19 – $79 | Buy only what you need |
-| **Enterprise** | Custom | Hardware-token build, priority support |
+* **Zero Mandatory Keys During Beta:** You can run all modules (Golden Token HUD, Pirate Llama, Golden Candy Spinner, BMRAD Brain Director, and SFS runtimes) completely free without needing a license key or code.
+* **Permanent Unlock Codes (200 – 500 Founder Codes Total):**  
+  Early supporters and donors can enter their unique code in the GUI to **permanently unlock and version-lock their installation forever**, guaranteeing lifetime access to all current and future capabilities regardless of future tier changes.
+* **Post-v1.0 Community vs. Pro Structure:**  
+  * *Community Goal:* If community donations and sponsorship provide adequate funding, HypeS will remain broadly accessible while targeting enterprise commercial contracts.
+  * *Fallback Tier Structure (if funding goal is not reached):* Post-v1.0 free editions will offer standard HUD monitoring (fixed positioning and capped app docking), Pirate Llama with 3–4 curated supervisory brains, and model size bounds on GCS SFS decomposition, while Founder Code holders and Enterprise clients enjoy unlimited, unthrottled power.
 
-\* *Lifetime codes: first 100 at $100, then $150, $200, $250 — only 400 codes total.*
+| Edition / Tier | Price / Access | Included Capabilities |
+| :--- | :---: | :--- |
+| **Current Beta (v0.9.8-Beta)** | **100% Free / Freeware** | **All features unlocked**, no code required, unlimited models & docks. |
+| **Founder Permanent Unlock** | **Donation / $100 – $250** | **Permanent lifetime unlock** (only 200–500 total codes issued). Version lock + all future updates. |
+| **Post-v1.0 Community Free** | **Free** | Base engine, standard HUD, 3–4 curated brain directors, bounded SFS container sizing. |
+| **Enterprise / Commercial** | **Custom License** | Hardware-token build, dedicated support, multi-node non-Euclidean clustering. |
 
 ---
 

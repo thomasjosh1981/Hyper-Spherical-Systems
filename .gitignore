@@ -43,6 +43,7 @@ build_test/
 CMakeFiles/
 CMakeCache.txt
 dist/
+dist_packages/
 bin/
 obj/
 publish/

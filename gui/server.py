@@ -1218,11 +1218,33 @@ def create_flask_app():
             return "ollama"
         return "openai"  # safest default
 
-    # ── ISSI compression helper ──────────────────────────────────────────────
+    # ── ISSI compression helper with Aggressiveness Governor ──────────────────
     def _compress_messages(messages: list) -> tuple[list, int]:
-        """Compress message content via ISSI. Returns (messages, tokens_saved)."""
+        """Compress message content via ISSI respecting aggressiveness governor. Returns (messages, tokens_saved)."""
         tokens_saved = 0
         try:
+            # Read aggressiveness level (1=Code Pure, 2=Mild, 3=Balanced, 4=Aggressive, 5=Ultra)
+            aggr_level = 3
+            aggr_file = Path.home() / ".hypes" / "compression_settings.json"
+            if aggr_file.exists():
+                try:
+                    cfg = json.loads(aggr_file.read_text(encoding="utf-8"))
+                    aggr_level = int(cfg.get("aggressiveness_level", 3))
+                except Exception:
+                    pass
+
+            # Level 1: Strict Code Pure (Compiler-safe: zero preposition or grammar removal)
+            if aggr_level == 1:
+                for msg in messages:
+                    original = msg.get("content", "")
+                    if original and isinstance(original, str):
+                        lines = [line.rstrip() for line in original.splitlines()]
+                        pruned = "\n".join([line for i, line in enumerate(lines) if not (i > 0 and line == "" and lines[i-1] == "")])
+                        saved = max(0, (len(original) - len(pruned)) // 4)
+                        msg["content"] = pruned
+                        tokens_saved += saved
+                return messages, tokens_saved
+
             from session_engine import SessionCipher
             cipher = SessionCipher()
             for msg in messages:
