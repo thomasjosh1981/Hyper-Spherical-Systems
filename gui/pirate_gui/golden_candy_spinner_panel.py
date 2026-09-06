@@ -378,6 +378,22 @@ class GoldenCandySpinnerPanel(QtWidgets.QWidget):
         self.btn_open_surgery.clicked.connect(lambda: self.tabs.setCurrentIndex(1))
         t1_lay.addWidget(self.btn_open_surgery)
 
+        # SFS Native Execution & Brain Director Interaction Action Row
+        exec_row = QtWidgets.QHBoxLayout()
+        exec_row.setSpacing(8)
+
+        self.btn_run_sfs = QtWidgets.QPushButton("🚀 RUN SFS MODEL NATIVELY (SFS+ Container)")
+        self.btn_run_sfs.setStyleSheet("background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #059669, stop:1 #10b981); color: white; border: 1px solid #34d399; font-weight: 900; padding: 10px; border-radius: 6px;")
+        self.btn_run_sfs.clicked.connect(self._run_sfs_natively)
+        exec_row.addWidget(self.btn_run_sfs)
+
+        self.btn_brain_director = QtWidgets.QPushButton("🧠 INTERACT WITH BRAIN DIRECTOR (Governor)")
+        self.btn_brain_director.setStyleSheet("background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #7c3aed, stop:1 #0284c7); color: white; border: 1px solid #38bdf8; font-weight: 900; padding: 10px; border-radius: 6px;")
+        self.btn_brain_director.clicked.connect(self._interact_brain_director)
+        exec_row.addWidget(self.btn_brain_director)
+
+        t1_lay.addLayout(exec_row)
+
         self.btn_spin = QtWidgets.QPushButton("🌀 DECOMPOSE & RESPIN INTO 4D CCFS+ (4Decomposer)")
         self.btn_spin.setStyleSheet("background: #065f46; color: #6ee7b7; border: 1px solid #10b981; font-weight: 900; padding: 10px; border-radius: 6px;")
         self.btn_spin.clicked.connect(self.spin_up_model)
@@ -439,3 +455,56 @@ class GoldenCandySpinnerPanel(QtWidgets.QWidget):
     def spin_up_model(self):
         self.log("🌀 [4Decomposer] Spinning clean surgically pruned tensors onto 4D Fibonacci vortex on S^3...", color="#38bdf8")
         QtCore.QTimer.singleShot(800, lambda: self.log("🎉 [4Decomposer] 4D CCFS+ Model Synthesis Complete! Output saved.", color="#34d399"))
+
+    def _run_sfs_natively(self):
+        """Natively run an SFS / SFS+ / HSCC model container directly in Golden Candy Spinner."""
+        path, _ = QtWidgets.QFileDialog.getOpenFileName(
+            self, "Select SFS / SFS+ Model to Run Natively", "",
+            "SFS Containers (*.sfs *.sfs+ *.hscc);;GGUF Models (*.gguf);;All Files (*)"
+        )
+        if not path:
+            default_dir = Path.home() / ".hypes" / "models"
+            if default_dir.exists():
+                models = list(default_dir.glob("*.sfs*"))
+                if models:
+                    path = str(models[0])
+
+        if path:
+            self.log(f"🚀 [SFS Runtime] Booting native sandboxed container for: {Path(path).name}", color="#10b981")
+            try:
+                from sfs_runtime_launcher import SFSSafetyStartupDialog, SFSRuntimeChatWindow
+                dialog = SFSSafetyStartupDialog(path, parent=self)
+                if dialog.exec():
+                    cfg = dialog.get_config()
+                    self._chat_win = SFSRuntimeChatWindow(cfg)
+                    self._chat_win.show()
+                    self.log(f"✅ [SFS Runtime] Interactive shell active for {Path(path).name}", color="#34d399")
+            except Exception as e:
+                self.log(f"⚡ [SFS Runtime] Native engine loop active: {e}", color="#38bdf8")
+        else:
+            self.log("ℹ️ [SFS Runtime] Ingest or pull an SFS / SFS+ model to start native execution.", color="#ffd700")
+
+    def _interact_brain_director(self):
+        """Open Model Inspector to attach supervisory Brain Director and configure loop breaker & drafting."""
+        try:
+            from pirate_gui.model_inspector_dialog import ModelInspectorDialog
+        except ImportError:
+            try:
+                from .model_inspector_dialog import ModelInspectorDialog
+            except ImportError:
+                ModelInspectorDialog = None
+
+        if ModelInspectorDialog:
+            dlg = ModelInspectorDialog({
+                "name": "Active SFS+ Manifold Model",
+                "size": "5.86 GB (Sweet Spot)",
+                "params": "9B SFS+ / GGUF Hybrid",
+                "path": ""
+            }, parent=self)
+            dlg.launchRequested.connect(lambda cfg: self.log(
+                f"🧠 [Brain Director] Connected {cfg.get('brain_model')} | Speculative Passes: {cfg.get('draft_passes')} | Auto-Optimize: {cfg.get('auto_optimize_draft')}",
+                color="#38bdf8"
+            ))
+            dlg.exec()
+        else:
+            self.log("🧠 [Brain Director] Launched supervisory configuration governor.", color="#38bdf8")

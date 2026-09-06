@@ -1569,6 +1569,47 @@ def create_flask_app():
         for agm in antigravity_models:
             add_model(agm, "antigravity", {"antigravity_linked": True, "description": "Google Antigravity IDE Sovereign Bridge"})
 
+        # 3b. Golden Token HUD Linked & Docked Targets (Claude, Gemini, Cursor, LM Studio, etc.)
+        locked_targets_file = Path.home() / ".hypes" / "locked_targets.json"
+        if locked_targets_file.exists():
+            try:
+                import re as _re
+                locked_targets = json.loads(locked_targets_file.read_text(encoding="utf-8"))
+                for target_key, target_info in locked_targets.items():
+                    target_title = target_info.get("title", target_key)
+                    category = target_info.get("category", "HUD Linked")
+                    port = target_info.get("port", 8000)
+                    url = target_info.get("url", f"http://127.0.0.1:{port}/v1")
+
+                    combined = f"{target_key} {target_title}".lower()
+                    if "claude" in combined or "anthropic" in combined:
+                        add_model("claude-3-7-sonnet", "anthropic", {"hud_linked": True, "source": target_title, "port": port})
+                        add_model("claude-3-5-sonnet", "anthropic", {"hud_linked": True, "source": target_title, "port": port})
+                        add_model("claude-3-opus", "anthropic", {"hud_linked": True, "source": target_title, "port": port})
+                    if "gemini" in combined or "google" in combined:
+                        add_model("gemini-2.5-pro", "google", {"hud_linked": True, "source": target_title, "port": port})
+                        add_model("gemini-2.5-flash", "google", {"hud_linked": True, "source": target_title, "port": port})
+                        add_model("gemini-3.7-flash", "google", {"hud_linked": True, "source": target_title, "port": port})
+                    if "chatgpt" in combined or "openai" in combined:
+                        add_model("gpt-4o", "openai", {"hud_linked": True, "source": target_title, "port": port})
+                        add_model("o3-mini", "openai", {"hud_linked": True, "source": target_title, "port": port})
+                    if "cursor" in combined or "vscode" in combined:
+                        add_model("cursor-fast", "ide-bridge", {"hud_linked": True, "source": target_title, "port": port})
+                        add_model("cursor-claude-3.7", "ide-bridge", {"hud_linked": True, "source": target_title, "port": port})
+
+                    clean_slug = _re.sub(r'[^a-zA-Z0-9_-]', '-', target_key.lower()).strip('-')
+                    if clean_slug:
+                        add_model(f"hud/{clean_slug}", "hud-radar", {
+                            "hud_linked": True,
+                            "title": target_title,
+                            "category": category,
+                            "port": port,
+                            "url": url,
+                            "description": f"HUD Active Link: {target_title}"
+                        })
+            except Exception:
+                pass
+
         # 3b. ADB Mobile Phone Bridge Models
         adb_exe = shutil.which("adb") or str(Path(os.path.expanduser("~")) / "AppData" / "Local" / "Android" / "Sdk" / "platform-tools" / "adb.exe")
         adb_paired = False
