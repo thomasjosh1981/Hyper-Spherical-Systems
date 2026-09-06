@@ -33,54 +33,355 @@ from PySide6 import QtCore, QtGui, QtWidgets
 
 from . import config_io
 from .bridge import TessEngine, BridgeError, Telemetry
+from .guardian_panel import GuardianSecurityPanel
 
 DARK_QSS = """
-QMainWindow {
-    background-color: #121212;
-    color: #e0e0e0;
+/* ═══════════════════════════════════════════════════════
+   HYPER-SPHERICAL SYSTEMS — Premium Cyber UI Theme
+   High-tech neon/glassmorphism dark theme
+   ═══════════════════════════════════════════════════════ */
+
+QMainWindow, QDialog, QWidget {
+    background-color: #080e1a;
+    color: #dde6f0;
+    font-family: 'Segoe UI', 'Inter', sans-serif;
+    font-size: 12px;
 }
+
+/* ── GROUP BOXES ── */
 QGroupBox {
-    font-weight: bold;
-    border: 1px solid #333333;
-    border-radius: 6px;
-    margin-top: 6px;
-    padding-top: 10px;
-    background-color: #1e1e1e;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border: 1px solid rgba(0,200,255,0.18);
+    border-radius: 10px;
+    margin-top: 14px;
+    padding-top: 14px;
+    padding-left: 8px;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
+        stop:0 rgba(0,200,255,0.05), stop:1 rgba(10,12,25,0.9));
     color: #00c8ff;
 }
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    left: 14px; top: 3px;
+    padding: 2px 8px;
+    background: rgba(0,200,255,0.12);
+    border: 1px solid rgba(0,200,255,0.25);
+    border-radius: 4px;
+    color: #00d4ff;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+}
+
+/* ── TABS ── */
 QTabWidget::pane {
-    border: 1px solid #333333;
-    background-color: #1e1e1e;
+    border: 1px solid rgba(0,200,255,0.15);
+    background: rgba(8,14,26,0.95);
+    border-radius: 0 8px 8px 8px;
+}
+QTabBar {
+    background: transparent;
 }
 QTabBar::tab {
-    background-color: #2a2a2a;
-    color: #aaaaaa;
-    padding: 8px 16px;
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
+    background: rgba(15,22,40,0.8);
+    color: #5a7a9a;
+    padding: 9px 18px;
+    border: 1px solid rgba(0,200,255,0.10);
+    border-bottom: none;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    margin-right: 2px;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.04em;
 }
 QTabBar::tab:selected {
-    background-color: #00c8ff;
-    color: #000000;
-    font-weight: bold;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
+        stop:0 rgba(0,200,255,0.22), stop:1 rgba(0,200,255,0.06));
+    color: #00d4ff;
+    border-color: rgba(0,200,255,0.40);
+    font-weight: 800;
 }
+QTabBar::tab:hover:!selected {
+    background: rgba(0,200,255,0.08);
+    color: #aadcef;
+}
+
+/* ── BUTTONS ── */
 QPushButton {
-    background-color: #2a2a2a;
-    color: #ffffff;
-    border: 1px solid #444444;
-    border-radius: 4px;
-    padding: 6px 12px;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
+        stop:0 #1a2744, stop:1 #0f1929);
+    color: #b0cce0;
+    border: 1px solid rgba(0,200,255,0.25);
+    border-radius: 6px;
+    padding: 7px 16px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
 }
 QPushButton:hover {
-    background-color: #00c8ff;
-    color: #000000;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
+        stop:0 rgba(0,200,255,0.30), stop:1 rgba(0,160,210,0.12));
+    color: #ffffff;
+    border-color: rgba(0,200,255,0.65);
 }
-QPlainTextEdit, QLineEdit {
-    background-color: #181818;
+QPushButton:pressed {
+    background: rgba(0,200,255,0.15);
+    border-color: #00d4ff;
+    padding-top: 8px; padding-bottom: 6px;
+}
+QPushButton:disabled {
+    color: #334455;
+    border-color: rgba(0,200,255,0.07);
+    background: rgba(8,14,26,0.5);
+}
+QPushButton#btn_primary {
+    background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
+        stop:0 #0090cc, stop:1 #6020c0);
+    color: #ffffff;
+    border: none;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    font-size: 12px;
+    padding: 9px 20px;
+    border-radius: 8px;
+}
+QPushButton#btn_primary:hover {
+    background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
+        stop:0 #00b8ff, stop:1 #8840e8);
+}
+QPushButton#btn_danger {
+    background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
+        stop:0 #6b0000, stop:1 #2a0000);
+    color: #ff6666;
+    border-color: rgba(255,60,60,0.35);
+}
+QPushButton#btn_danger:hover {
+    background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
+        stop:0 #aa0000, stop:1 #500000);
+    color: #ffffff;
+    border-color: #ff4444;
+}
+QPushButton#btn_success {
+    background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
+        stop:0 #005530, stop:1 #002218);
+    color: #00e890;
+    border-color: rgba(0,230,140,0.35);
+}
+QPushButton#btn_success:hover {
+    background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
+        stop:0 #00994d, stop:1 #004422);
+    color: #ffffff;
+    border-color: #00e890;
+}
+
+/* ── TEXT INPUTS ── */
+QPlainTextEdit, QTextEdit {
+    background: rgba(4,8,18,0.95);
     color: #00ffcc;
-    border: 1px solid #333333;
-    font-family: Consolas, monospace;
+    border: 1px solid rgba(0,200,255,0.15);
+    border-radius: 6px;
+    padding: 6px;
+    font-family: 'Cascadia Code', 'JetBrains Mono', Consolas, monospace;
+    font-size: 12px;
+    selection-background-color: rgba(0,200,255,0.25);
 }
+QLineEdit {
+    background: rgba(4,8,18,0.95);
+    color: #cce8ff;
+    border: 1px solid rgba(0,200,255,0.20);
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-family: 'Cascadia Code', Consolas, monospace;
+    selection-background-color: rgba(0,200,255,0.25);
+}
+QLineEdit:focus, QPlainTextEdit:focus, QTextEdit:focus {
+    border-color: rgba(0,200,255,0.55);
+    background: rgba(0,14,30,0.98);
+}
+
+/* ── SLIDERS ── */
+QSlider::groove:horizontal {
+    height: 4px;
+    background: rgba(0,200,255,0.15);
+    border-radius: 2px;
+}
+QSlider::handle:horizontal {
+    width: 14px; height: 14px;
+    margin: -5px 0;
+    border-radius: 7px;
+    background: qradialgradient(cx:0.5,cy:0.5,radius:0.5,
+        fx:0.5,fy:0.5, stop:0 #00d4ff, stop:1 #0080aa);
+    border: 1px solid #00d4ff;
+}
+QSlider::sub-page:horizontal {
+    background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
+        stop:0 #00c8ff, stop:1 #7c3aed);
+    border-radius: 2px;
+}
+
+/* ── SPIN BOXES ── */
+QSpinBox, QDoubleSpinBox, QComboBox {
+    background: rgba(4,8,18,0.9);
+    color: #b0cce0;
+    border: 1px solid rgba(0,200,255,0.20);
+    border-radius: 5px;
+    padding: 4px 8px;
+    selection-background-color: rgba(0,200,255,0.25);
+}
+QSpinBox:hover, QDoubleSpinBox:hover, QComboBox:hover {
+    border-color: rgba(0,200,255,0.45);
+}
+QSpinBox::up-button, QSpinBox::down-button,
+QDoubleSpinBox::up-button, QDoubleSpinBox::down-button {
+    background: rgba(0,200,255,0.08);
+    border: none;
+    border-radius: 3px;
+    width: 16px;
+}
+QSpinBox::up-button:hover, QSpinBox::down-button:hover,
+QDoubleSpinBox::up-button:hover, QDoubleSpinBox::down-button:hover {
+    background: rgba(0,200,255,0.25);
+}
+QComboBox::drop-down {
+    border: none;
+    width: 22px;
+}
+QComboBox QAbstractItemView {
+    background: #0d1626;
+    color: #b0cce0;
+    border: 1px solid rgba(0,200,255,0.25);
+    selection-background-color: rgba(0,200,255,0.20);
+    outline: none;
+}
+
+/* ── PROGRESS BARS ── */
+QProgressBar {
+    background: rgba(0,0,0,0.40);
+    border: 1px solid rgba(0,200,255,0.15);
+    border-radius: 4px;
+    text-align: center;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 11px;
+    min-height: 16px;
+}
+QProgressBar::chunk {
+    background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
+        stop:0 #00c8ff, stop:1 #7c3aed);
+    border-radius: 3px;
+}
+
+/* ── CHECKBOXES ── */
+QCheckBox {
+    color: #8899aa;
+    spacing: 8px;
+}
+QCheckBox::indicator {
+    width: 16px; height: 16px;
+    border: 1px solid rgba(0,200,255,0.30);
+    border-radius: 3px;
+    background: rgba(0,0,0,0.4);
+}
+QCheckBox::indicator:checked {
+    background: qlineargradient(x1:0,y1:0,x2:1,y2:1,
+        stop:0 #00c8ff, stop:1 #7c3aed);
+    border-color: #00c8ff;
+    image: url(none);
+}
+QCheckBox:hover { color: #cce8ff; }
+
+/* ── LABELS ── */
+QLabel { color: #8899aa; }
+QLabel[class="heading"] { color: #00d4ff; font-weight: 800; font-size: 14px; }
+QLabel[class="value"]   { color: #ffffff; font-weight: 700; }
+QLabel[class="success"] { color: #00e890; font-weight: 700; }
+QLabel[class="warning"] { color: #f59e0b; font-weight: 700; }
+QLabel[class="danger"]  { color: #ff4444; font-weight: 700; }
+
+/* ── SCROLLBARS ── */
+QScrollBar:vertical {
+    background: rgba(0,0,0,0.2); width: 8px;
+    border-radius: 4px; margin: 0;
+}
+QScrollBar::handle:vertical {
+    background: rgba(0,200,255,0.25);
+    border-radius: 4px; min-height: 20px;
+}
+QScrollBar::handle:vertical:hover { background: rgba(0,200,255,0.5); }
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }
+QScrollBar:horizontal {
+    background: rgba(0,0,0,0.2); height: 8px; border-radius: 4px;
+}
+QScrollBar::handle:horizontal {
+    background: rgba(0,200,255,0.25);
+    border-radius: 4px; min-width: 20px;
+}
+QScrollBar::handle:horizontal:hover { background: rgba(0,200,255,0.5); }
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal { width: 0; }
+
+/* ── TABLES ── */
+QTableWidget, QTableView {
+    background: rgba(4,8,18,0.95);
+    color: #b0cce0;
+    gridline-color: rgba(0,200,255,0.08);
+    border: 1px solid rgba(0,200,255,0.12);
+    border-radius: 6px;
+    selection-background-color: rgba(0,200,255,0.15);
+}
+QHeaderView::section {
+    background: rgba(0,200,255,0.08);
+    color: #00d4ff;
+    border: none;
+    border-bottom: 1px solid rgba(0,200,255,0.20);
+    padding: 6px 10px;
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+/* ── TOOLBAR & MENU ── */
+QToolBar {
+    background: rgba(8,12,22,0.95);
+    border-bottom: 1px solid rgba(0,200,255,0.12);
+    spacing: 4px;
+    padding: 4px 8px;
+}
+QMenuBar {
+    background: rgba(5,9,18,0.98);
+    color: #8899aa;
+    border-bottom: 1px solid rgba(0,200,255,0.10);
+}
+QMenuBar::item:selected {
+    background: rgba(0,200,255,0.12);
+    color: #00d4ff;
+}
+QMenu {
+    background: #0d1626;
+    border: 1px solid rgba(0,200,255,0.20);
+    color: #b0cce0;
+}
+QMenu::item:selected {
+    background: rgba(0,200,255,0.15);
+    color: #00d4ff;
+}
+QMenu::separator {
+    height: 1px;
+    background: rgba(0,200,255,0.10);
+    margin: 4px 8px;
+}
+
+/* ── STATUS BAR ── */
+QStatusBar {
+    background: rgba(5,9,18,0.98);
+    border-top: 1px solid rgba(0,200,255,0.10);
+    color: #5a7a9a;
+    font-size: 11px;
+}
+QStatusBar::item { border: none; }
 """
 
 def _humanize_bytes(b: int) -> str:
@@ -1728,1282 +2029,131 @@ class AutoBackupPanel(QtWidgets.QWidget):
 
 class AvatarViewport(QtWidgets.QWidget):
     """
-    Fully native Qt avatar — no browser, no WebEngine.
-    Driven by QPainter + QTimer at 30 fps.
-
-    Features:
-    - Expressive face: eyebrows, pupils tracking, multiple mouth shapes,
-      blinking, raised eyebrows, furrowed brow, squinting
-    - Detailed hands: open palm, pointing finger, fist, wave, thumbs-up,
-      chin-scratch, chin-rest (thinking)
-    - Full personality: autonomous idle fidgets (weight shift, look around,
-      scratch head), breathing, emotion flashes
-    - State-driven full-body animations for all 6 states
+    Photorealistic 3D WebGL Avatar Engine.
+    Driven by Three.js PBR Shaders, Dynamic 3D Mesh Generator,
+    Procedural Character Morphing, Photo Projection, and Real-Time Lip-Sync.
     """
-
     STATE_NAMES = ["IDLE", "TALKING", "SEARCHING", "WALKING", "GESTURING", "THINKING"]
-
-    # Emotion constants
-    EMO_NEUTRAL  = 0
-    EMO_HAPPY    = 1
-    EMO_THINKING = 2
-    EMO_SURPRISED = 3
-    EMO_FOCUSED  = 4
-    EMO_AMUSED   = 5
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setMinimumSize(380, 460)
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        self.setAutoFillBackground(False)
 
-        # Core state
-        self._state      = 0
-        self._tick       = 0
-        self._style_idx  = 0
-        self._name       = "Entity"
-        self._speaking   = False
-        self._listen     = False
-        self._mouth_open = 0.0
+        self._layout = QtWidgets.QVBoxLayout(self)
+        self._layout.setContentsMargins(0, 0, 0, 0)
+
+        self.web = None
+        self._loaded = False
+        self._state = 0
+        self._name = "Pirate Llama 3D"
+        self._speaking = False
         self._status_msg = "Ready"
 
-        # Personality / emotion system
-        self._emotion         = self.EMO_NEUTRAL
-        self._emotion_timer   = 0      # ticks until next autonomous emotion
-        self._idle_gesture    = 0      # which idle sub-gesture is active
-        self._idle_gesture_t  = 0      # phase within that gesture
-        self._look_offset_x   = 0.0   # pupil gaze offset -1..1
-        self._look_offset_y   = 0.0
-        self._look_target_x   = 0.0
-        self._look_target_y   = 0.0
-        self._blink_t         = 0      # blink phase
-        self._blink_closed    = False
-        self._eyebrow_raise   = 0.0   # -1=furrowed 0=neutral 1=raised
-        self._eyebrow_target  = 0.0
-        self._breath_phase    = 0.0   # sinusoidal breath
-        self._gesture_phase   = 0.0   # sub-gesture oscillator
-        self._weight_side     = 0     # -1=left, 0=centre, 1=right (idle weight shift)
+        # Placeholder shown until avatar is explicitly launched
+        self._placeholder = QtWidgets.QLabel(
+            "🎭 3D Avatar Engine\n\nClick 'Launch Avatar' to load."
+            "\n\nThe avatar uses an embedded 3D engine that\n"
+            "consumes additional RAM. It is only loaded on demand."
+        )
+        self._placeholder.setAlignment(QtCore.Qt.AlignCenter)
+        self._placeholder.setStyleSheet(
+            "color: #00ffcc; font-size: 13px; background: #040812;"
+        )
+        self._layout.addWidget(self._placeholder)
 
-        # Autonomous behaviour schedule (in ticks)
-        self._next_look   = 90
-        self._next_blink  = 30
-        self._next_fidget = 200
+    def load_engine(self):
+        """Lazy-initialise the WebEngine. Called only when the Avatar tab is opened."""
+        if self._loaded:
+            return
+        self._loaded = True
+        self._placeholder.hide()
+        try:
+            from PySide6 import QtWebEngineWidgets
+            self.web = QtWebEngineWidgets.QWebEngineView(self)
+            self.web.setStyleSheet("background: #040812;")
 
-        # Style palettes
-        self._palettes = [
-            {"skin": "#f5cba7", "skin2": "#e59866", "hair": "#4a3728",
-             "eye": "#27ae60",  "pupil": "#1a5c36",  "lip": "#c0392b",
-             "glow": "#00ffcc", "shirt": "#2980b9",  "label": "Realistic"},
-            {"skin": "#ffe4b5", "skin2": "#f0c080", "hair": "#ff69b4",
-             "eye": "#9b59b6",  "pupil": "#5d3478",  "lip": "#e91e63",
-             "glow": "#ff00ff", "shirt": "#8e44ad",  "label": "Anime"},
-            {"skin": "#ffdd57", "skin2": "#f0b800", "hair": "#e74c3c",
-             "eye": "#2980b9",  "pupil": "#154360",  "lip": "#c0392b",
-             "glow": "#f9ca24", "shirt": "#27ae60",  "label": "Cartoon"},
-            {"skin": "#6c3483", "skin2": "#4a235a", "hair": "#1abc9c",
-             "eye": "#e74c3c",  "pupil": "#7b241c",  "lip": "#8e44ad",
-             "glow": "#8e44ad", "shirt": "#17202a",  "label": "Creature"},
-        ]
+            html_path = Path(__file__).parent / "avatar_3d.html"
+            if getattr(sys, "frozen", False):
+                _meipass = Path(getattr(sys, "_MEIPASS", ""))
+                for candidate in (
+                    _meipass / "gui" / "pirate_gui" / "avatar_3d.html",
+                    _meipass / "avatar_3d.html",
+                ):
+                    if candidate.exists():
+                        html_path = candidate
+                        break
 
-        self._timer = QtCore.QTimer(self)
-        self._timer.timeout.connect(self._animate)
-        self._timer.start(33)  # 30 fps
+            if html_path.exists():
+                self.web.setUrl(QtCore.QUrl.fromLocalFile(str(html_path)))
+            else:
+                self.web.setHtml("<h3 style='color:#00ffcc;'>3D Avatar Engine Loading...</h3>")
 
-        # ── Spawn / materialisation sequence ─────────────────────────────
-        # Phase 0: Hypersphere swirling (0..89)
-        # Phase 1: Collapse + shockwave  (90..119)
-        # Phase 2: Materialise fade-in   (120..179)
-        # Phase 3: Alive (180+)
-        self._spawn_tick   = 0
-        self._spawn_done   = False
-        # spawn particles: list of [x_rel, y_rel, vx, vy, size, col_hue, alpha]
-        import random as _r
-        self._spawn_particles = [
-            [_r.uniform(-1.0, 1.0), _r.uniform(-1.0, 1.0),
-             _r.uniform(-2.5, 2.5), _r.uniform(-2.5, 2.5),
-             _r.uniform(2, 6), _r.randint(0, 360), _r.randint(180, 255)]
-            for _ in range(55)
-        ]
-        self._spawn_sub_angles = [i * (360.0 / 12) for i in range(12)]
-        self._spawn_vortex_a   = 0.0
+            self._layout.addWidget(self.web)
+        except Exception as e:
+            err_lbl = QtWidgets.QLabel(f"3D Avatar Engine Error:\n{e}")
+            err_lbl.setAlignment(QtCore.Qt.AlignCenter)
+            err_lbl.setStyleSheet("color: #ff4444; font-size: 13px;")
+            self._layout.addWidget(err_lbl)
 
-    # ── Public API ────────────────────────────────────────────────────────
+    def unload_engine(self):
+        """Release the WebEngine and reclaim RAM. Avatar resets to placeholder."""
+        if self.web:
+            self.web.setUrl(QtCore.QUrl("about:blank"))
+            self._layout.removeWidget(self.web)
+            self.web.deleteLater()
+            self.web = None
+        self._loaded = False
+        self._placeholder.show()
+
     def set_state(self, idx: int):
-        old = self._state
         self._state = max(0, min(idx, len(self.STATE_NAMES) - 1))
-        if self._state != old:
-            self._gesture_phase = 0.0
-            # emotion hint per state
-            em_map = {0: self.EMO_NEUTRAL, 1: self.EMO_HAPPY,
-                      2: self.EMO_FOCUSED, 3: self.EMO_NEUTRAL,
-                      4: self.EMO_AMUSED,  5: self.EMO_THINKING}
-            self._emotion = em_map.get(self._state, self.EMO_NEUTRAL)
+        name = self.STATE_NAMES[self._state]
+        if self.web:
+            self.web.page().runJavaScript(f"setAvatarState({self._state}, '{name}');")
 
     def set_style(self, idx: int):
-        self._style_idx = max(0, min(idx, len(self._palettes) - 1))
+        styles = ["pirate llama cyber mascot", "cybernetic android PBR humanoid", "golden candy mech", "quantum holographic spirit"]
+        style_name = styles[idx % len(styles)]
+        if self.web:
+            self.web.page().runJavaScript(f"generateFromPrompt('{style_name}');")
 
     def set_name(self, name: str):
-        self._name = name or "Entity"
+        self._name = name or "PIRATE LLAMA 3D"
+        if self.web:
+            escaped = self._name.replace("'", "\\'")
+            self.web.page().runJavaScript(f"setAvatarName('{escaped}');")
 
     def set_speaking(self, val: bool, mouth_open: float = 0.0):
-        self._speaking   = val
-        self._mouth_open = mouth_open
-        if val:
-            self._emotion = self.EMO_HAPPY
+        self._speaking = val
+        if self.web:
+            js_val = "true" if val else "false"
+            self.web.page().runJavaScript(f"setSpeakingState({js_val});")
 
     def set_listening(self, val: bool):
-        self._listen = val
-        if val:
-            self._emotion = self.EMO_FOCUSED
+        if self.web:
+            state_text = "LISTENING" if val else "READY"
+            self.web.page().runJavaScript(f"setAvatarState({1 if val else 0}, '{state_text}');")
+
+    def generate_from_prompt(self, prompt: str):
+        if self.web and prompt:
+            escaped = prompt.replace("'", "\\'")
+            self.web.page().runJavaScript(f"generateFromPrompt('{escaped}');")
+
+    def load_photo_avatar(self, file_path: str):
+        """Projects a user photo/image into a 3D Holographic Card Mesh with Lip-Sync."""
+        if self.web and file_path and Path(file_path).exists():
+            import base64
+            with open(file_path, "rb") as f:
+                b64 = base64.b64encode(f.read()).decode("ascii")
+            ext = Path(file_path).suffix.lower().replace(".", "")
+            mime = "image/png" if ext == "png" else "image/jpeg"
+            data_url = f"data:{mime};base64,{b64}"
+            self.web.page().runJavaScript(f"loadAvatarImage('{data_url}');")
+            self.set_name(Path(file_path).stem.capitalize())
 
     def set_status(self, msg: str):
         self._status_msg = msg
-
-    # ── Autonomous animation tick ─────────────────────────────────────────
-    def _animate(self):
-        import math, random
-        self._tick += 1
-        t = self._tick
-
-        # ── spawn sequence tick ───────────────────────────────────────────
-        if not self._spawn_done:
-            self._spawn_tick += 1
-            self._spawn_vortex_a += 0.09
-            # update spawn particles
-            W, H = max(1, self.width()), max(1, self.height())
-            cx, cy = W / 2.0, H / 2.0
-            for pt in self._spawn_particles:
-                if self._spawn_tick < 90:   # phase 0: spiral inward
-                    dx, dy = cx - (cx + pt[0] * 80), cy - (cy + pt[1] * 80)
-                    dist = math.sqrt(dx*dx + dy*dy) + 0.1
-                    pt[2] += (dx / dist) * 0.25
-                    pt[3] += (dy / dist) * 0.25
-                    pt[0] += pt[2] * 0.04
-                    pt[1] += pt[3] * 0.04
-                    # fade in
-                    pt[6] = min(255, pt[6] + 3)
-                elif self._spawn_tick < 120:  # phase 1: blast outward
-                    pt[0] += pt[2] * 0.18
-                    pt[1] += pt[3] * 0.18
-                    pt[6] = max(0, pt[6] - 8)
-                else:                          # phase 2+: fade away
-                    pt[6] = max(0, pt[6] - 14)
-            for i in range(len(self._spawn_sub_angles)):
-                self._spawn_sub_angles[i] += 3.4
-            if self._spawn_tick >= 180:
-                self._spawn_done = True
-            self.update()
-            if not self._spawn_done:
-                return   # skip normal anim during spawn
-
-        # Breathing
-        self._breath_phase = math.sin(t * 0.04) * 2.5
-
-        # Mouth open while speaking
-        if self._speaking:
-            self._mouth_open = 0.45 + 0.55 * abs(math.sin(t * 0.38 + 0.3))
-
-        # Gesture phase oscillator
-        self._gesture_phase += 0.06
-        if self._gesture_phase > math.tau:
-            self._gesture_phase -= math.tau
-
-        # ── autonomous blink ──────────────────────────────────────────────
-        self._blink_t -= 1
-        if self._blink_t <= 0:
-            self._blink_closed = True
-            self._blink_t = random.randint(70, 150)
-        elif self._blink_closed and self._blink_t > 5:
-            self._blink_closed = False
-
-        # ── autonomous gaze shift ─────────────────────────────────────────
-        self._next_look -= 1
-        if self._next_look <= 0:
-            self._next_look = random.randint(60, 180)
-            self._look_target_x = random.uniform(-0.55, 0.55)
-            self._look_target_y = random.uniform(-0.3, 0.3)
-        # smooth tracking
-        self._look_offset_x += (self._look_target_x - self._look_offset_x) * 0.12
-        self._look_offset_y += (self._look_target_y - self._look_offset_y) * 0.12
-
-        # ── eyebrow lerp ──────────────────────────────────────────────────
-        self._eyebrow_raise += (self._eyebrow_target - self._eyebrow_raise) * 0.08
-
-        # ── autonomous fidget ─────────────────────────────────────────────
-        self._next_fidget -= 1
-        if self._next_fidget <= 0 and self._state == 0:  # IDLE only
-            self._next_fidget = random.randint(120, 300)
-            self._idle_gesture = random.randint(0, 4)
-            self._idle_gesture_t = 60
-            # random emotion flash
-            self._emotion = random.choice([self.EMO_NEUTRAL, self.EMO_HAPPY,
-                                           self.EMO_AMUSED, self.EMO_NEUTRAL])
-            self._eyebrow_target = random.choice([-0.5, 0.0, 0.8])
-            # random weight shift
-            self._weight_side = random.choice([-1, 0, 1])
-
-        if self._idle_gesture_t > 0:
-            self._idle_gesture_t -= 1
-
-        self.update()
-
-    # ── Helpers ───────────────────────────────────────────────────────────
-    def _draw_hand(self, p, x, y, shape, pal, size=10, angle_deg=0.0):
-        """Draw a hand icon at (x,y). shape: 0=open 1=point 2=fist 3=wave 4=thumbsup 5=peace"""
-        import math
-        p.save()
-        p.translate(x, y)
-        p.rotate(angle_deg)
-        s = size
-        skin = QtGui.QColor(pal["skin"])
-        skin2 = QtGui.QColor(pal["skin2"])
-
-        p.setPen(QtGui.QPen(skin2, 1.5))
-        p.setBrush(QtGui.QBrush(skin))
-
-        if shape == 0:  # open palm
-            # palm
-            p.drawEllipse(-s, -s, s * 2, s * 2)
-            # fingers
-            for fi, (fx, fy) in enumerate([(-s//2, -s-6), (-1, -s-9),
-                                            (s//2, -s-7), (s+2, -s//2)]):
-                p.drawEllipse(fx - 3, fy - 5, 6, 10)
-            # thumb
-            p.drawEllipse(-s - 5, -3, 7, 11)
-
-        elif shape == 1:  # pointing finger
-            p.drawEllipse(-s, -s//2, s * 2, s)  # fist base
-            # extended index finger
-            p.drawRect(-2, -s - 12, 5, 13)
-            # folded fingers
-            for fi, fy in [(s//2 - 3, -s//2), (0, -s//2), (-s//2+1, -s//2)]:
-                p.drawEllipse(fi - 2, fy, 5, 7)
-
-        elif shape == 2:  # fist
-            p.drawRoundedRect(-s, -s//2, s*2, s+2, 4, 4)
-            # finger line
-            p.setPen(QtGui.QPen(skin2, 1))
-            p.drawLine(-s//2, -s//2, s//2, -s//2)
-
-        elif shape == 3:  # wave (spread fingers)
-            p.drawEllipse(-s, -s//2, s*2, s)
-            angles = [-40, -20, 0, 20, 40]
-            for ai, ang in enumerate(angles):
-                rad = math.radians(ang - 80)
-                ex = int(math.cos(rad) * (s + 10))
-                ey = int(math.sin(rad) * (s + 10))
-                p.drawLine(0, 0, ex, ey)
-                p.drawEllipse(ex - 3, ey - 3, 6, 6)
-
-        elif shape == 4:  # thumbs up
-            p.drawRoundedRect(-s//2, 0, s, s, 3, 3)  # fist
-            # thumb up
-            p.drawEllipse(-2, -s - 8, 7, s + 4)
-
-        elif shape == 5:  # peace / V sign
-            p.drawRoundedRect(-s//2+2, -2, s-4, s//2+4, 3, 3)
-            # index up-left
-            p.drawRect(-s//2, -s-10, 5, s+4)
-            # middle up-right
-            p.drawRect(s//2-5, -s-10, 5, s+4)
-
-        p.restore()
-
-    def _mouth_path(self, cx, my, mw, mh, emotion, mouth_open):
-        """Return a QPainterPath for the current mouth expression."""
-        path = QtGui.QPainterPath()
-        if emotion == self.EMO_HAPPY or emotion == self.EMO_AMUSED:
-            # big smile
-            path.moveTo(cx - mw, my)
-            path.quadTo(cx, my + mh + mouth_open * mw * 0.8, cx + mw, my)
-        elif emotion == self.EMO_SURPRISED:
-            # wide O
-            path.addEllipse(cx - mw * 0.6, my - mh * 0.3,
-                            mw * 1.2, mh * 0.8 + mouth_open * 12)
-        elif emotion == self.EMO_THINKING:
-            # slight frown / asymmetric
-            path.moveTo(cx - mw * 0.7, my + 4)
-            path.quadTo(cx - mw * 0.2, my,  cx, my + 2)
-            path.quadTo(cx + mw * 0.5, my + 8, cx + mw * 0.8, my + 6)
-        else:
-            # neutral — thin line or slight curve
-            path.moveTo(cx - mw * 0.6, my + 2)
-            path.quadTo(cx, my + 4 + mouth_open * 8, cx + mw * 0.6, my + 2)
-        return path
-
-    # ── Main paint ────────────────────────────────────────────────────────
-    def _draw_spawn(self, p, W, H):
-        """Draws the hypersphere spawn / materialise sequence."""
-        import math
-        st  = self._spawn_tick
-        va  = self._spawn_vortex_a
-        pal = self._palettes[self._style_idx]
-        glow_hex = pal["glow"]
-
-        cx, cy = W / 2.0, H / 2.0
-        radius = min(W, H) * 0.28
-
-        # ── background ──────────────────────────────────────────────────
-        bg = QtGui.QLinearGradient(0, 0, 0, H)
-        bg.setColorAt(0.0, QtGui.QColor("#04040c"))
-        bg.setColorAt(1.0, QtGui.QColor("#060d18"))
-        p.fillRect(0, 0, W, H, bg)
-
-        # ── phase-based alpha scaling ────────────────────────────────────
-        if st < 90:       # phase 0: full hypersphere, build-up
-            hyper_alpha  = min(1.0, st / 30.0)
-            collapse_pct = 0.0
-            shock_alpha  = 0.0
-            mat_alpha    = 0.0
-        elif st < 120:    # phase 1: collapse
-            hyper_alpha  = 1.0 - (st - 90) / 30.0
-            collapse_pct = (st - 90) / 30.0
-            shock_alpha  = collapse_pct
-            mat_alpha    = 0.0
-        else:             # phase 2: materialise
-            hyper_alpha  = 0.0
-            collapse_pct = 1.0
-            shock_alpha  = max(0.0, 1.0 - (st - 120) / 40.0)
-            mat_alpha    = min(1.0, (st - 120) / 60.0)
-
-        # ── XOR vortex rings ─────────────────────────────────────────────
-        if hyper_alpha > 0.01:
-            p.setCompositionMode(QtGui.QPainter.CompositionMode_Difference)
-            for ri in range(4):
-                ring_r = (radius * (0.4 + 0.22 * ri) *
-                          (1.0 - collapse_pct * 0.85) +
-                          math.sin(va + ri) * 7)
-                c = QtGui.QColor(glow_hex)
-                c.setAlpha(int(180 * hyper_alpha))
-                p.setPen(QtGui.QPen(c, 1.5, QtCore.Qt.DashLine))
-                p.setBrush(QtCore.Qt.NoBrush)
-                p.drawEllipse(QtCore.QPointF(cx, cy), ring_r, ring_r * 0.58)
-            p.setCompositionMode(QtGui.QPainter.CompositionMode_SourceOver)
-
-            # spinning vertex lines
-            p.setPen(QtGui.QPen(QtGui.QColor(255, 0, 128, int(140 * hyper_alpha)), 1.0))
-            nv = 10
-            for i in range(nv):
-                a = va + i * math.tau / nv
-                vx2 = cx + math.cos(a) * radius * 1.18 * (1 - collapse_pct * 0.9)
-                vy2 = cy + math.sin(a) * radius * 1.18 * (1 - collapse_pct * 0.9)
-                p.drawLine(QtCore.QPointF(cx, cy), QtCore.QPointF(vx2, vy2))
-
-            # sub-orbiting spheres
-            p.setCompositionMode(QtGui.QPainter.CompositionMode_SourceOver)
-            orbit_rads = [28, 42, 60, 72, 54, 36, 48, 66, 38, 50, 62, 44]
-            sizes      = [7, 10, 14, 8, 12, 9, 11, 6, 13, 7, 10, 8]
-            for i, ang in enumerate(self._spawn_sub_angles):
-                rad = math.radians(ang)
-                or2 = orbit_rads[i] * (1 - collapse_pct * 0.95)
-                sx = cx + math.cos(rad) * or2
-                sy = cy + math.sin(rad * 1.35) * (or2 * 0.55)
-                sr = sizes[i]
-                hue = (i * 30) % 360
-                c2 = QtGui.QColor.fromHsv(hue, 220, 255, int(210 * hyper_alpha))
-                sg = QtGui.QRadialGradient(sx, sy, sr)
-                sg.setColorAt(0, c2)
-                edge = QtGui.QColor.fromHsv(hue, 180, 200, 20)
-                sg.setColorAt(1, edge)
-                p.setBrush(sg)
-                p.setPen(QtGui.QPen(QtGui.QColor(glow_hex), 0.8))
-                p.drawEllipse(QtCore.QPointF(sx, sy), sr * hyper_alpha, sr * hyper_alpha)
-
-            # central hypersphere body
-            r_now = radius * (1.0 - collapse_pct * 0.96)
-            mg = QtGui.QRadialGradient(cx, cy, r_now)
-            gc = QtGui.QColor(glow_hex)
-            gc.setAlpha(int(230 * hyper_alpha))
-            mg.setColorAt(0.0, gc)
-            gc2 = QtGui.QColor(56, 189, 248, int(180 * hyper_alpha))
-            mg.setColorAt(0.4, gc2)
-            gc3 = QtGui.QColor(168, 85, 247, int(120 * hyper_alpha))
-            mg.setColorAt(0.8, gc3)
-            mg.setColorAt(1.0, QtGui.QColor(10, 10, 20, 10))
-            p.setBrush(mg)
-            p.setPen(QtGui.QPen(gc2, 2))
-            p.drawEllipse(QtCore.QPointF(cx, cy), r_now, r_now)
-
-        # ── spawn particles ──────────────────────────────────────────────
-        p.setPen(QtCore.Qt.NoPen)
-        for pt in self._spawn_particles:
-            hue = int(pt[5]) % 360
-            c3 = QtGui.QColor.fromHsv(hue, 230, 255, int(pt[6]))
-            p.setBrush(c3)
-            px = cx + pt[0] * radius
-            py = cy + pt[1] * radius
-            ps = pt[4] * (hyper_alpha + mat_alpha * 0.3)
-            if ps > 0.5:
-                p.drawEllipse(QtCore.QPointF(px, py), ps, ps)
-
-        # ── collapse shockwave ring ───────────────────────────────────────
-        if shock_alpha > 0.01:
-            shock_r = radius * 0.05 + radius * 2.2 * (1.0 - shock_alpha)
-            for ri2 in range(3):
-                sr2 = shock_r + ri2 * 16
-                sa  = max(0, int(220 * shock_alpha * (1 - ri2 * 0.28)))
-                sc  = QtGui.QColor(glow_hex)
-                sc.setAlpha(sa)
-                sp  = QtGui.QPen(sc, 3 - ri2)
-                p.setPen(sp)
-                p.setBrush(QtCore.Qt.NoBrush)
-                p.drawEllipse(QtCore.QPointF(cx, cy), sr2, sr2)
-            # flash fill
-            flash = QtGui.QColor(glow_hex)
-            flash.setAlpha(int(140 * shock_alpha * shock_alpha))
-            p.fillRect(0, 0, W, H, flash)
-
-        # ── materialise: draw avatar at partial alpha ────────────────────
-        if mat_alpha > 0.01:
-            p.setOpacity(mat_alpha)
-
-        return mat_alpha   # caller uses this to decide whether to draw avatar
-
-    def paintEvent(self, event):
-        import math
-        p = QtGui.QPainter(self)
-        p.setRenderHint(QtGui.QPainter.Antialiasing)
-        p.setRenderHint(QtGui.QPainter.SmoothPixmapTransform)
-
-        W, H   = self.width(), self.height()
-        pal    = self._palettes[self._style_idx]
-        t      = self._tick
-        state  = self._state
-        emo    = self._emotion
-        gp     = self._gesture_phase
-
-        # ── Spawn sequence ───────────────────────────────────────────────
-        if not self._spawn_done:
-            mat_alpha = self._draw_spawn(p, W, H)
-            if mat_alpha < 0.01:
-                p.end()
-                return
-            # fall through with partial opacity to draw avatar beneath
-
-        # ────────────────────────────────────────────────────────────────
-        # BACKGROUND
-        # ────────────────────────────────────────────────────────────────
-        bg = QtGui.QLinearGradient(0, 0, 0, H)
-        bg.setColorAt(0.0, QtGui.QColor("#090912"))
-        bg.setColorAt(0.7, QtGui.QColor("#0d1a2e"))
-        bg.setColorAt(1.0, QtGui.QColor("#060d18"))
-        p.fillRect(0, 0, W, H, bg)
-
-        # Perspective grid floor
-        gy0 = int(H * 0.62)
-        vp_x, vp_y = W // 2, gy0
-        grid_pen = QtGui.QPen(QtGui.QColor(20, 50, 80, 80), 1)
-        p.setPen(grid_pen)
-        for xi in range(-8, 9):
-            gx = W // 2 + xi * 48
-            p.drawLine(gx, gy0, vp_x, vp_y)
-        for yi in range(0, 8):
-            yy = gy0 + yi * 24
-            fac = yi / 7.0
-            x0 = int(W // 2 - 380 * fac)
-            x1 = int(W // 2 + 380 * fac)
-            p.drawLine(x0, yy, x1, yy)
-
-        # Ambient glow halo
-        glow_col = QtGui.QColor(pal["glow"])
-        glow_col.setAlphaF(0.18 + 0.07 * math.sin(t * 0.05))
-        cx_base = W // 2
-        cy_base = H // 3
-        rg = QtGui.QRadialGradient(cx_base, cy_base, 160)
-        rg.setColorAt(0, glow_col)
-        rg.setColorAt(1, QtGui.QColor(0, 0, 0, 0))
-        p.fillRect(0, 0, W, H, rg)
-
-        # ────────────────────────────────────────────────────────────────
-        # SKELETON LAYOUT
-        # ────────────────────────────────────────────────────────────────
-        br   = self._breath_phase                     # breathing offset
-        scale = min(W, H) / 520.0
-
-        # Weight shift offset
-        ws_x = self._weight_side * 8 * math.sin(t * 0.015)
-        # Walking lean
-        walk_lean_x = int(10 * math.sin(t * 0.09)) if state == 3 else 0
-        # Bob
-        bob_y = int(4 * math.sin(t * 0.055)) if state in (0, 1, 4, 5) else 0
-
-        cx  = int(W // 2 + ws_x + walk_lean_x)
-        head_r   = max(30, int(min(W, H) * 0.11))
-        if self._style_idx == 2:  # cartoon bigger head
-            head_r = int(head_r * 1.32)
-
-        head_cy  = int(H * 0.20 + bob_y)
-        neck_bot = head_cy + head_r + 5
-        should_y = neck_bot + int(18 * scale)
-        hip_y    = should_y + int(64 * scale) + int(br * 0.4)
-        knee_y   = hip_y + int(58 * scale)
-        foot_y   = knee_y + int(48 * scale)
-        arm_len  = int(50 * scale)
-        fore_len = int(44 * scale)
-
-        # ────────────────────────────────────────────────────────────────
-        # SHADOW
-        # ────────────────────────────────────────────────────────────────
-        sh = QtGui.QRadialGradient(cx, foot_y + 10, 55)
-        sh.setColorAt(0, QtGui.QColor(0, 0, 0, 110))
-        sh.setColorAt(1, QtGui.QColor(0, 0, 0, 0))
-        p.fillRect(cx - 70, foot_y, 140, 24, sh)
-
-        # ────────────────────────────────────────────────────────────────
-        # LEGS  (drawn first, behind torso)
-        # ────────────────────────────────────────────────────────────────
-        leg_col  = QtGui.QColor(pal["skin"]).darker(155)
-        shoe_col = QtGui.QColor(pal["hair"]).darker(120)
-
-        if state == 3:  # WALKING
-            ls = math.sin(gp * 1.1) * 28
-        elif state == 2:  # SEARCHING — lean forward
-            ls = math.sin(gp * 0.5) * 10
-        else:
-            ls = math.sin(t * 0.025) * 4
-
-        def draw_leg(side, swing):
-            dx = side * 10
-            kx = cx + dx + int(swing * 0.5)
-            ky = knee_y
-            fx = cx + dx + int(swing * 0.9)
-            fy = foot_y
-            # thigh
-            lp = QtGui.QPen(leg_col, int(9 * scale), QtCore.Qt.SolidLine, QtCore.Qt.RoundCap)
-            p.setPen(lp)
-            p.drawLine(cx + dx, hip_y, kx, ky)
-            # shin
-            lp.setWidth(int(8 * scale))
-            p.setPen(lp)
-            p.drawLine(kx, ky, fx, fy)
-            # shoe
-            p.setPen(QtCore.Qt.NoPen)
-            p.setBrush(QtGui.QBrush(shoe_col))
-            p.drawEllipse(fx - 10, fy - 5, 20, 10)
-
-        draw_leg(-1,  ls)
-        draw_leg( 1, -ls)
-
-        # ────────────────────────────────────────────────────────────────
-        # TORSO
-        # ────────────────────────────────────────────────────────────────
-        shirt = QtGui.QColor(pal["shirt"])
-        p.setPen(QtCore.Qt.NoPen)
-        p.setBrush(QtGui.QBrush(shirt))
-        torso_w = int(22 * scale)
-        torso_h = hip_y - should_y
-        p.drawRoundedRect(cx - torso_w, should_y, torso_w * 2, torso_h, 6, 6)
-        # shoulder line
-        p.setPen(QtGui.QPen(shirt.lighter(130), int(10 * scale), QtCore.Qt.SolidLine, QtCore.Qt.RoundCap))
-        p.drawLine(cx - arm_len, should_y, cx + arm_len, should_y)
-
-        # ────────────────────────────────────────────────────────────────
-        # ARMS + HANDS — state-specific
-        # ────────────────────────────────────────────────────────────────
-        arm_col = QtGui.QColor(pal["skin"]).darker(115)
-        arm_pen = QtGui.QPen(arm_col, int(7 * scale), QtCore.Qt.SolidLine, QtCore.Qt.RoundCap)
-
-        # Defaults
-        elbow_lx = cx - arm_len
-        elbow_ly = should_y + int(28 * scale)
-        elbow_rx = cx + arm_len
-        elbow_ry = should_y + int(28 * scale)
-        hand_lx  = elbow_lx - int(8 * scale)
-        hand_ly  = elbow_ly + fore_len
-        hand_rx  = elbow_rx + int(8 * scale)
-        hand_ry  = elbow_ry + fore_len
-        hand_l_shape = 0  # open palm
-        hand_r_shape = 0
-        hand_l_angle = 0
-        hand_r_angle = 0
-
-        if state == 0:  # IDLE — natural rest with idle fidgets
-            swing = math.sin(gp * 0.6) * 6
-            elbow_lx = cx - arm_len
-            elbow_ly = should_y + int(30 * scale) + int(swing)
-            elbow_rx = cx + arm_len
-            elbow_ry = should_y + int(30 * scale) - int(swing)
-            hand_lx  = elbow_lx - 5
-            hand_ly  = elbow_ly + fore_len
-            hand_rx  = elbow_rx + 5
-            hand_ry  = elbow_ry + fore_len
-
-            ig = self._idle_gesture
-            igt = self._idle_gesture_t
-            if igt > 0:
-                if ig == 0:  # scratch head — right hand to head
-                    prog = math.sin(igt / 60.0 * math.pi)
-                    elbow_rx = cx + int(arm_len * 0.6)
-                    elbow_ry = should_y - int(10 * prog)
-                    hand_rx  = cx + head_r - 4
-                    hand_ry  = head_cy - int(20 * prog)
-                    hand_r_shape = 2  # fist/scratch
-                    hand_r_angle = -30
-                elif ig == 1:  # wave left hand
-                    prog = math.sin(gp * 3)
-                    elbow_lx = cx - int(arm_len * 0.8)
-                    elbow_ly = should_y - 10
-                    hand_lx  = elbow_lx - 15
-                    hand_ly  = elbow_ly - 20 + int(prog * 14)
-                    hand_l_shape = 3  # wave
-                    hand_l_angle = int(prog * 20)
-                elif ig == 2:  # thumbs up right
-                    elbow_rx = cx + int(arm_len * 0.7)
-                    elbow_ry = should_y + 10
-                    hand_rx  = elbow_rx + 10
-                    hand_ry  = elbow_ry - 10
-                    hand_r_shape = 4
-                    hand_r_angle = -15
-                elif ig == 3:  # cross arms (folded)
-                    elbow_lx = cx - 10
-                    elbow_ly = should_y + 35
-                    elbow_rx = cx + 10
-                    elbow_ry = should_y + 35
-                    hand_lx  = cx + 18
-                    hand_ly  = should_y + 40
-                    hand_rx  = cx - 18
-                    hand_ry  = should_y + 40
-                    hand_l_shape = 2
-                    hand_r_shape = 2
-                elif ig == 4:  # point outward left
-                    elbow_lx = cx - arm_len - 5
-                    elbow_ly = should_y + 10
-                    hand_lx  = elbow_lx - fore_len + 5
-                    hand_ly  = elbow_ly - 20
-                    hand_l_shape = 1  # point
-                    hand_l_angle = -45
-
-        elif state == 1:  # TALKING — expressive gestures while speaking
-            cycle = gp % math.tau
-            phase = (t // 40) % 4
-            if phase == 0:  # open palms out
-                elbow_lx = cx - arm_len - 8
-                elbow_ly = should_y + 15
-                hand_lx  = elbow_lx - 18
-                hand_ly  = elbow_ly - 5
-                hand_l_shape = 0
-                hand_l_angle = -20
-                elbow_rx = cx + arm_len + 8
-                elbow_ry = should_y + 15
-                hand_rx  = elbow_rx + 18
-                hand_ry  = elbow_ry - 5
-                hand_r_shape = 0
-                hand_r_angle = 20
-            elif phase == 1:  # right hand raised point
-                elbow_rx = cx + arm_len
-                elbow_ry = should_y - 5 + int(math.sin(cycle) * 8)
-                hand_rx  = elbow_rx + 14
-                hand_ry  = elbow_ry - 20
-                hand_r_shape = 1
-                hand_r_angle = -30
-                elbow_lx = cx - arm_len
-                elbow_ly = should_y + 28
-                hand_lx  = elbow_lx - 6
-                hand_ly  = elbow_ly + fore_len
-            elif phase == 2:  # both hands gesturing out-in
-                amp = math.sin(cycle * 2) * 16
-                elbow_lx = cx - int(arm_len * 0.8)
-                elbow_ly = should_y + 20
-                hand_lx  = elbow_lx - 20 + int(amp)
-                hand_ly  = elbow_ly + fore_len - 10
-                hand_l_shape = 0
-                hand_l_angle = int(amp)
-                elbow_rx = cx + int(arm_len * 0.8)
-                elbow_ry = should_y + 20
-                hand_rx  = elbow_rx + 20 - int(amp)
-                hand_ry  = elbow_ry + fore_len - 10
-                hand_r_shape = 0
-                hand_r_angle = -int(amp)
-            else:  # shrug-ish, open wide
-                elbow_lx = cx - arm_len - 14
-                elbow_ly = should_y - 10
-                hand_lx  = elbow_lx - 8
-                hand_ly  = elbow_ly - 14
-                hand_l_shape = 3
-                elbow_rx = cx + arm_len + 14
-                elbow_ry = should_y - 10
-                hand_rx  = elbow_rx + 8
-                hand_ry  = elbow_ry - 14
-                hand_r_shape = 3
-
-        elif state == 2:  # SEARCHING FILE CABINET
-            reach = math.sin(gp * 0.9) * 14
-            elbow_rx = cx + arm_len + 12
-            elbow_ry = should_y - 8 + int(reach * 0.4)
-            hand_rx  = elbow_rx + 20
-            hand_ry  = elbow_ry - 16 + int(reach)
-            hand_r_shape = 2  # fist to grab files
-            hand_r_angle = int(reach * 1.5)
-            elbow_lx = cx - int(arm_len * 0.7)
-            elbow_ly = should_y + 28
-            hand_lx  = elbow_lx - 4
-            hand_ly  = elbow_ly + fore_len
-
-        elif state == 3:  # WALKING
-            swing = math.sin(gp * 1.1) * 22
-            elbow_lx = cx - arm_len
-            elbow_ly = should_y + 24 + int(swing)
-            hand_lx  = elbow_lx - 6
-            hand_ly  = elbow_ly + fore_len
-            elbow_rx = cx + arm_len
-            elbow_ry = should_y + 24 - int(swing)
-            hand_rx  = elbow_rx + 6
-            hand_ry  = elbow_ry + fore_len
-            hand_l_shape = 2  # loose fists while walking
-            hand_r_shape = 2
-
-        elif state == 4:  # GESTURING — big expressive
-            sub = (t // 30) % 3
-            if sub == 0:
-                g = math.sin(gp * 1.4) * 28
-                elbow_lx = cx - arm_len - 10
-                elbow_ly = should_y + int(g)
-                hand_lx  = elbow_lx - 16
-                hand_ly  = elbow_ly - 10 + int(g * 0.4)
-                hand_l_shape = 0
-                hand_l_angle = int(g * 0.7)
-                elbow_rx = cx + arm_len + 10
-                elbow_ry = should_y - int(g)
-                hand_rx  = elbow_rx + 16
-                hand_ry  = elbow_ry - 10 - int(g * 0.4)
-                hand_r_shape = 0
-                hand_r_angle = -int(g * 0.7)
-            elif sub == 1:  # peace sign raised
-                elbow_lx = cx - int(arm_len * 0.5)
-                elbow_ly = should_y - 8
-                hand_lx  = elbow_lx - 5
-                hand_ly  = elbow_ly - 28
-                hand_l_shape = 5  # peace
-                hand_l_angle = 5
-                elbow_rx = cx + arm_len
-                elbow_ry = should_y + 24
-                hand_rx  = elbow_rx + 5
-                hand_ry  = elbow_ry + fore_len
-            else:  # thumbs up both
-                elbow_lx = cx - int(arm_len * 0.6)
-                elbow_ly = should_y + 8
-                hand_lx  = elbow_lx - 8
-                hand_ly  = elbow_ly - 8
-                hand_l_shape = 4
-                hand_l_angle = 10
-                elbow_rx = cx + int(arm_len * 0.6)
-                elbow_ry = should_y + 8
-                hand_rx  = elbow_rx + 8
-                hand_ry  = elbow_ry - 8
-                hand_r_shape = 4
-                hand_r_angle = -10
-
-        elif state == 5:  # THINKING
-            # Right hand to chin
-            elbow_rx = cx + int(arm_len * 0.55)
-            elbow_ry = should_y + 18
-            hand_rx  = cx + 8
-            hand_ry  = head_cy + head_r + 12
-            hand_r_shape = 2  # fist under chin
-            hand_r_angle = 0
-            # Left arm relaxed at side
-            elbow_lx = cx - arm_len
-            elbow_ly = should_y + 32
-            hand_lx  = elbow_lx - 4
-            hand_ly  = elbow_ly + fore_len
-
-        # Draw arms
-        p.setPen(arm_pen)
-        p.setBrush(QtCore.Qt.NoBrush)
-        # Upper arm
-        p.drawLine(cx - int(arm_len * 0.85), should_y, elbow_lx, elbow_ly)
-        p.drawLine(elbow_lx, elbow_ly, hand_lx, hand_ly)
-        p.drawLine(cx + int(arm_len * 0.85), should_y, elbow_rx, elbow_ry)
-        p.drawLine(elbow_rx, elbow_ry, hand_rx, hand_ry)
-
-        # Draw hands
-        hand_size = int(11 * scale)
-        self._draw_hand(p, hand_lx, hand_ly, hand_l_shape, pal, hand_size, hand_l_angle)
-        self._draw_hand(p, hand_rx, hand_ry, hand_r_shape, pal, hand_size, hand_r_angle)
-
-        # ────────────────────────────────────────────────────────────────
-        # NECK
-        # ────────────────────────────────────────────────────────────────
-        p.setPen(QtGui.QPen(QtGui.QColor(pal["skin"]).darker(115), int(8 * scale),
-                            QtCore.Qt.SolidLine, QtCore.Qt.RoundCap))
-        p.drawLine(cx, neck_bot, cx, should_y)
-
-        # ────────────────────────────────────────────────────────────────
-        # HEAD
-        # ────────────────────────────────────────────────────────────────
-        # Head tilt — slight bob left/right when talking
-        head_tilt = 0.0
-        if state == 1:
-            head_tilt = math.sin(gp * 0.9) * 6.0
-        elif state == 5:
-            head_tilt = -4.0  # thinking tilt
-
-        p.save()
-        p.translate(cx, head_cy)
-        p.rotate(head_tilt)
-
-        # Head shape
-        p.setPen(QtGui.QPen(QtGui.QColor(pal["skin"]).darker(120), 2))
-        p.setBrush(QtGui.QBrush(QtGui.QColor(pal["skin"])))
-        if self._style_idx == 3:  # creature — slightly alien
-            p.drawEllipse(-head_r, -head_r, head_r * 2, int(head_r * 2.1))
-        else:
-            p.drawEllipse(-head_r, -head_r, head_r * 2, int(head_r * 1.9))
-
-        # Blush / emotion flush
-        if emo in (self.EMO_HAPPY, self.EMO_AMUSED):
-            blush = QtGui.QColor(255, 100, 100, 55)
-            p.setPen(QtCore.Qt.NoPen)
-            p.setBrush(QtGui.QBrush(blush))
-            p.drawEllipse(-head_r + 4, 4, head_r // 3, head_r // 5)
-            p.drawEllipse(head_r // 2,  4, head_r // 3, head_r // 5)
-
-        # Hair
-        p.setPen(QtCore.Qt.NoPen)
-        p.setBrush(QtGui.QBrush(QtGui.QColor(pal["hair"])))
-        if self._style_idx == 1:  # anime spiky
-            for si, (hx, hy) in enumerate([(-head_r+4, -head_r), (0, -head_r-12),
-                                            (head_r-4, -head_r)]):
-                pts = [QtCore.QPointF(hx - 8, 0), QtCore.QPointF(hx, hy - 12),
-                       QtCore.QPointF(hx + 8, 0)]
-                poly = QtGui.QPolygonF(pts)
-                p.drawPolygon(poly)
-            p.drawEllipse(-head_r, -head_r, head_r * 2, head_r)
-        elif self._style_idx == 2:  # cartoon puffy
-            p.drawEllipse(-head_r, -head_r - 6, head_r * 2, head_r + 10)
-            p.drawEllipse(-head_r - 4, -head_r // 2, head_r // 2, head_r // 2)
-            p.drawEllipse(head_r // 2, -head_r // 2, head_r // 2, head_r // 2)
-        else:
-            p.drawEllipse(-head_r, -head_r, head_r * 2, head_r)
-
-        # ── eyebrows ──────────────────────────────────────────────────
-        brow_y = -head_r // 2 - 4
-        eb_raise = int(self._eyebrow_raise * 7)
-        brow_pen_col = QtGui.QColor(pal["hair"]).darker(130)
-        if emo == self.EMO_THINKING:
-            brow_pen_col = QtGui.QColor(pal["hair"]).darker(180)
-
-        p.setPen(QtGui.QPen(brow_pen_col, int(3.5 * scale), QtCore.Qt.SolidLine, QtCore.Qt.RoundCap))
-        # left brow
-        l_brow_slant = 3 if emo == self.EMO_THINKING else (-2 if emo == self.EMO_SURPRISED else 0)
-        r_brow_slant = -3 if emo == self.EMO_THINKING else (-2 if emo == self.EMO_SURPRISED else 0)
-        p.drawLine(-head_r // 2 - 4, brow_y - eb_raise + l_brow_slant,
-                   -head_r // 4 + 2,  brow_y - eb_raise - l_brow_slant)
-        # right brow
-        p.drawLine( head_r // 4 - 2,  brow_y - eb_raise - r_brow_slant,
-                    head_r // 2 + 4,  brow_y - eb_raise + r_brow_slant)
-
-        # ── eyes ──────────────────────────────────────────────────────
-        eye_col   = QtGui.QColor(pal["eye"])
-        pupil_col = QtGui.QColor(pal["pupil"])
-        eye_x_off = head_r // 3
-        eye_y_off = head_r // 7
-        eye_w     = max(6, head_r // 3)
-        eye_h_full = max(5, head_r // 3)
-        eye_h = 2 if self._blink_closed else eye_h_full
-        if emo == self.EMO_SURPRISED:
-            eye_h = int(eye_h_full * 1.35)
-        elif emo == self.EMO_THINKING:
-            eye_h = max(2, int(eye_h_full * 0.55))
-
-        p.setPen(QtGui.QPen(eye_col.darker(140), 1))
-        p.setBrush(QtGui.QBrush(QtGui.QColor("#ffffff")))
-        p.drawEllipse(-eye_x_off - eye_w // 2, eye_y_off - eye_h // 2, eye_w, eye_h)
-        p.drawEllipse( eye_x_off - eye_w // 2, eye_y_off - eye_h // 2, eye_w, eye_h)
-
-        # Irises
-        p.setPen(QtCore.Qt.NoPen)
-        p.setBrush(QtGui.QBrush(eye_col))
-        ir = max(3, eye_w // 2 - 1)
-        lx_gaze = int(self._look_offset_x * (eye_w // 4 - 1))
-        ly_gaze = int(self._look_offset_y * (eye_h // 4))
-        if not self._blink_closed:
-            p.drawEllipse(-eye_x_off + lx_gaze - ir // 2, eye_y_off + ly_gaze - ir // 2, ir, ir)
-            p.drawEllipse( eye_x_off + lx_gaze - ir // 2, eye_y_off + ly_gaze - ir // 2, ir, ir)
-            # pupils
-            p.setBrush(QtGui.QBrush(pupil_col))
-            pr = max(2, ir // 2)
-            p.drawEllipse(-eye_x_off + lx_gaze - pr // 2, eye_y_off + ly_gaze - pr // 2, pr, pr)
-            p.drawEllipse( eye_x_off + lx_gaze - pr // 2, eye_y_off + ly_gaze - pr // 2, pr, pr)
-            # highlight
-            p.setBrush(QtGui.QBrush(QtGui.QColor(255, 255, 255, 200)))
-            p.drawEllipse(-eye_x_off + lx_gaze - ir // 2 + 1, eye_y_off + ly_gaze - ir // 2 + 1, 2, 2)
-            p.drawEllipse( eye_x_off + lx_gaze - ir // 2 + 1, eye_y_off + ly_gaze - ir // 2 + 1, 2, 2)
-
-        # ── nose (simple) ──────────────────────────────────────────────
-        p.setPen(QtGui.QPen(QtGui.QColor(pal["skin"]).darker(135), 1.5))
-        p.setBrush(QtCore.Qt.NoBrush)
-        p.drawArc(-5, head_r // 4 - 6, 10, 8, 180 * 16, 180 * 16)
-
-        # ── mouth ──────────────────────────────────────────────────────
-        mouth_y_local = head_r // 2 + 2
-        mw = head_r // 2
-        mh = head_r // 5
-        p.setPen(QtGui.QPen(QtGui.QColor(pal["lip"]), int(2.5 * scale),
-                            QtCore.Qt.SolidLine, QtCore.Qt.RoundCap))
-        p.setBrush(QtGui.QBrush(QtGui.QColor(pal["lip"]).darker(140)))
-        mp = self._mouth_path(0, mouth_y_local, mw, mh, emo, self._mouth_open)
-        p.drawPath(mp)
-
-        # ── ear nubs ──────────────────────────────────────────────────
-        p.setPen(QtGui.QPen(QtGui.QColor(pal["skin"]).darker(115), 1))
-        p.setBrush(QtGui.QBrush(QtGui.QColor(pal["skin"])))
-        er = head_r // 5
-        p.drawEllipse(-head_r - er // 2, -er // 2, er + 2, er * 2)
-        p.drawEllipse( head_r - er // 2, -er // 2, er + 2, er * 2)
-
-        p.restore()  # end head transform
-
-        # ────────────────────────────────────────────────────────────────
-        # THINKING BUBBLE
-        # ────────────────────────────────────────────────────────────────
-        if state == 5:
-            bp = QtGui.QPen(QtGui.QColor(pal["glow"]), 1)
-            p.setPen(bp)
-            p.setBrush(QtGui.QBrush(QtGui.QColor(12, 12, 30, 210)))
-            dots = [(cx + head_r + 6,  head_cy - head_r + 10, 4),
-                    (cx + head_r + 18, head_cy - head_r - 6,  7),
-                    (cx + head_r + 34, head_cy - head_r - 28, 20)]
-            for bi, (bx, by, br) in enumerate(dots):
-                pulse = 0.85 + 0.15 * math.sin(t * 0.10 + bi * 1.3)
-                br2 = max(2, int(br * pulse))
-                p.drawEllipse(bx - br2, by - br2, br2 * 2, br2 * 2)
-            # question mark inside big bubble
-            p.setPen(QtGui.QPen(QtGui.QColor(pal["glow"]), 2))
-            big = dots[2]
-            f = QtGui.QFont()
-            f.setPointSize(10)
-            f.setBold(True)
-            p.setFont(f)
-            p.drawText(big[0] - 5, big[1] + 5, "?")
-
-        # ────────────────────────────────────────────────────────────────
-        # LISTENING RINGS
-        # ────────────────────────────────────────────────────────────────
-        if self._listen:
-            for ri in range(4):
-                ring_r = head_r + 20 + ri * 18 + int(7 * math.sin(t * 0.09 + ri * 0.9))
-                alpha  = max(0, 200 - ri * 48 - (t % 40) * 4)
-                rc = QtGui.QColor(pal["glow"])
-                rc.setAlpha(alpha)
-                rpen = QtGui.QPen(rc, 2 - ri * 0.3)
-                rpen.setStyle(QtCore.Qt.DotLine if ri > 1 else QtCore.Qt.SolidLine)
-                p.setPen(rpen)
-                p.setBrush(QtCore.Qt.NoBrush)
-                p.drawEllipse(cx - ring_r, head_cy - ring_r, ring_r * 2, ring_r * 2)
-
-        # ────────────────────────────────────────────────────────────────
-        # HUD / OVERLAY
-        # ────────────────────────────────────────────────────────────────
-        # Style badge
-        badge_c = QtGui.QColor(pal["glow"])
-        badge_c.setAlpha(210)
-        p.setPen(QtGui.QPen(badge_c, 1))
-        p.setBrush(QtGui.QBrush(QtGui.QColor(6, 6, 18, 185)))
-        bfont = QtGui.QFont()
-        bfont.setPointSize(8)
-        p.setFont(bfont)
-        fm = p.fontMetrics()
-        badge_txt = pal["label"].upper()
-        bw = fm.horizontalAdvance(badge_txt) + 14
-        p.drawRoundedRect(8, 8, bw, 20, 4, 4)
-        p.setPen(badge_c)
-        p.drawText(15, 23, badge_txt)
-
-        # State label bottom-left
-        state_txt = self.STATE_NAMES[state]
-        p.setPen(QtGui.QPen(QtGui.QColor(pal["glow"]), 1))
-        sf = QtGui.QFont()
-        sf.setPointSize(8)
-        p.setFont(sf)
-        p.drawText(8, H - 24, state_txt)
-
-        # Entity name bottom-centre
-        nf = QtGui.QFont()
-        nf.setPointSize(10)
-        nf.setBold(True)
-        p.setFont(nf)
-        p.setPen(QtGui.QPen(QtGui.QColor("#e0e0e0"), 1))
-        p.drawText(QtCore.QRect(0, H - 46, W, 20), QtCore.Qt.AlignHCenter, self._name)
-
-        # Status bar bottom
-        smf = QtGui.QFont()
-        smf.setPointSize(7)
-        p.setFont(smf)
-        p.setPen(QtGui.QPen(QtGui.QColor("#666"), 1))
-        p.drawText(QtCore.QRect(0, H - 16, W, 14), QtCore.Qt.AlignHCenter, self._status_msg)
-        p.setOpacity(1.0)
-        p.end()
-
-
-        self.setMinimumSize(360, 420)
-        self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        self.setAutoFillBackground(False)
-
-        # Anim state
-        self._state      = 0          # index into STATE_NAMES
-        self._tick       = 0          # frame counter
-        self._style_idx  = 0          # 0=Realistic 1=Anime 2=Cartoon 3=Creature
-        self._name       = "Entity"
-        self._speaking   = False
-        self._listen     = False
-        self._mouth_open = 0.0
-        self._status_msg = "Ready"
-
-        # Palette — changes with style
-        self._palettes = [
-            {"skin": "#f5cba7", "hair": "#4a3728", "eye": "#2ecc71", "glow": "#00ffcc", "label": "Realistic"},
-            {"skin": "#ffe4b5", "hair": "#ff69b4", "eye": "#9b59b6", "glow": "#ff00ff", "label": "Anime"},
-            {"skin": "#ffdd57", "hair": "#e74c3c", "eye": "#3498db", "glow": "#f9ca24", "label": "Cartoon"},
-            {"skin": "#6c3483", "hair": "#1abc9c", "eye": "#e74c3c", "glow": "#8e44ad", "label": "Creature"},
-        ]
-
-        self._timer = QtCore.QTimer(self)
-        self._timer.timeout.connect(self._animate)
-        self._timer.start(33)   # ~30 fps
-
-    # ── public API ────────────────────────────────────────────────────────
-    def set_state(self, idx: int):
-        self._state = max(0, min(idx, len(self.STATE_NAMES) - 1))
-
-    def set_style(self, idx: int):
-        self._style_idx = max(0, min(idx, len(self._palettes) - 1))
-
-    def set_name(self, name: str):
-        self._name = name or "Entity"
-
-    def set_speaking(self, val: bool, mouth_open: float = 0.0):
-        self._speaking   = val
-        self._mouth_open = mouth_open
-
-    def set_listening(self, val: bool):
-        self._listen = val
-
-    def set_status(self, msg: str):
-        self._status_msg = msg
-
-    # ── animation tick ────────────────────────────────────────────────────
-    def _animate(self):
-        self._tick += 1
-        if self._speaking:
-            import math
-            self._mouth_open = 0.5 + 0.5 * math.sin(self._tick * 0.4)
-        self.update()
-
-    # ── drawing ───────────────────────────────────────────────────────────
-    def paintEvent(self, event):
-        import math
-        p = QtGui.QPainter(self)
-        p.setRenderHint(QtGui.QPainter.Antialiasing)
-
-        W, H = self.width(), self.height()
-        pal  = self._palettes[self._style_idx]
-        t    = self._tick
-
-        # ── background gradient ──────────────────────────────────────────
-        grad = QtGui.QLinearGradient(0, 0, 0, H)
-        grad.setColorAt(0.0, QtGui.QColor("#0a0a14"))
-        grad.setColorAt(1.0, QtGui.QColor("#0e1a2e"))
-        p.fillRect(0, 0, W, H, grad)
-
-        # ── grid floor ──────────────────────────────────────────────────
-        pen = QtGui.QPen(QtGui.QColor(30, 60, 90, 100), 1)
-        p.setPen(pen)
-        for xi in range(0, W, 40):
-            p.drawLine(xi, H // 2, xi, H)
-        for yi in range(H // 2, H, 20):
-            p.drawLine(0, yi, W, yi)
-
-        # ── glow halo ───────────────────────────────────────────────────
-        glow_col = QtGui.QColor(pal["glow"])
-        glow_pulse = 0.6 + 0.4 * math.sin(t * 0.07)
-        glow_col.setAlphaF(0.25 * glow_pulse)
-        cx, cy_head = W // 2, H // 4
-        rg = QtGui.QRadialGradient(cx, cy_head, 120)
-        rg.setColorAt(0, glow_col)
-        rg.setColorAt(1, QtGui.QColor(0, 0, 0, 0))
-        p.fillRect(0, 0, W, H // 2 + 60, rg)
-
-        # ── body offsets per state ───────────────────────────────────────
-        state = self._state
-        # Lean/bob
-        bob_y   = int(6  * math.sin(t * 0.08)) if state in (0, 1, 4, 5) else 0
-        lean_x  = int(12 * math.sin(t * 0.06)) if state == 3 else 0   # walking
-        arm_swing = math.sin(t * 0.1)
-
-        # ── skeleton coords (relative to centre) ────────────────────────
-        cx  = W // 2 + lean_x
-        head_r = max(28, min(W, H) // 9)
-        neck_y  = cy_head + head_r + 4 + bob_y
-        should_y = neck_y + 22
-        hip_y   = should_y + 55
-        knee_y  = hip_y + 48
-        foot_y  = knee_y + 42
-        arm_len = 44
-        fore_len = 36
-
-        # Cartoon mode — bigger head
-        if self._style_idx == 2:
-            head_r = int(head_r * 1.35)
-
-        head_cy = cy_head + bob_y
-
-        # ── shadow ──────────────────────────────────────────────────────
-        shadow = QtGui.QRadialGradient(cx, foot_y + 8, 40)
-        shadow.setColorAt(0, QtGui.QColor(0, 0, 0, 120))
-        shadow.setColorAt(1, QtGui.QColor(0, 0, 0, 0))
-        p.fillRect(cx - 50, foot_y, 100, 20, shadow)
-
-        # ── legs ─────────────────────────────────────────────────────────
-        leg_swing = math.sin(t * 0.12) * (30 if state == 3 else 5)
-        leg_pen = QtGui.QPen(QtGui.QColor(pal["skin"]).darker(140), 7, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap)
-        p.setPen(leg_pen)
-        # left leg
-        p.drawLine(cx - 8, hip_y, cx - 8 + int(leg_swing * 0.6), knee_y)
-        p.drawLine(cx - 8 + int(leg_swing * 0.6), knee_y, cx - 10 + int(leg_swing), foot_y)
-        # right leg
-        p.drawLine(cx + 8, hip_y, cx + 8 - int(leg_swing * 0.6), knee_y)
-        p.drawLine(cx + 8 - int(leg_swing * 0.6), knee_y, cx + 10 - int(leg_swing), foot_y)
-
-        # ── torso ─────────────────────────────────────────────────────────
-        torso_pen = QtGui.QPen(QtGui.QColor(pal["skin"]).darker(110), 9, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap)
-        p.setPen(torso_pen)
-        p.drawLine(cx, neck_y, cx, hip_y)
-
-        # ── arms ─────────────────────────────────────────────────────────
-        arm_pen = QtGui.QPen(QtGui.QColor(pal["skin"]).darker(120), 7, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap)
-        p.setPen(arm_pen)
-
-        if state == 2:  # SEARCHING_FILE_CABINET — reach right arm forward/up
-            reach = math.sin(t * 0.15) * 12
-            elbow_lx, elbow_ly = cx - arm_len, should_y + 20
-            elbow_rx, elbow_ry = cx + arm_len + 10, should_y - 20 + int(reach)
-            hand_rx, hand_ry   = elbow_rx + 14, elbow_ry + fore_len - 20 + int(reach)
-        elif state == 4:  # GESTURING
-            g = math.sin(t * 0.18) * 25
-            elbow_lx, elbow_ly = cx - arm_len, should_y + int(g)
-            elbow_rx, elbow_ry = cx + arm_len, should_y - int(g)
-            hand_rx, hand_ry   = elbow_rx + 10, elbow_ry + 30
-        else:
-            swing = arm_swing * (20 if state == 3 else 8)
-            elbow_lx = cx - arm_len
-            elbow_ly = should_y + 26 + int(swing)
-            elbow_rx = cx + arm_len
-            elbow_ry = should_y + 26 - int(swing)
-            hand_rx, hand_ry = elbow_rx + 8, elbow_ry + fore_len
-
-        hand_lx, hand_ly = elbow_lx - 8, elbow_ly + fore_len
-        p.drawLine(cx, should_y, elbow_lx, elbow_ly)
-        p.drawLine(elbow_lx, elbow_ly, hand_lx, hand_ly)
-        p.drawLine(cx, should_y, elbow_rx, elbow_ry)
-        p.drawLine(elbow_rx, elbow_ry, hand_rx, hand_ry)
-
-        # ── head ─────────────────────────────────────────────────────────
-        head_brush = QtGui.QBrush(QtGui.QColor(pal["skin"]))
-        head_pen   = QtGui.QPen(QtGui.QColor(pal["glow"]), 2)
-        p.setPen(head_pen)
-        p.setBrush(head_brush)
-        p.drawEllipse(QtCore.QPoint(cx, head_cy), head_r, head_r)
-
-        # ── hair ─────────────────────────────────────────────────────────
-        hair_brush = QtGui.QBrush(QtGui.QColor(pal["hair"]))
-        p.setBrush(hair_brush)
-        p.setPen(QtCore.Qt.NoPen)
-        hair_rect = QtCore.QRect(cx - head_r, head_cy - head_r, head_r * 2, head_r)
-        p.drawEllipse(hair_rect)
-
-        # ── eyes ─────────────────────────────────────────────────────────
-        eye_col = QtGui.QColor(pal["eye"])
-        blink = (t % 90 < 4)   # blink every 3 s
-        eye_h = 2 if blink else max(3, head_r // 4)
-        eye_w = max(4, head_r // 4)
-        p.setBrush(QtGui.QBrush(eye_col))
-        p.setPen(QtCore.Qt.NoPen)
-        p.drawEllipse(cx - head_r // 3 - eye_w // 2, head_cy - eye_h // 2, eye_w, eye_h)
-        p.drawEllipse(cx + head_r // 3 - eye_w // 2, head_cy - eye_h // 2, eye_w, eye_h)
-        # pupils
-        p.setBrush(QtGui.QBrush(QtGui.QColor("#111")))
-        if not blink:
-            p.drawEllipse(cx - head_r // 3, head_cy - 1, 3, 3)
-            p.drawEllipse(cx + head_r // 3, head_cy - 1, 3, 3)
-
-        # ── mouth / lip-sync ─────────────────────────────────────────────
-        mouth_y = head_cy + head_r // 2
-        mouth_open = int(self._mouth_open * 14)
-        if state == 5:  # THINKING — pursed lips
-            mouth_open = 2
-        mouth_pen = QtGui.QPen(QtGui.QColor("#c0392b"), 2)
-        p.setPen(mouth_pen)
-        p.setBrush(QtGui.QBrush(QtGui.QColor("#7b241c")))
-        p.drawEllipse(cx - head_r // 4, mouth_y, head_r // 2, max(2, mouth_open))
-
-        # ── thinking bubble ──────────────────────────────────────────────
-        if state == 5:
-            bp = QtGui.QPen(QtGui.QColor(pal["glow"]), 1)
-            p.setPen(bp)
-            p.setBrush(QtGui.QBrush(QtGui.QColor(20, 20, 40, 200)))
-            for bi, (bx, by, br) in enumerate([
-                (cx + head_r + 8, head_cy - head_r - 4, 5),
-                (cx + head_r + 18, head_cy - head_r - 16, 8),
-                (cx + head_r + 32, head_cy - head_r - 36, 22),
-            ]):
-                dot_pulse = 0.8 + 0.2 * math.sin(t * 0.12 + bi * 1.2)
-                br2 = int(br * dot_pulse)
-                p.drawEllipse(bx - br2, by - br2, br2 * 2, br2 * 2)
-            # dots
-            p.setPen(QtGui.QPen(QtGui.QColor(pal["glow"]), 1))
-            p.setBrush(QtGui.QBrush(QtGui.QColor(pal["glow"])))
-            for dot_txt in ["?", "!", "…"]:
-                pass  # text would overlap; keep bubbles clean
-
-        # ── listening rings ──────────────────────────────────────────────
-        if self._listen:
-            for ri in range(3):
-                ring_r = head_r + 14 + ri * 14 + int(6 * math.sin(t * 0.1 + ri))
-                ring_a = max(0, int(180 - ri * 60 - (t % 30) * 3))
-                ring_pen = QtGui.QPen(QtGui.QColor(pal["glow"]), 1)
-                ring_pen.setStyle(QtCore.Qt.DotLine)
-                ring_col = QtGui.QColor(pal["glow"])
-                ring_col.setAlpha(ring_a)
-                ring_pen.setColor(ring_col)
-                p.setPen(ring_pen)
-                p.setBrush(QtCore.Qt.NoBrush)
-                p.drawEllipse(cx - ring_r, head_cy - ring_r, ring_r * 2, ring_r * 2)
-
-        # ── style badge ──────────────────────────────────────────────────
-        badge_col = QtGui.QColor(pal["glow"])
-        badge_col.setAlpha(200)
-        p.setPen(QtGui.QPen(badge_col, 1))
-        p.setBrush(QtGui.QBrush(QtGui.QColor(10, 10, 20, 180)))
-        badge_txt = pal["label"].upper()
-        fm = p.fontMetrics()
-        bw = fm.horizontalAdvance(badge_txt) + 16
-        p.drawRoundedRect(8, 8, bw, 22, 5, 5)
-        p.setPen(badge_col)
-        p.drawText(16, 24, badge_txt)
-
-        # ── state label ──────────────────────────────────────────────────
-        p.setPen(QtGui.QPen(QtGui.QColor(pal["glow"]), 1))
-        state_lbl = self.STATE_NAMES[self._state]
-        p.drawText(8, H - 28, state_lbl)
-
-        # ── entity name ──────────────────────────────────────────────────
-        name_font = QtGui.QFont(p.font())
-        name_font.setPointSize(11)
-        name_font.setBold(True)
-        p.setFont(name_font)
-        p.setPen(QtGui.QPen(QtGui.QColor("#ffffff"), 1))
-        p.drawText(QtCore.QRect(0, H - 52, W, 22), QtCore.Qt.AlignHCenter, self._name)
-
-        # ── status bar ───────────────────────────────────────────────────
-        small_font = QtGui.QFont(p.font())
-        small_font.setPointSize(8)
-        small_font.setBold(False)
-        p.setFont(small_font)
-        p.setPen(QtGui.QPen(QtGui.QColor("#888888"), 1))
-        p.drawText(QtCore.QRect(0, H - 18, W, 16), QtCore.Qt.AlignHCenter, self._status_msg)
-
-        p.end()
 
 
 class FourIdentityAvatarPanel(QtWidgets.QWidget):
@@ -3014,7 +2164,7 @@ class FourIdentityAvatarPanel(QtWidgets.QWidget):
         root = QtWidgets.QHBoxLayout(self)
         root.setSpacing(10)
 
-        # ── left: live avatar viewport ────────────────────────────────────
+        # ── left: live avatar viewport (lazy-loaded on demand) ────────────
         self.viewport = AvatarViewport()
         root.addWidget(self.viewport, 3)
 
@@ -3022,25 +2172,69 @@ class FourIdentityAvatarPanel(QtWidgets.QWidget):
         right = QtWidgets.QVBoxLayout()
         right.setSpacing(8)
 
+        # -- avatar engine launch controls --
+        engine_box = QtWidgets.QGroupBox("🚀 Avatar Engine")
+        el = QtWidgets.QVBoxLayout()
+
+        self.launch_btn = QtWidgets.QPushButton("▶ Launch Avatar (Tab View)")
+        self.launch_btn.setToolTip("Load the 3D avatar engine in this tab")
+        self.launch_btn.clicked.connect(self._launch_tab_avatar)
+        el.addWidget(self.launch_btn)
+
+        self.float_btn = QtWidgets.QPushButton("🪟 Pop Out as Floating Window")
+        self.float_btn.setToolTip(
+            "Launch the avatar as a transparent, windowless floating overlay\n"
+            "on your desktop. Drag anywhere, always-on-top."
+        )
+        self.float_btn.clicked.connect(self._launch_float_avatar)
+        el.addWidget(self.float_btn)
+
+        self.unload_btn = QtWidgets.QPushButton("🗑 Unload Engine (Free RAM)")
+        self.unload_btn.setToolTip("Release the WebEngine process and reclaim memory")
+        self.unload_btn.clicked.connect(self._unload_avatar)
+        el.addWidget(self.unload_btn)
+
+        self._engine_status = QtWidgets.QLabel("Engine: not loaded")
+        self._engine_status.setStyleSheet("color: #5a7a9a; font-size: 10px;")
+        el.addWidget(self._engine_status)
+
+        engine_box.setLayout(el)
+        right.addWidget(engine_box)
+
         # -- generation --
         gen_box = QtWidgets.QGroupBox("✨ Entity Generation")
         gl = QtWidgets.QFormLayout()
         self.prompt_edit = QtWidgets.QLineEdit()
         self.prompt_edit.setPlaceholderText("A futuristic pirate with a glowing eyepatch…")
         self.style_combo = QtWidgets.QComboBox()
-        self.style_combo.addItems(["Realistic", "Anime", "Cartoon", "Creature"])
+        self.style_combo.addItems(["Pirate Llama Mascot", "Cybernetic Android PBR", "Golden Candy Mech", "Quantum Hologram"])
         self.style_combo.currentIndexChanged.connect(self._on_style_changed)
         self.name_edit = QtWidgets.QLineEdit()
         self.name_edit.setPlaceholderText("Avatar name…")
         self.name_edit.textChanged.connect(lambda t: self.viewport.set_name(t))
-        self.gen_btn = QtWidgets.QPushButton("Generate")
+        self.gen_btn = QtWidgets.QPushButton("Generate 3D Avatar")
         self.gen_btn.clicked.connect(self._generate_avatar)
         gl.addRow("Description:", self.prompt_edit)
-        gl.addRow("Style:", self.style_combo)
+        gl.addRow("Preset Style:", self.style_combo)
         gl.addRow("Name:", self.name_edit)
         gl.addRow("", self.gen_btn)
         gen_box.setLayout(gl)
         right.addWidget(gen_box)
+
+        # -- 3D mesh & photo import --
+        import_box = QtWidgets.QGroupBox("📦 3D Avatar & Custom Mesh Import")
+        il = QtWidgets.QVBoxLayout()
+        self.mesh_btn = QtWidgets.QPushButton("📦 Load Custom 3D Avatar (.vrm / .glb / .gltf / .obj)")
+        self.mesh_btn.setStyleSheet("background: #0284c7; color: white; font-weight: bold;")
+        self.mesh_btn.clicked.connect(self._load_3d_mesh)
+        il.addWidget(self.mesh_btn)
+
+        self.photo_btn = QtWidgets.QPushButton("📷 Load 2D Photo / Texture Avatar")
+        self.photo_btn.clicked.connect(self._load_photo)
+        il.addWidget(self.photo_btn)
+        import_box.setLayout(il)
+        right.addWidget(import_box)
+
 
         # -- voice --
         voice_box = QtWidgets.QGroupBox("🎙️ Voice & Lip-Sync")
@@ -3105,6 +2299,34 @@ class FourIdentityAvatarPanel(QtWidgets.QWidget):
         self._speak_timer.setSingleShot(True)
         self._speak_timer.timeout.connect(lambda: self.viewport.set_speaking(False))
 
+    # ── avatar engine lifecycle ───────────────────────────────────────────
+    def _launch_tab_avatar(self) -> None:
+        """Load the embedded WebEngine viewport inside this tab."""
+        self.viewport.load_engine()
+        self._engine_status.setText("Engine: loaded (tab view)")
+        self._engine_status.setStyleSheet("color: #00ffcc; font-size: 10px;")
+        self.launch_btn.setEnabled(False)
+
+    def _launch_float_avatar(self) -> None:
+        """Detach avatar as a transparent, always-on-top floating window."""
+        try:
+            from .avatar_window import AvatarFloatingWindow
+        except ImportError:
+            from gui.pirate_gui.avatar_window import AvatarFloatingWindow
+        name = self.name_edit.text().strip() or "TwistedSoCal"
+        win = AvatarFloatingWindow.get_instance()
+        win.show_avatar()
+        win.set_name(name)
+        self._engine_status.setText("Engine: floating window active")
+        self._engine_status.setStyleSheet("color: #a855f7; font-size: 10px;")
+
+    def _unload_avatar(self) -> None:
+        """Release the WebEngine process and reclaim RAM."""
+        self.viewport.unload_engine()
+        self.launch_btn.setEnabled(True)
+        self._engine_status.setText("Engine: unloaded")
+        self._engine_status.setStyleSheet("color: #5a7a9a; font-size: 10px;")
+
     # ── helpers ───────────────────────────────────────────────────────────
     def _get_engine(self):
         return getattr(self.window(), "engine", None)
@@ -3115,9 +2337,12 @@ class FourIdentityAvatarPanel(QtWidgets.QWidget):
     def _generate_avatar(self):
         eng = self._get_engine()
         prompt = self.prompt_edit.text().strip()
-        name   = self.name_edit.text().strip() or prompt.split()[0].capitalize() if prompt else "Entity"
+        name   = self.name_edit.text().strip() or (prompt.split()[0].capitalize() if prompt else "Entity")
         style  = self.style_combo.currentIndex()
-        self.viewport.set_style(style)
+        if prompt:
+            self.viewport.generate_from_prompt(prompt)
+        else:
+            self.viewport.set_style(style)
         self.viewport.set_name(name)
         self.viewport.set_status(f"Generated: {prompt[:40]}" if prompt else "Ready")
         if eng and prompt:
@@ -3125,6 +2350,30 @@ class FourIdentityAvatarPanel(QtWidgets.QWidget):
                 eng.avatar_generate(prompt, style)
             except Exception as e:
                 self.viewport.set_status(f"Error: {e}")
+
+    def _load_3d_mesh(self):
+        filePath, _ = QtWidgets.QFileDialog.getOpenFileName(
+            self, "Select Custom 3D Avatar Mesh", "", "3D Mesh Files (*.vrm *.glb *.gltf *.obj *.fbx)"
+        )
+        if filePath:
+            import base64
+            p = Path(filePath)
+            ext = p.suffix.lower().lstrip(".")
+            b64 = base64.b64encode(p.read_bytes()).decode("ascii")
+            if self.viewport.web:
+                js = f"if (window.loadCustom3DMesh) window.loadCustom3DMesh('data:model/{ext};base64,{b64}', '{ext}');"
+                self.viewport.web.page().runJavaScript(js)
+            self.viewport.set_name(p.stem.capitalize())
+            self.viewport.set_status(f"Loaded 3D Mesh: {p.name}")
+
+    def _load_photo(self):
+        filePath, _ = QtWidgets.QFileDialog.getOpenFileName(
+            self, "Select Photo/Image Avatar", "", "Image Files (*.png *.jpg *.jpeg *.webp *.bmp)"
+        )
+        if filePath:
+            self.viewport.load_photo_avatar(filePath)
+            self.viewport.set_status(f"Loaded photo: {Path(filePath).name}")
+
 
     def _configure_voice(self):
         eng = self._get_engine()
@@ -3168,6 +2417,297 @@ class FourIdentityAvatarPanel(QtWidgets.QWidget):
         self.viewport.set_listening(checked)
         self.listen_btn.setText("🔴 Listening…" if checked else "🎤 Start Listening")
         self.viewport.set_status("Listening for voice…" if checked else "Ready")
+
+
+class EndpointPanel(QtWidgets.QWidget):
+    """
+    ⚡ Universal Endpoint & CCTM Panel
+
+    Native Qt panel for:
+      - Selecting / switching endpoint mode (Native HypeS / OpenAI / Anthropic)
+      - Showing current active config (URL, API key, env file)
+      - Live CCTM 10x compression test
+      - MCP server registration status
+    Wraps gui/endpoint_mode.py with zero web dependency.
+    """
+
+    def __init__(self, parent=None) -> None:
+        super().__init__(parent)
+        self._mcp_status: Optional[QtWidgets.QLabel] = None
+        layout = QtWidgets.QVBoxLayout(self)
+        layout.setSpacing(12)
+        layout.setContentsMargins(16, 16, 16, 16)
+
+        # ── Header ───────────────────────────────────────────────────────────
+        hdr = QtWidgets.QLabel("⚡  Universal Endpoint Autoconfiguration  +  10x CCTM")
+        hdr.setStyleSheet(
+            "color: #f59e0b; font-size: 15px; font-weight: 800; letter-spacing: 0.04em;"
+        )
+        layout.addWidget(hdr)
+
+        sub = QtWidgets.QLabel(
+            "Configure how every AI tool on this machine connects to HypeS. "
+            "Applies env vars instantly — no restart required."
+        )
+        sub.setWordWrap(True)
+        sub.setStyleSheet("color: #5a7a9a; font-size: 11px;")
+        layout.addWidget(sub)
+
+        # ── Mode cards ────────────────────────────────────────────────────────
+        mode_box = QtWidgets.QGroupBox("Endpoint Mode")
+        mode_lay = QtWidgets.QHBoxLayout()
+        mode_lay.setSpacing(10)
+
+        self._mode_btns: dict[str, QtWidgets.QPushButton] = {}
+        MODES_INFO = [
+            ("native",    "⚡", "Native HypeS",    "#f59e0b",
+             "http://localhost:7860\nFull CCTM + ISSI + All features"),
+            ("openai",    "🤖", "OpenAI Drop-in",   "#10b981",
+             "http://localhost:7860/v1\nDrop-in for any OpenAI client"),
+            ("anthropic", "🔮", "Anthropic Drop-in","#a855f7",
+             "http://localhost:7860\nDrop-in for Claude / Anthropic SDK"),
+        ]
+        for mid, icon, name, color, tip in MODES_INFO:
+            btn = QtWidgets.QPushButton(f"{icon}\n{name}")
+            btn.setCheckable(True)
+            btn.setMinimumHeight(72)
+            btn.setToolTip(tip)
+            btn.setStyleSheet(f"""
+                QPushButton {{
+                    background: rgba(255,255,255,0.03);
+                    border: 1px solid rgba(255,255,255,0.10);
+                    border-radius: 8px; color: #8899aa;
+                    font-size: 12px; font-weight: 700;
+                }}
+                QPushButton:hover {{
+                    border-color: {color}; color: {color};
+                    background: rgba(255,255,255,0.06);
+                }}
+                QPushButton:checked {{
+                    border: 2px solid {color};
+                    color: {color};
+                    background: rgba(255,255,255,0.08);
+                }}
+            """)
+            btn.toggled.connect(lambda checked, m=mid: self._on_mode_toggle(checked, m))
+            self._mode_btns[mid] = btn
+            mode_lay.addWidget(btn)
+
+        mode_box.setLayout(mode_lay)
+        layout.addWidget(mode_box)
+
+        # ── Current status ────────────────────────────────────────────────────
+        status_box = QtWidgets.QGroupBox("Active Configuration")
+        status_lay = QtWidgets.QFormLayout()
+        self._lbl_mode   = QtWidgets.QLabel("—")
+        self._lbl_url    = QtWidgets.QLabel("—")
+        self._lbl_key    = QtWidgets.QLabel("—")
+        self._lbl_env    = QtWidgets.QLabel("—")
+        for lbl in (self._lbl_mode, self._lbl_url, self._lbl_key, self._lbl_env):
+            lbl.setStyleSheet("color: #00ffcc; font-family: Consolas, monospace; font-size: 11px;")
+            lbl.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
+        status_lay.addRow("Mode:",     self._lbl_mode)
+        status_lay.addRow("URL:",      self._lbl_url)
+        status_lay.addRow("API Key:",  self._lbl_key)
+        status_lay.addRow("Env File:", self._lbl_env)
+        status_box.setLayout(status_lay)
+        layout.addWidget(status_box)
+
+        # Apply + Reset buttons
+        btn_row = QtWidgets.QHBoxLayout()
+        self.apply_btn = QtWidgets.QPushButton("⚡ Apply & Auto-Configure")
+        self.apply_btn.setMinimumHeight(36)
+        self.apply_btn.setStyleSheet(
+            "QPushButton { background: qlineargradient(x1:0,y1:0,x2:1,y2:0,"
+            "stop:0 #b45309,stop:1 #7c3aed); color:#fff; border:none; border-radius:7px;"
+            "font-size:13px; font-weight:800; }"
+            "QPushButton:hover { background: qlineargradient(x1:0,y1:0,x2:1,y2:0,"
+            "stop:0 #d97706,stop:1 #9333ea); }"
+        )
+        self.apply_btn.clicked.connect(self._apply_mode)
+        btn_row.addWidget(self.apply_btn)
+
+        reset_btn = QtWidgets.QPushButton("↺ Reset")
+        reset_btn.setMaximumWidth(80)
+        reset_btn.clicked.connect(self._reset_mode)
+        btn_row.addWidget(reset_btn)
+        layout.addLayout(btn_row)
+
+        # ── CCTM Live Test ────────────────────────────────────────────────────
+        cctm_box = QtWidgets.QGroupBox("🔥 10x CCTM Live Compression Test")
+        cctm_lay = QtWidgets.QVBoxLayout()
+        self._cctm_input = QtWidgets.QPlainTextEdit()
+        self._cctm_input.setMaximumHeight(64)
+        self._cctm_input.setPlaceholderText(
+            "Paste any text here to see live token compression ratio…"
+        )
+        cctm_lay.addWidget(self._cctm_input)
+
+        cctm_run_btn = QtWidgets.QPushButton("⚡ Compress Now")
+        cctm_run_btn.clicked.connect(self._run_cctm)
+        cctm_lay.addWidget(cctm_run_btn)
+
+        self._cctm_result = QtWidgets.QLabel("Compression result will appear here.")
+        self._cctm_result.setWordWrap(True)
+        self._cctm_result.setStyleSheet(
+            "color: #00ffcc; font-family: Consolas, monospace; font-size: 11px; "
+            "background: rgba(0,0,0,0.3); border-radius:6px; padding:8px;"
+        )
+        self._cctm_result.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
+        cctm_lay.addWidget(self._cctm_result)
+        cctm_box.setLayout(cctm_lay)
+        layout.addWidget(cctm_box)
+
+        # ── MCP Status ────────────────────────────────────────────────────────
+        mcp_box = QtWidgets.QGroupBox("MCP Server Registration")
+        mcp_lay = QtWidgets.QHBoxLayout()
+        self._mcp_status = QtWidgets.QLabel()
+        self._mcp_status.setWordWrap(True)
+        self._mcp_status.setStyleSheet("font-size: 11px;")
+        mcp_lay.addWidget(self._mcp_status, 1)
+        mcp_register_btn = QtWidgets.QPushButton("🚀 Re-Register MCP")
+        mcp_register_btn.clicked.connect(self._register_mcp)
+        mcp_lay.addWidget(mcp_register_btn)
+        mcp_box.setLayout(mcp_lay)
+        layout.addWidget(mcp_box)
+
+        # ── Granular Point-and-Click Rules Panel ─────────────────────────────
+        try:
+            from .routing_rules_panel import GranularRoutingRulesPanel
+            rules_widget = GranularRoutingRulesPanel(self)
+            layout.addWidget(rules_widget, 1)
+        except Exception as r_err:
+            pass
+
+        self._refresh_status()
+
+    # ── Helpers ───────────────────────────────────────────────────────────────
+
+    def _get_em(self):
+        """Import endpoint_mode safely."""
+        try:
+            sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+            import importlib, gui.endpoint_mode as em
+            return em
+        except Exception:
+            return None
+
+    def _refresh_status(self):
+        em = self._get_em()
+        if not em:
+            self._lbl_mode.setText("endpoint_mode.py not found")
+            return
+        mode = em.get_active_mode()
+        mid = mode.get("id", "native")
+
+        # Highlight active mode button
+        for btn_id, btn in self._mode_btns.items():
+            btn.blockSignals(True)
+            btn.setChecked(btn_id == mid)
+            btn.blockSignals(False)
+
+        self._lbl_mode.setText(f"{mode.get('icon','')} {mode.get('name', mid)}")
+        self._lbl_url.setText(mode.get("base_url", "—"))
+        self._lbl_key.setText(mode.get("api_key", "—"))
+        env_path = Path.home() / ".hypes" / "hypes.env"
+        if env_path.exists():
+            self._lbl_env.setText(str(env_path))
+            self._lbl_env.setStyleSheet("color:#00ffcc; font-family:Consolas; font-size:11px;")
+        else:
+            self._lbl_env.setText("Not written yet — click Apply")
+            self._lbl_env.setStyleSheet("color:#f59e0b; font-family:Consolas; font-size:11px;")
+
+        # MCP status
+        mcp_file = Path.home() / ".gemini" / "config" / "mcp" / "hypes-cctm.json"
+        if hasattr(self, "_mcp_status") and self._mcp_status is not None:
+            if mcp_file.exists():
+                self._mcp_status.setText(f"✅ Registered at:\n{mcp_file}")
+                self._mcp_status.setStyleSheet("color: #00ffcc; font-size: 11px;")
+            else:
+                self._mcp_status.setText("⚠️ Not registered. Click Re-Register.")
+                self._mcp_status.setStyleSheet("color: #f59e0b; font-size: 11px;")
+
+    def _on_mode_toggle(self, checked: bool, mode_id: str):
+        if checked:
+            for mid, btn in self._mode_btns.items():
+                if mid != mode_id:
+                    btn.blockSignals(True)
+                    btn.setChecked(False)
+                    btn.blockSignals(False)
+
+    def _apply_mode(self):
+        # Find which button is checked
+        selected = next(
+            (mid for mid, btn in self._mode_btns.items() if btn.isChecked()),
+            "native"
+        )
+        em = self._get_em()
+        if em:
+            em.save_mode(selected)
+            em.apply_env_vars(selected)
+        self._refresh_status()
+        QtWidgets.QMessageBox.information(
+            self, "⚡ Applied",
+            f"Endpoint mode set to: {selected.upper()}\n\n"
+            f"Environment variables applied to this process.\n"
+            f"Env file written to ~/.hypes/hypes.env"
+        )
+
+    def _reset_mode(self):
+        em = self._get_em()
+        if em:
+            em.reset_mode()
+        self._refresh_status()
+
+    def _run_cctm(self):
+        text = self._cctm_input.toPlainText().strip()
+        if not text:
+            text = (
+                "The user is asking about configuring the proxy endpoint and "
+                "enabling token compression for large language model interactions."
+            )
+        try:
+            sys.path.insert(0, str(Path(__file__).parent.parent))
+            from session_engine import TenXCompressionModule
+            m = TenXCompressionModule()
+            compressed, ratio = m.compress_10x(text)
+            orig_words = len(text.split())
+            self._cctm_result.setText(
+                f"✅ {ratio:.1f}x compression\n"
+                f"Original: ~{orig_words} words\n"
+                f"Compressed: {str(compressed)[:120]}{'…' if len(str(compressed)) > 120 else ''}"
+            )
+        except Exception as e:
+            self._cctm_result.setText(f"❌ CCTM error: {e}")
+
+    def _register_mcp(self):
+        try:
+            import json as _json
+            root = str(Path(__file__).parent.parent.parent)
+            mcp_script = str(Path(root) / "mcp_server" / "hypes_cctm_server.py")
+            gui_dir = str(Path(root) / "gui")
+            config_dir = Path.home() / ".gemini" / "config" / "mcp"
+            config_dir.mkdir(parents=True, exist_ok=True)
+            target = config_dir / "hypes-cctm.json"
+            payload = {
+                "mcpServers": {
+                    "hypes-cctm": {
+                        "command": sys.executable,
+                        "args": [mcp_script],
+                        "env": {
+                            "PIRATE_ROOT": root,
+                            "PYTHONPATH": f"{root};{gui_dir}"
+                        },
+                        "description": "HypeS CCTM — 10x/23x Token Compression"
+                    }
+                }
+            }
+            with open(target, "w") as f:
+                _json.dump(payload, f, indent=2)
+            self._refresh_status()
+        except Exception as e:
+            self._mcp_status.setText(f"❌ Registration failed: {e}")
+            self._mcp_status.setStyleSheet("color: #ff4444; font-size: 11px;")
 
 
 class CyberHeaderBanner(QtWidgets.QFrame):
@@ -3215,8 +2755,11 @@ class CyberHeaderBanner(QtWidgets.QFrame):
 
 
     def _launch_gcs(self) -> None:
-        import webbrowser
-        webbrowser.open("http://localhost:7860/#gcs")
+        try:
+            from .golden_candy_spinner_panel import GoldenCandySpinnerWindow
+        except ImportError:
+            from gui.pirate_gui.golden_candy_spinner_panel import GoldenCandySpinnerWindow
+        GoldenCandySpinnerWindow.show_window()
 
 
 # ── Main window ───────────────────────────────────────────────────────
@@ -3226,7 +2769,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.cfg = cfg
         self.engine: Optional[TessEngine] = None
 
-        self.setWindowTitle(f"Pirate Llama Control Center — v{self._version()}")
+        self.setWindowTitle("Hyper-Spherical Control Center — Master Edition")
         self.resize(1180, 780)
 
         # Apply dark mode QSS styling
@@ -3288,6 +2831,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.tb_hud_btn.toggled.connect(self._toggle_token_hud)
         self.tb_hud_btn.setToolTip("Toggle floating token savings overlay (Ctrl+Shift+T).")
         tb.addWidget(self.tb_hud_btn)
+        
+        # Ensure HUD is actually shown on startup since it's checked by default
+        QtCore.QTimer.singleShot(100, lambda: self._toggle_token_hud(True))
 
         # Always-on-top toggle button in toolbar
         self.tb_top_btn = QtWidgets.QPushButton("📌 Always on Top")
@@ -3311,6 +2857,12 @@ class MainWindow(QtWidgets.QMainWindow):
         tb_gcs_btn.clicked.connect(self._launch_gcs)
         tb.addWidget(tb_gcs_btn)
 
+        # Float avatar toolbar button
+        tb_avatar_btn = QtWidgets.QPushButton("\U0001f916 Float Avatar")
+        tb_avatar_btn.setToolTip("Pop the 4ID avatar as a transparent, always-on-top floating window.")
+        tb_avatar_btn.clicked.connect(self._launch_float_avatar)
+        tb.addWidget(tb_avatar_btn)
+
         tb.addSeparator()
         self.refresh_box = QtWidgets.QSpinBox()
         self.refresh_box.setRange(50, 5000)
@@ -3324,8 +2876,26 @@ class MainWindow(QtWidgets.QMainWindow):
         self.header_banner = CyberHeaderBanner()
 
         # Sidebar + panels
+        try:
+            from .golden_candy_spinner_panel import GoldenCandySpinnerPanel
+        except ImportError:
+            from gui.pirate_gui.golden_candy_spinner_panel import GoldenCandySpinnerPanel
+
+        try:
+            from .model_browser_panel import ModelBrowserPanel
+        except ImportError:
+            from gui.pirate_gui.model_browser_panel import ModelBrowserPanel
+
+        try:
+            from .voice_duplex_panel import VoiceDuplexPanel
+        except ImportError:
+            from gui.pirate_gui.voice_duplex_panel import VoiceDuplexPanel
+
         self.telemetry_panel = TelemetryPanel()
         self.gpu_target_panel = GpuHardwareTargetPanel()
+        self.model_browser_panel = ModelBrowserPanel()
+        self.gcs_panel = GoldenCandySpinnerPanel()
+        self.voice_panel = VoiceDuplexPanel()
         self.finetune_panel   = FineTuningPresetsPanel()
         self.compress_panel = CompressionPanel()
         self.predict_panel = PredictorPanel()
@@ -3334,19 +2904,25 @@ class MainWindow(QtWidgets.QMainWindow):
         self.integrations_panel = IntegrationsPanel()
         self.backup_panel = AutoBackupPanel()
         self.avatar_panel = FourIdentityAvatarPanel()
+        self.guardian_panel = GuardianSecurityPanel()
+        self.endpoint_panel = EndpointPanel()
 
-        tabs = QtWidgets.QTabWidget()
-        tabs.addTab(self.telemetry_panel, "Telemetry")
-        tabs.addTab(self.gpu_target_panel, "GPU Target & Brain")
-        tabs.addTab(self.finetune_panel,   "Fine-Tuning & Guardrails")
-        tabs.addTab(self.compress_panel, "Compression")
-        tabs.addTab(self.predict_panel,  "Predictor")
-        tabs.addTab(self.advanced_panel, "Advanced")
-        tabs.addTab(self.master_panel,   "Master")
-        tabs.addTab(self.integrations_panel, "Integrations")
-        tabs.addTab(self.backup_panel, "Auto Backup")
-        tabs.addTab(self.avatar_panel, "4ID Avatar")
-
+        self.tabs = QtWidgets.QTabWidget()
+        self.tabs.addTab(self.telemetry_panel, "Telemetry")
+        self.tabs.addTab(self.endpoint_panel,  "⚡ Endpoint & CCTM")
+        self.tabs.addTab(self.model_browser_panel, "🌐 Model Browser & Downloads")
+        self.tabs.addTab(self.gpu_target_panel, "GPU Target & Brain")
+        self.gcs_tab_index = self.tabs.addTab(self.gcs_panel, "🍬 Golden Candy Spinner")
+        self.tabs.addTab(self.voice_panel, "🎙️ Duplex Live Voice")
+        self.tabs.addTab(self.finetune_panel,   "Fine-Tuning & Guardrails")
+        self.tabs.addTab(self.compress_panel, "Compression")
+        self.tabs.addTab(self.predict_panel,  "Predictor")
+        self.tabs.addTab(self.advanced_panel, "Advanced")
+        self.tabs.addTab(self.master_panel,   "Master")
+        self.tabs.addTab(self.integrations_panel, "Integrations")
+        self.tabs.addTab(self.backup_panel, "Auto Backup")
+        self.tabs.addTab(self.avatar_panel, "4ID Avatar")
+        self.tabs.addTab(self.guardian_panel, "🛡️ Guardian & Parent Key")
 
 
         self.advanced_panel.configChanged.connect(self._on_advanced_changed)
@@ -3358,7 +2934,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.log_view.setMaximumBlockCount(500)
 
         splitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
-        splitter.addWidget(tabs)
+        splitter.addWidget(self.tabs)
         splitter.addWidget(self.log_view)
         splitter.setStretchFactor(0, 3)
         splitter.setStretchFactor(1, 1)
@@ -3418,10 +2994,26 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
     def _launch_gcs(self) -> None:
-        import webbrowser
-        self._log("Opening Golden Candy Spinner...")
-        webbrowser.open("http://localhost:7860/#gcs")
+        self._log("Opening Golden Candy Spinner Native Window...")
+        try:
+            from .golden_candy_spinner_panel import GoldenCandySpinnerWindow
+        except ImportError:
+            from gui.pirate_gui.golden_candy_spinner_panel import GoldenCandySpinnerWindow
 
+        if hasattr(self, "gcs_tab_index") and self.gcs_tab_index is not None:
+            self.tabs.setCurrentIndex(self.gcs_tab_index)
+        GoldenCandySpinnerWindow.show_window()
+
+    def _launch_float_avatar(self) -> None:
+        """Pop the 4ID avatar as a transparent floating desktop window."""
+        try:
+            from .avatar_window import AvatarFloatingWindow
+        except ImportError:
+            from gui.pirate_gui.avatar_window import AvatarFloatingWindow
+        win = AvatarFloatingWindow.get_instance()
+        win.show_avatar()
+        win.set_name(getattr(self.cfg, "user_name", "TwistedSoCal"))
+        self._log("4ID Avatar floating window launched.")
 
     # ── helpers ────────────────────────────────────────────────────────
     def _version(self) -> str:

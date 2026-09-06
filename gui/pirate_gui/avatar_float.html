@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HypeS 4ID Floating Avatar</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+        /* Fully transparent background — Qt window transparency shows through */
+        body, html {
+            width: 100%; height: 100%;
+            overflow: hidden;
+            background: transparent !important;
+            font-family: 'Segoe UI', Inter, sans-serif;
+        }
+
+        #canvas-container {
+            width: 100%; height: 100%;
+            position: absolute; top: 0; left: 0;
+            background: transparent;
+        }
+
+        /* Drag handle — the only chrome: a thin top bar */
+        #drag-bar {
+            position: absolute; top: 0; left: 0; right: 0; height: 28px;
+            background: rgba(0, 0, 0, 0); /* invisible — Qt drags the whole window */
+            z-index: 100; cursor: move;
+            display: flex; align-items: center; justify-content: flex-end;
+            padding: 0 8px; gap: 6px;
+        }
+
+        #name-badge {
+            position: absolute; bottom: 8px; left: 50%;
+            transform: translateX(-50%);
+            background: rgba(4, 10, 24, 0.75);
+            border: 1px solid rgba(0, 212, 255, 0.4);
+            backdrop-filter: blur(8px); border-radius: 20px;
+            padding: 3px 14px; color: #00d4ff; font-size: 10px;
+            font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+            pointer-events: none; white-space: nowrap;
+        }
+
+        #state-ring {
+            position: absolute; top: 8px; right: 8px;
+            width: 10px; height: 10px; border-radius: 50%;
+            background: #00ffcc;
+            box-shadow: 0 0 8px #00ffcc, 0 0 16px rgba(0,255,204,0.5);
+            pointer-events: none;
+            animation: pulse-ring 2s ease-in-out infinite;
+        }
+        @keyframes pulse-ring {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        #voice-wave {
+            position: absolute; bottom: 34px; left: 50%;
+            transform: translateX(-50%);
+            display: flex; gap: 3px; align-items: flex-end; height: 20px;
+            pointer-events: none;
+        }
+        .bar {
+            width: 3px; height: 3px; background: #00ffcc;
+            border-radius: 2px; transition: height 0.08s ease;
+        }
+    </style>
+    <script src="three.min.js"></script>
+    <script>
+        if (typeof THREE === 'undefined') {
+            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');
+        }
+    </script>
+</head>
+<body>
+    <div id="canvas-container"></div>
+    <div id="drag-bar"></div>
+    <div id="state-ring"></div>
+    <div id="name-badge">🤖 PIRATE LLAMA</div>
+    <div id="voice-wave">
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        <div class="bar"></div>
+    </div>
+
+    <script>
+        // ── Public API (defined immediately in window scope) ─────────────────
+        let isSpeaking = false;
+        let currentState = 0;  // 0=IDLE 1=TALKING 2=SEARCHING 3=WALKING 4=GESTURING 5=THINKING
+
+        window.setAvatarState = function(idx, name) {
+            currentState = idx || 0;
+            const ring = document.getElementById('state-ring');
+            if (ring) {
+                ring.style.background =
+                    currentState === 1 ? '#00ffcc' :
+                    currentState === 4 ? '#a855f7' :
+                    currentState === 2 ? '#ffd700' : '#00ffcc';
+            }
+        };
+
+        window.setAvatarName = function(name) {
+            const badge = document.getElementById('name-badge');
+            if (badge) {
+                badge.innerText = '🦙 ' + (name || 'PIRATE LLAMA');
+            }
+        };
+
+        window.setSpeakingState = function(val) {
+            isSpeaking = !!val;
+            currentState = val ? 1 : 0;
+        };
+
+        window.setAgentToolCall = function(toolName, argsStr) {
+            const t = (toolName || '').toLowerCase();
+            if (t.includes('run_command') || t.includes('terminal')) {
+                window.setAvatarState(4, 'GESTURING');
+            } else if (t.includes('search') || t.includes('view_file') || t.includes('list_dir')) {
+                window.setAvatarState(2, 'SEARCHING');
+            } else if (t.includes('write') || t.includes('replace') || t.includes('deploy')) {
+                window.setAvatarState(1, 'TALKING');
+            } else {
+                window.setAvatarState(0, 'IDLE');
+            }
+        };
+
+        window.generateFromPrompt = function(prompt) {
+            currentState = 4;
+            setTimeout(() => { currentState = 0; }, 3000);
+        };
+
+        window.loadAvatarImage = function(dataUrl) {
+            if (typeof THREE !== 'undefined' && typeof headGroup !== 'undefined') {
+                const loader = new THREE.TextureLoader();
+                loader.load(dataUrl, (tex) => {
+                    if (headGroup && headGroup.children[0]) {
+                        headGroup.children[0].material = new THREE.MeshStandardMaterial({
+                            map: tex, roughness: 0.4, metalness: 0.3
+                        });
+                    }
+                });
+            }
+        };
+
+        // ── Engine globals ──────────────────────────────────────────────────────
+        let scene, camera, renderer;
+        let avatarGroup, headGroup, rightArmGroup, leftArmGroup;
+        let materials = {};
+        let clock = null;
+        const STATE_NAMES = ["IDLE","TALKING","SEARCHING","WALKING","GESTURING","THINKING"];
+        const waveBars = document.querySelectorAll('#voice-wave .bar');
+
+        function initEngine() {
+            if (typeof THREE === 'undefined') {
+                console.warn("[HypeS Avatar] Three.js not loaded. Operating in low-overhead mode.");
+                return;
+            }
+            clock = new THREE.Clock();
+            const container = document.getElementById('canvas-container');
+
+            scene = new THREE.Scene();
+            // NO scene background — fully transparent
+            scene.background = null;
+
+            camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 50);
+            camera.position.set(0, 1.55, 3.0);
+            camera.lookAt(0, 1.1, 0);
+
+            renderer = new THREE.WebGLRenderer({
+                antialias: true,
+                alpha: true,           // transparent canvas
+                premultipliedAlpha: false,
+                powerPreference: "high-performance"
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.setClearColor(0x000000, 0);  // fully transparent clear
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.4;
+            container.appendChild(renderer.domElement);
+
+            setupLights();
+            createMaterials();
+            buildAvatar();
+            buildHoloRing();
+            animate();
+
+            window.addEventListener('resize', onResize);
+        }
+
+        function setupLights() {
+            scene.add(new THREE.AmbientLight(0x0a192f, 2.0));
+
+            const key = new THREE.SpotLight(0x00ffcc, 4.0, 10, Math.PI / 3, 0.4);
+            key.position.set(0, 5, 3);
+            key.castShadow = true;
+            scene.add(key);
+
+            const fill = new THREE.PointLight(0x00d4ff, 2.5, 8);
+            fill.position.set(-2, 2, 1);
+            scene.add(fill);
+
+            const rim = new THREE.DirectionalLight(0xa855f7, 2.2);
+            rim.position.set(2, 3, -3);
+            scene.add(rim);
+
+            const back = new THREE.PointLight(0x00ffcc, 1.5, 6);
+            back.position.set(0, 1, -2);
+            scene.add(back);
+        }
+
+        function createMaterials() {
+            materials.skin   = new THREE.MeshStandardMaterial({ color: 0x2a3b5c, roughness: 0.4, metalness: 0.65 });
+            materials.armor  = new THREE.MeshStandardMaterial({ color: 0x0c192e, roughness: 0.22, metalness: 0.92 });
+            materials.cyan   = new THREE.MeshBasicMaterial({ color: 0x00ffcc });
+            materials.purple = new THREE.MeshBasicMaterial({ color: 0xa855f7 });
+            materials.gold   = new THREE.MeshBasicMaterial({ color: 0xffd700 });
+
+            // Holographic glass for shoulder pads / visor
+            materials.holoVisor = new THREE.MeshPhysicalMaterial({
+                color: 0x00d4ff, transmission: 0.7, opacity: 0.9,
+                transparent: true, roughness: 0.05, ior: 1.5, side: THREE.DoubleSide
+            });
+        }
+
+        function buildAvatar() {
+            if (avatarGroup) scene.remove(avatarGroup);
+            avatarGroup   = new THREE.Group();
+            headGroup     = new THREE.Group();
+            rightArmGroup = new THREE.Group();
+            leftArmGroup  = new THREE.Group();
+
+            // ── Legs ─────────────────────────────────────────────────────────
+            [-0.14, 0.14].forEach((x, i) => {
+                const lg = new THREE.CylinderGeometry(0.09, 0.07, 0.55, 8);
+                const l  = new THREE.Mesh(lg, materials.armor);
+                l.position.set(x, 0.27, 0);
+                avatarGroup.add(l);
+                // Boot
+                const bg = new THREE.BoxGeometry(0.14, 0.12, 0.22);
+                const b  = new THREE.Mesh(bg, materials.skin);
+                b.position.set(x, 0.0, 0.04);
+                avatarGroup.add(b);
+                // Knee glow
+                const kg = new THREE.SphereGeometry(0.035, 8, 8);
+                const k  = new THREE.Mesh(kg, materials.cyan);
+                k.position.set(x, 0.42, 0.05);
+                avatarGroup.add(k);
+            });
+
+            // ── Torso ─────────────────────────────────────────────────────────
+            const torsoGeo = new THREE.CylinderGeometry(0.38, 0.27, 0.82, 8);
+            const torso    = new THREE.Mesh(torsoGeo, materials.armor);
+            torso.position.y = 0.97;
+            avatarGroup.add(torso);
+
+            // Chest arc glow
+            const arcGeo = new THREE.TorusGeometry(0.18, 0.018, 12, 32, Math.PI);
+            const arc    = new THREE.Mesh(arcGeo, materials.cyan);
+            arc.position.set(0, 1.05, 0.37);
+            arc.rotation.z = Math.PI;
+            avatarGroup.add(arc);
+
+            // Shoulder pads
+            [-0.42, 0.42].forEach(x => {
+                const spg = new THREE.SphereGeometry(0.14, 10, 10, 0, Math.PI);
+                const sp  = new THREE.Mesh(spg, materials.holoVisor);
+                sp.position.set(x, 1.32, 0);
+                sp.rotation.z = x > 0 ? -Math.PI / 2 : Math.PI / 2;
+                avatarGroup.add(sp);
+            });
+
+            // ── Head ─────────────────────────────────────────────────────────
+            headGroup.position.set(0, 1.72, 0);
+
+            const headGeo = new THREE.BoxGeometry(0.44, 0.54, 0.50);
+            const head    = new THREE.Mesh(headGeo, materials.skin);
+            headGroup.add(head);
+
+            // Visor / eyes
+            const visorGeo = new THREE.BoxGeometry(0.36, 0.10, 0.06);
+            const visor    = new THREE.Mesh(visorGeo, materials.holoVisor);
+            visor.position.set(0, 0.10, 0.27);
+            headGroup.add(visor);
+
+            // Llama snout
+            const snoutGeo = new THREE.BoxGeometry(0.30, 0.24, 0.26);
+            const snout    = new THREE.Mesh(snoutGeo, materials.armor);
+            snout.position.set(0, -0.11, 0.30);
+            headGroup.add(snout);
+
+            // Ear tufts
+            [-0.18, 0.18].forEach(x => {
+                const eg = new THREE.ConeGeometry(0.05, 0.18, 6);
+                const e  = new THREE.Mesh(eg, materials.armor);
+                e.position.set(x, 0.34, 0);
+                headGroup.add(e);
+            });
+
+            // Head glow ring
+            const hrg = new THREE.TorusGeometry(0.28, 0.015, 8, 32);
+            const hr  = new THREE.Mesh(hrg, materials.cyan);
+            hr.position.y = 0.32;
+            hr.rotation.x = Math.PI / 2;
+            headGroup.add(hr);
+
+            avatarGroup.add(headGroup);
+
+            // ── Arms ─────────────────────────────────────────────────────────
+            // Right arm
+            const rAg = new THREE.CylinderGeometry(0.075, 0.055, 0.52, 8);
+            const rA  = new THREE.Mesh(rAg, materials.armor);
+            rA.position.set(0.36, 1.0, 0.18);
+            rA.rotation.x = -Math.PI / 4;
+            rA.rotation.z = -Math.PI / 10;
+            rightArmGroup.add(rA);
+
+            const rHg = new THREE.SphereGeometry(0.065, 10, 10);
+            const rH  = new THREE.Mesh(rHg, materials.cyan);
+            rH.position.set(0.40, 0.75, 0.44);
+            rightArmGroup.add(rH);
+            avatarGroup.add(rightArmGroup);
+
+            // Left arm
+            const lAg = new THREE.CylinderGeometry(0.075, 0.055, 0.52, 8);
+            const lA  = new THREE.Mesh(lAg, materials.armor);
+            lA.position.set(-0.36, 1.0, 0.18);
+            lA.rotation.x = -Math.PI / 4;
+            lA.rotation.z =  Math.PI / 10;
+            leftArmGroup.add(lA);
+
+            const lHg = new THREE.SphereGeometry(0.065, 10, 10);
+            const lH  = new THREE.Mesh(lHg, materials.purple);
+            lH.position.set(-0.40, 0.75, 0.44);
+            leftArmGroup.add(lH);
+            avatarGroup.add(leftArmGroup);
+
+            // ── Base shadow disc ─────────────────────────────────────────────
+            const discGeo = new THREE.CircleGeometry(0.35, 32);
+            const discMat = new THREE.MeshBasicMaterial({
+                color: 0x00ffcc, transparent: true, opacity: 0.10
+            });
+            const disc = new THREE.Mesh(discGeo, discMat);
+            disc.rotation.x = -Math.PI / 2;
+            disc.position.y = 0.001;
+            avatarGroup.add(disc);
+
+            scene.add(avatarGroup);
+        }
+
+        function buildHoloRing() {
+            // Floating holographic halo above head
+            const rg = new THREE.TorusGeometry(0.52, 0.012, 8, 64);
+            const rm = new THREE.MeshBasicMaterial({ color: 0x00d4ff, transparent: true, opacity: 0.55 });
+            const ring = new THREE.Mesh(rg, rm);
+            ring.position.set(0, 2.35, 0);
+            ring.rotation.x = Math.PI / 6;
+            ring.userData.isHalo = true;
+            scene.add(ring);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if (!clock) return;
+            const t = clock.getElapsedTime();
+
+            // Idle float
+            if (avatarGroup) {
+                avatarGroup.position.y = Math.sin(t * 1.4) * 0.018;
+                headGroup.rotation.y   = Math.sin(t * 0.7) * 0.12;
+                headGroup.rotation.z   = Math.sin(t * 0.5) * 0.04;
+            }
+
+            // Arm animations by state
+            if (rightArmGroup && leftArmGroup) {
+                if (currentState === 1) {  // TALKING
+                    rightArmGroup.rotation.x = Math.sin(t * 5) * 0.18;
+                    leftArmGroup.rotation.x  = Math.cos(t * 5) * 0.12;
+                } else if (currentState === 4) {  // GESTURING
+                    rightArmGroup.rotation.x = Math.sin(t * 4) * 0.25 - 0.2;
+                    rightArmGroup.rotation.y = Math.cos(t * 3) * 0.25;
+                } else {
+                    rightArmGroup.rotation.x = Math.sin(t * 1.5) * 0.05;
+                    leftArmGroup.rotation.x  = -Math.sin(t * 1.5) * 0.05;
+                }
+            }
+
+            // Halo spin
+            scene.children.forEach(obj => {
+                if (obj.userData && obj.userData.isHalo) {
+                    obj.rotation.y = t * 0.8;
+                }
+            });
+
+            // Voice wave animation
+            if (isSpeaking) {
+                waveBars.forEach((bar, i) => {
+                    const h = 4 + Math.abs(Math.sin(t * 15 + i * 0.8)) * 16;
+                    bar.style.height = h + 'px';
+                });
+            } else {
+                waveBars.forEach(bar => bar.style.height = '3px');
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        function onResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // ── Public API called from Python via runJavaScript ──────────────────
+        function setAvatarState(idx, name) {
+            currentState = idx || 0;
+            document.getElementById('state-ring').style.background =
+                currentState === 1 ? '#00ffcc' :
+                currentState === 4 ? '#a855f7' :
+                currentState === 2 ? '#ffd700' : '#00ffcc';
+        }
+
+        function setAvatarName(name) {
+            document.getElementById('name-badge').innerText = '\uD83E\uDD99 ' + (name || 'PIRATE LLAMA');
+        }
+
+        function setSpeakingState(val) {
+            isSpeaking = !!val;
+            currentState = val ? 1 : 0;
+        }
+
+        function generateFromPrompt(prompt) {
+            // Trigger gesture when generating
+            currentState = 4;
+            setTimeout(() => { currentState = 0; }, 3000);
+        }
+
+        function loadAvatarImage(dataUrl) {
+            // Photo mode: texture-map onto head
+            const loader = new THREE.TextureLoader();
+            loader.load(dataUrl, (tex) => {
+                if (headGroup && headGroup.children[0]) {
+                    headGroup.children[0].material = new THREE.MeshStandardMaterial({
+                        map: tex, roughness: 0.4, metalness: 0.3
+                    });
+                }
+            });
+        }
+
+        function setAgentToolCall(toolName, argsStr) {
+            const t = (toolName || '').toLowerCase();
+            if (t.includes('run_command') || t.includes('terminal')) {
+                setAvatarState(4, 'GESTURING');
+            } else if (t.includes('search') || t.includes('view_file') || t.includes('list_dir')) {
+                setAvatarState(2, 'SEARCHING');
+            } else if (t.includes('write') || t.includes('replace') || t.includes('deploy')) {
+                setAvatarState(1, 'TALKING');
+            } else {
+                setAvatarState(0, 'IDLE');
+            }
+        }
+
+        window.onload = initEngine;
+    </script>
+</body>
+</html>

@@ -3,9 +3,10 @@
 <img src="docs/hypersphere_health_report.md" alt="" width="0"/>
 
 # 🌌 Hyper-Spherical Systems — HypeS
+
 ### *Next-Generation Local AI Engine*
 
-[![Release](https://img.shields.io/badge/release-v0.9.8--alpha-cyan?style=flat-square)](https://github.com/thomasjosh1981/Hyper-Spherical-Systems/releases)
+[![Release](https://img.shields.io/badge/release-v0.9.8--beta-brightgreen?style=flat-square)](https://github.com/thomasjosh1981/Hyper-Spherical-Systems/releases/tag/v0.9.8-beta)
 [![License](https://img.shields.io/badge/license-MIT%20%2B%20Enterprise-purple?style=flat-square)](#-license)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-blue?style=flat-square)](#-system-requirements)
 
@@ -23,13 +24,49 @@ It works with **any GGUF, SFS, or SFS+** model and connects to **any OpenAI-comp
 
 | What HypeS does | How |
 |---|---|
-| Runs 70B+ models on 12 GB VRAM | VRAM/RAM/NVMe 3-tier virtual VRAM illusion |
+| Runs 70B+ models on 12 GB VRAM | VRAM/RAM/NVMe 3-tier virtual VRAM illusion with Dual-NVMe Striping |
 | Zero-CUDA CPU Layer Streaming | Memory-mapped NVMe AVX2 layer spooler for Intel Core i7 / AMD Ryzen 9 |
 | Saves up to 10× cloud API tokens | ISSI + Homophonic + CCTM Ultra compression |
 | Lets models learn and grow permanently | BMRAD Brain Director + HardcodedKnowledgeBase |
+| Protects your key & offline data | Zero-cloud recovery + Local HypeS Security CHIP (`.chip`) File Export |
 | Protects your conversations end-to-end | AES-256 + 5+1 Homophonic ephemeral session cipher |
 | Enables models to teach each other | SFS+ InteropBus GROW_FROM / GROW_WITH |
 | Gives your AI a voice and a face | 4ID Avatar — real-time STT/TTS + 4D animated entity |
+
+---
+
+## 👑 Golden Token HUD (v7.0) & Search-&-Seek AI Radar
+
+The **Golden Token HUD** is a desktop telemetry overlay that docks cleanly to the top-right of your screen and tracks real-time token usage, compression ratios, and dollar savings across all connected AI sessions:
+
+* **🔍 SEARCH & SEEK AI Radar**: Automatically detects and suction-docks running desktop windows, IDEs (Cursor, VS Code, Antigravity IDE), terminal CLIs, local daemons (Ollama, LM Studio, llama.cpp), and mobile bridges.
+* **⚡ Google Antigravity IDE Live Link**: Embedded transcript sniffer continuously monitors active conversations and renders token optimization counters in real time.
+* **🪟 Windowless Instant Launch**: Double-click `LAUNCH_TOKEN_HUD.vbs` for a pure windowless launch (zero black console flash) docked on top of your workspace (`WindowStaysOnTopHint`).
+
+---
+
+## 🏴‍☠️ Pirate Llama Universal Model Aggregator & Dynamic Router
+
+Stop toggling between different ports and providers. Pirate Llama runs a transparent MITM proxy on port `8000`:
+
+* **Consolidated `/v1/models` & `/api/tags`**: Automatically aggregates models from local daemons (Ollama `:11434`, LM Studio `:1234`, llama.cpp `:8080`, KoboldCpp `:5001`), cloud providers (OpenAI, Anthropic, Gemini, Groq, OpenRouter), and Google Antigravity IDE into a single unified model list.
+* **Transparent Multi-Tier Fallback**: Point any AI interface (Cursor, WebUI, Aider, OpenClaw) to `http://localhost:8000/v1`. If an external backend drops offline, Pirate Llama dynamically routes requests to local Sovereign fallbacks so your client never hits a 500 error.
+* **ISSI 10× Compression**: Passes prompts through the Integer String Substitution Index to eliminate repetitive verbose tokens before sending them across the wire.
+* **⚓ SFS / SFS+ Runtime Requirement & LM Studio Routing**: To run SFS or SFS+ models, **Pirate Llama must be installed and functional** (manages container unpacking, layer streaming, and peer mesh). However, you can route them straight into **LM Studio** via the Universal Endpoint (`http://localhost:8000/v1`). Select your SFS model in LM Studio, and Pirate Llama transparently executes it under the hood while the Golden Token HUD monitors performance!
+* **🦙 Native GGUF Execution (Built on llama.cpp)**: Because Pirate Llama's inference core was ported directly from `llama.cpp`, it runs all standard `.gguf` models natively with zero external dependencies. You can use Pirate Llama directly as a complete drop-in replacement for `llama.cpp` while gaining ISSI 10× prompt compression, 4D loop breaking, and Golden HUD live monitoring.
+
+---
+
+## 🧠 Brain Director Model Maker (BMRAD Engine) & Model Guidelines
+
+The **BMRAD Engine** governs local multi-model topologies, speculative decoding, and autonomous routing:
+
+* **5GB–7GB Supervisory Sweet Spot:** Quantized supervisory models (e.g. Qwen-2.5-Coder-7B, Llama-3.1-8B, Gemma-2-9B) sit alongside primary models to verify logic, break repetitive degeneration loops, and orchestrate tools without consuming excessive VRAM.
+* **🚀 Dynamic Speculative Auto-Optimizer:** Speculative draft token depth ($K = 1 \dots 8$) auto-adjusts based on real-time verification acceptance rates and system latency. If latency spikes or draft passes are rejected, the auto-optimizer dynamically throttles drafting down to $K=1$, guaranteeing zero latency regression.
+* **SFS+ InteropBus Skill Borrowing:** Models borrow capabilities (`vision_api`, `python_repl`, `peer_mesh`) across local instances via `GROW_FROM` and `GROW_WITH` protocols.
+* **Multilingual Intent Normalizer:** Normalizes multilingual user queries into canonical semantic representations for domain-specific models.
+* **Pre-Run Model Inspector:** Double-click any model to configure temperature, draft token depth, supervisory brain binding, and 5D OCEAN personality traits before execution.
+* 📖 *Read the complete specification in **[docs/BRAIN_MODEL_GUIDELINES.md](docs/BRAIN_MODEL_GUIDELINES.md)**.*
 
 ---
 
@@ -70,19 +107,29 @@ python tesseract_engine/demo_stripe_vault.py
 
 ## 🚀 Quick Start
 
-### Windows (Installer)
+### Windows (Installer & Setup)
 
-1. Download **`HyperSpherical_Installer.exe`** from the [Releases page](https://github.com/thomasjosh1981/Hyper-Spherical-Systems/releases).
-2. Run the installer — it will:
-   - Detect your hardware (VRAM, RAM, NVMe)
-   - Install binaries to `C:\Program Files\HyperSpherical\`
-   - Create Desktop + Start Menu shortcuts
+1. Download **`HypeS_Setup.exe`** from the [Releases page](https://github.com/thomasjosh1981/Hyper-Spherical-Systems/releases).
+2. Run the installer (requires Administrator elevation) — it will:
+   - Auto-detect Windows logged-in user credentials and hardware topology
+   - Prompt for custom **Installation Directory** & **SFS/SFS+ Model Archive Drive**
+   - Configure **Primary NVMe** and optional **Secondary Stripe NVMe** for ultra-fast VRAM streaming
+   - Allow exporting/backing up your **HypeS Security CHIP File (`.chip`)**
+   - Install binaries to your configured directory
+   - Create Desktop folder (`Hyper-Spherical Systems Suite`) with 6 direct-module shortcut icons
    - Register an uninstaller in *Add/Remove Programs*
-3. Launch **HypeS** from your Desktop shortcut or Start Menu.
-4. Complete the **First-Run Onboarding Wizard** (drive selection, HuggingFace token, baseline benchmark).
-5. Point HypeS at your model file and start chatting.
+3. Double-click any shortcut (e.g. **HypeS Control Center**, **Pirate Proxy**, **Golden Candy Spinner**) to open that module directly.
 
 > See **[HOWTO.md](docs/HOWTO.md)** for the full step-by-step guide with screenshots.
+
+### Instant 1-Click Launch (From Cloned Repository)
+
+If you have cloned or downloaded this repository, you can launch components directly:
+
+* **👑 Golden Token HUD**: Double-click [`LAUNCH_TOKEN_HUD.vbs`](file:///C:/hyper_spherical/LAUNCH_TOKEN_HUD.vbs) (or run `LAUNCH_TOKEN_HUD.bat`). Docks immediately to the top-right of your screen with zero console window.
+* **🌐 Master Control Center**: Double-click [`LAUNCH_CONTROL_CENTER.bat`](file:///C:/hyper_spherical/LAUNCH_CONTROL_CENTER.bat) to boot the dashboard and multi-backend manager.
+* **🍬 Golden Candy Spinner**: Double-click [`LAUNCH_SPINNER.bat`](file:///C:/hyper_spherical/LAUNCH_SPINNER.bat) to launch the 4D vortex model packager.
+* **🔌 Pirate Llama Universal Proxy**: Run `python gui/server.py` to start the unified endpoint on `http://localhost:8000`.
 
 ### Windows (Portable / No Install)
 
@@ -133,20 +180,23 @@ chmod +x release/launch_hypes_linux.sh
 
 ---
 
-## 💰 Pricing & Availability
+## 💰 Beta Release Status, Freeware & Permanent Unlock Codes
 
-HypeS is currently in **Alpha/Beta** and **100% free** to use until v1.0 release.
+HypeS is officially in **Beta** (graduated from Alpha) and is **100% Freeware** until the major v1.0 release:
 
-| Tier | Price | What You Get |
-|---|---|---|
-| **Alpha/Beta** | Free | All features, no expiry — you are here |
-| **Community** | Free post-v1.0 | Base engine, 1 cloud backpack, 5 GB sandbox |
-| **Lifetime Unlimited** | $100 – $250* | All modules forever, all future updates, version lock |
-| **Module Bundle** | $149 | All 9 premium modules (SFS+, BMRAD, 4ID Avatar, CCTM, Cipher…) |
-| **Per-Module** | $19 – $79 | Buy only what you need |
-| **Enterprise** | Custom | Hardware-token build, priority support |
+* **Zero Mandatory Keys During Beta:** You can run all modules (Golden Token HUD, Pirate Llama, Golden Candy Spinner, BMRAD Brain Director, and SFS runtimes) completely free without needing a license key or code.
+* **Permanent Unlock Codes (200 – 500 Founder Codes Total):**  
+  Early supporters and donors can enter their unique code in the GUI to **permanently unlock and version-lock their installation forever**, guaranteeing lifetime access to all current and future capabilities regardless of future tier changes.
+* **Post-v1.0 Community vs. Pro Structure:**  
+  * *Community Goal:* If community donations and sponsorship provide adequate funding, HypeS will remain broadly accessible while targeting enterprise commercial contracts.
+  * *Fallback Tier Structure (if funding goal is not reached):* Post-v1.0 free editions will offer standard HUD monitoring (fixed positioning and capped app docking), Pirate Llama with 3–4 curated supervisory brains, and model size bounds on GCS SFS decomposition, while Founder Code holders and Enterprise clients enjoy unlimited, unthrottled power.
 
-\* *Lifetime codes: first 100 at $100, then $150, $200, $250 — only 400 codes total.*
+| Edition / Tier | Price / Access | Included Capabilities |
+| :--- | :---: | :--- |
+| **Current Beta (v0.9.8-Beta)** | **100% Free / Freeware** | **All features unlocked**, no code required, unlimited models & docks. |
+| **Founder Permanent Unlock** | **Donation / $100 – $250** | **Permanent lifetime unlock** (only 200–500 total codes issued). Version lock + all future updates. |
+| **Post-v1.0 Community Free** | **Free** | Base engine, standard HUD, 3–4 curated brain directors, bounded SFS container sizing. |
+| **Enterprise / Commercial** | **Custom License** | Hardware-token build, dedicated support, multi-node non-Euclidean clustering. |
 
 ---
 
@@ -186,8 +236,18 @@ release/
 - **No telemetry by default.** All data stays on your machine.
 - **AES-256 + ephemeral session cipher.** Cloud models never see uncompressed plaintext.
 - **Session teardown zeroes all key material.** Cloud cannot decode past sessions.
-- **Source code is proprietary and not distributed.** Only compiled binaries and docs are public.
+- **Source code is proprietary and not distributed.** Only compiled binaries, open proxy tools, HUDs, and docs are public.
 - **Control Flow Guard, ASLR, DEP, Anti-Debugging** on all Windows binaries.
+
+---
+
+## 💬 Community Feedback & Discussion (We Need Your Feedback!)
+
+We are actively welcoming community testers, benchmark reports, and developer feedback:
+
+* **🐛 Bug Reports & Feature Requests**: Please open an issue on the [GitHub Issues tab](https://github.com/thomasjosh1981/Hyper-Spherical-Systems/issues).
+* **📊 Benchmark Results**: Share your hardware specs, NVMe speeds, CPU layer streaming results, or token compression ratios in [GitHub Discussions](https://github.com/thomasjosh1981/Hyper-Spherical-Systems/discussions).
+* **📬 Direct Contact**: Connect directly with the developer via GitHub or email at `twistedsocal@gmail.com`.
 
 ---
 

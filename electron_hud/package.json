@@ -1,0 +1,12 @@
+{
+  "name": "hypes-token-counter-hud",
+  "version": "4.0.0",
+  "description": "Hyper-Spherical Electron Desktop Token Counter & Telemetry HUD",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^43.4.1"
+  }
+}

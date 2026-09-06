@@ -43,6 +43,13 @@ build_test/
 CMakeFiles/
 CMakeCache.txt
 dist/
+dist_packages/
+bin/
+obj/
+publish/
+**/bin/
+**/obj/
+**/publish/
 __pycache__/
 *.pyc
 *.pyo
@@ -57,21 +64,64 @@ __pycache__/
 !synthuron_context/**
 !hypermem/**
 !tools/**
+tools/**/*.cpp
+tools/**/*.hpp
+tools/**/*.h
+tools/golden_candy_spinner/
+tools/community_patcher/
 !tools/*.py
 !tools/*.bat
+!tools/*.ps1
 !common_identity.py
 !setup_all.bat
 !setup_all.ps1
 !uninstall_all.bat
 
-# Allow ONLY Public Releases, Installers, PDF/HTML Docs, and Graphics
+# Allow ONLY Public Releases, Installers, PDF/HTML Docs, Open-Source MitM, Universal Endpoint, Pirate Llama, and HUD
 !HypeS_Setup.exe
-!release/HypeS_Setup.exe
+!release/
+!release/**
+release/*Master*
+release/*master*
 !README.md
 !blueprint.json
 !config.yaml
+!ROADMAP.md
+!pyproject.toml
 !docs/
 !docs/**
+docs/**/__pycache__/
+docs/**/*.pyc
+!src/universal_endpoint.cpp
+!include/universal_endpoint.hpp
+!project_tesseract/README.md
+!project_tesseract/*.py
+!gui/
+!gui/**
+gui/**/__pycache__/
+gui/**/*.pyc
+!LAUNCH_TOKEN_HUD.py
+!LAUNCH_TOKEN_HUD.pyw
+!LAUNCH_TOKEN_HUD.vbs
+!LAUNCH_TOKEN_HUD.bat
+!LAUNCH_SPINNER.bat
+!LAUNCH_CONTROL_CENTER.bat
+!LAUNCH_ALL_IN_ONE.bat
+
+# Internal Spitballing & Proprietary Brainstorm Ledgers (STRICTLY LOCAL — DO NOT PUSH TO GIT)
+*THOUGHTS*
+*thoughts*
+*thought*
+*spitball*
+OPTIONS_POSSIBILITIES_THOUGHTS.md
+FEATURE_IDEAS_BACKLOG.md
+HYPES_ALL_FEATURES_SPREADSHEET.*
+*_INTERNAL.md
+*.internal.md
+*.snb
+HypeS_Crypt_Key
+licenses.db
+hypermem_vault/
 
 # OS & Environment
 .DS_Store
@@ -79,3 +129,8 @@ Thumbs.db
 .env
 venv/
 env/
+node_modules/
+**/node_modules/
+package-lock.json
+npm-debug.log*
+
